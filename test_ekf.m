@@ -56,7 +56,8 @@ if isfield(out, 'GT_rotation')
 end
 
 % 4. Plot the 2D Trajectory (start at origin)
-figure;
+figure(1);
+subplot(1,2,1);
 plot(GT_xy(:, 1), GT_xy(:, 2), 'k-', 'LineWidth', 2); hold on;
 plot(X_xy(:, 1), X_xy(:, 2), 'b--', 'LineWidth', 1.5);
 legend('Ground Truth (PhaseSpace)', 'EKF Estimate');
@@ -64,3 +65,11 @@ xlabel('X Position (m)');
 ylabel('Y Position (m)');
 title('Robot Trajectory: Estimate vs Ground Truth (Task 1)');
 grid on; axis equal;
+
+% subplot(1,2,2);
+% plot(, 'b--', 'LineWidth', 1.5);
+% legend('Ground Truth (PhaseSpace)', 'EKF Estimate');
+% xlabel('X Position (m)');
+% ylabel('Y Position (m)');
+% title('Robot Trajectory: Estimate vs Ground Truth (Task 1)');
+% grid on; axis equal;
