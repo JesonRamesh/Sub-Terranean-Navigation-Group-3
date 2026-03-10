@@ -1,5 +1,5 @@
 %% straight line file
-load('calib2_straight.mat')
+load('Training Data/calib2_straight.mat')
 
 % Gyroscope
 gyro   = squeeze(out.Sensor_GYRO.signals.values);
@@ -61,7 +61,7 @@ tof3_var  = var(tof3_stat);
 tof3_std  = std(tof3_stat);
 
 %% rotate file
-load('calib1_rotate.mat')
+load('Training Data/calib1_rotate.mat')
 
 % Magnetometer
 mag    = squeeze(out.Sensor_MAG.signals.values);
