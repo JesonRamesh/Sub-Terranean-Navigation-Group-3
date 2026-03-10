@@ -1,25 +1,119 @@
-accel = squeeze(out.Sensor_ACCEL.signals.values);
-time_a = out.Sensor_ACCEL.time;
+%% Accelerometer axis and noise analysis using Calibration data 1 (straight + stationary)
+% This script is for offline analysis only and is NOT called from myEKF.m.
+% It uses calib2_straight.mat to:
+%   - Visualise raw accelerometer axes over time
+%   - Estimate accel bias and noise during the stationary period
+%   - Compare each accel axis against ground-truth forward velocity to
+%     identify which axis best represents robot-forward acceleration.
+
+clear; clc; close all;
+
+%% Load Calibration data 1 (straight line)
+load('Training Data/calib2_straight.mat');  % provides struct 'out'
+
+accel = squeeze(out.Sensor_ACCEL.signals.values);   % 3 x N
+time_a = out.Sensor_ACCEL.time;                     % 1 x N
+
+% Ensure accel is 3 x N
+if size(accel, 1) ~= 3 && size(accel, 2) == 3
+    accel = accel';
+end
+
+%% Plot raw accelerometer axes over time
+figure;
+plot(time_a, accel(1, :), 'r'); hold on;
+plot(time_a, accel(2, :), 'g');
+plot(time_a, accel(3, :), 'b');
+legend('Accel X', 'Accel Y', 'Accel Z');
+xlabel('Time (s)');
+ylabel('Acceleration (m/s^2)');
+title('Raw Accelerometer Axes (Calibration data 1)');
+grid on;
+
+%% Stationary period analysis (first 60 s assumed stationary)
+stat_idx_a = time_a < 60;
+
+accel_mean = mean(accel(:, stat_idx_a), 2);
+g_measured = norm(accel_mean);
+g_true = 9.80665;
+scale_factor = g_true / g_measured;
+accel_noise_var = var(accel(:, stat_idx_a), 0, 2);
+
+fprintf('=== Accelerometer stationary statistics (first 60 s) ===\n');
+fprintf('Mean accel (X,Y,Z): [%.4f  %.4f  %.4f] m/s^2\n', accel_mean);
+fprintf('Measured |g|: %.5f m/s^2, scale factor: %.5f\n', g_measured, scale_factor);
+fprintf('Noise variance (X,Y,Z): [%.4e  %.4e  %.4e] (m/s^2)^2\n', accel_noise_var);
+
+%% Compare accelerometer axes with ground-truth forward motion
+% Use GT_position to infer principal straight-line direction, then compute
+% forward velocity and correlate it with each accel axis.
+
+gt_pos = squeeze(out.GT_position.signals.values);   % 3 x M or M x 3
+gt_time = out.GT_time;                              % 1 x M or M x 1
+
+if size(gt_pos, 1) == 3
+    gt_pos = gt_pos.';
+end
+
+gt_time = gt_time(:);
+
+% Use XY plane for forward motion
+x_gt = gt_pos(:, 1);
+y_gt = gt_pos(:, 2);
+
+% Numerical differentiation to get velocity in world frame
+dt_gt = [diff(gt_time); mean(diff(gt_time))];
+vx_world = [0; diff(x_gt) ./ dt_gt(1:end-1)];
+vy_world = [0; diff(y_gt) ./ dt_gt(1:end-1)];
+
+% Dominant straight-line direction from start to end of straight segment
+dx_total = x_gt(end) - x_gt(1);
+dy_total = y_gt(end) - y_gt(1);
+dir_world = [dx_total; dy_total];
+dir_world = dir_world / norm(dir_world + 1e-9);
+
+v_forward_world = vx_world * dir_world(1) + vy_world * dir_world(2);
+
+% Interpolate forward velocity to accelerometer timestamps
+v_forward_interp = interp1(gt_time, v_forward_world, time_a, 'linear', 'extrap');
+
+% Remove mean from both accel and velocity for correlation
+accel_demean = accel - mean(accel, 2);
+v_forward_demean = v_forward_interp - mean(v_forward_interp);
+
+corr_x = corr(accel_demean(1, :)', v_forward_demean');
+corr_y = corr(accel_demean(2, :)', v_forward_demean');
+corr_z = corr(accel_demean(3, :)', v_forward_demean');
+
+fprintf('Correlation of accel axes with forward velocity:\n');
+fprintf('  Corr(accel X, v_forward) = %.4f\n', corr_x);
+fprintf('  Corr(accel Y, v_forward) = %.4f\n', corr_y);
+fprintf('  Corr(accel Z, v_forward) = %.4f\n', corr_z);
 
 figure;
-plot(time, accel(1,:), 'r'); hold on;
-plot(time, accel(2,:), 'g');
-plot(time, accel(3,:), 'b');
-legend('X', 'Y', 'Z');
-xlabel('Time (s)');
-ylabel('Acceleration');
-title('Accelorometer - ISM330DHCX');
-%%
-stat_idx_a = time_a < 60;
-accel_mean = mean(accel(:, stat_idx_a), 2)
-g_measured = norm(accel_mean)
-g_true = 9.80665
-scale_factor = g_true / g_measured
-accel_noise_var = var(accel(:, stat_idx_a), 0, 2)
+subplot(4,1,1);
+plot(time_a, v_forward_interp, 'k');
+ylabel('v_{forward} (m/s)');
+title('Ground-truth forward velocity and accelerometer axes');
+grid on;
 
-%% Calibration parameters
-calib.gyro.bias     = gyro_bias;
-calib.gyro.var      = gyro_noise_var;
-calib.accel.mean    = accel_mean;
-calib.accel.scale   = scale_factor;
-calib.accel.var     = accel_noise_var;
+subplot(4,1,2);
+plot(time_a, accel_demean(1, :), 'r');
+ylabel('Accel X (demeaned)');
+grid on;
+
+subplot(4,1,3);
+plot(time_a, accel_demean(2, :), 'g');
+ylabel('Accel Y (demeaned)');
+grid on;
+
+subplot(4,1,4);
+plot(time_a, accel_demean(3, :), 'b');
+ylabel('Accel Z (demeaned)');
+xlabel('Time (s)');
+grid on;
+
+fprintf('\nInterpretation tip:\n');
+fprintf('- The axis with the largest |corr| and visually aligned pulses with v_{forward}\n');
+fprintf('  is your best candidate for the robot-forward acceleration axis.\n');
+fprintf('- Use the sign of corr and the plots to decide whether that axis needs a sign flip.\n');

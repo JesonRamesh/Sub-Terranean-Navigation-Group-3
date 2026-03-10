@@ -25,11 +25,29 @@ function [X_Est, P_Est, GT] = myEKF(out)
     arena_bounds = struct('x_max', 2.0, 'x_min', -2.0, 'y_max', 2.0, 'y_min', -2.0);
     alpha_tof = [0, pi/2, -pi/2];   % Forward, Left, Right mount angles
 
+    % Offline bias placeholders (fill these from calibration.m / gyro.m / accelorometer.m)
+    % Units:
+    %   OFFLINE_GYRO_BIAS  : rad/s  [bx, by, bz]
+    %   OFFLINE_ACCEL_BIAS : m/s^2  [ax, ay, az]
+    OFFLINE_GYRO_BIAS  = [0, 0, 0];
+    OFFLINE_ACCEL_BIAS = [0, 0, 0];
+    USE_OFFLINE_BIAS   = any(OFFLINE_GYRO_BIAS ~= 0) || any(OFFLINE_ACCEL_BIAS ~= 0);
+
     % Noise parameters
-    Q = diag([0.001, 0.001, 0.01, 0.5, 0.5]);
-    R_mag = 0.1;
-    R_tof = 0.05;
+    % Q corresponds to process noise on [x, y, theta, v_x, v_y].
+    % Recommended mapping:
+    %   - Use accel noise variances from Calibration data 1 for v_x, v_y entries.
+    %   - Use gyro noise variance for theta entry.
+    Q = diag([0.001, 0.001, 0.01, 0.5, 0.5]);   % TODO: tune using calib.accel.var and calib.gyro.var
+    R_mag = 0.1;                                % TODO: tune using yaw variance from magnetometer calibration
+    R_tof = 0.05;                               % TODO: tune using calib.tof.var
     gamma_thresh = 9.0;  % Mahalanobis gate (3 sigma)
+
+    % Measurement update toggles (for debugging / predict-only runs)
+    ENABLE_MAG_UPDATE  = true;
+    ENABLE_TOF1_UPDATE = true;
+    ENABLE_TOF2_UPDATE = true;
+    ENABLE_TOF3_UPDATE = true;
 
     % Magnetometer calibration constants (from offline calibration data)
     MAG_HARD_IRON = [5.7e-06, -3.7e-05];
@@ -114,13 +132,24 @@ function [X_Est, P_Est, GT] = myEKF(out)
         % Initial covariance matrix P
         P = diag([0.1, 0.1, 0.5, 1.0, 1.0]);
 
-        % Calibration buffers (biases estimated over first CALIB_SAMPLES steps)
-        gyro_bias = zeros(1, 3);
-        accel_bias = zeros(1, 3);
-        calib_gyro_buf = zeros(CALIB_SAMPLES, 3);
-        calib_accel_buf = zeros(CALIB_SAMPLES, 3);
-        calib_count = 0;
-        calib_done = false;
+        % Bias initialisation:
+        % - In offline mode, prefer fixed offline biases if provided.
+        % - Otherwise fall back to online calibration over first CALIB_SAMPLES IMU samples.
+        if offline_mode && USE_OFFLINE_BIAS
+            gyro_bias = OFFLINE_GYRO_BIAS;
+            accel_bias = OFFLINE_ACCEL_BIAS;
+            calib_gyro_buf = zeros(CALIB_SAMPLES, 3);
+            calib_accel_buf = zeros(CALIB_SAMPLES, 3);
+            calib_count = CALIB_SAMPLES;
+            calib_done = true;
+        else
+            gyro_bias = zeros(1, 3);
+            accel_bias = zeros(1, 3);
+            calib_gyro_buf = zeros(CALIB_SAMPLES, 3);
+            calib_accel_buf = zeros(CALIB_SAMPLES, 3);
+            calib_count = 0;
+            calib_done = false;
+        end
 
         prev_time = imu_time(1);
         is_initialised = true;
@@ -223,49 +252,61 @@ function [X_Est, P_Est, GT] = myEKF(out)
 
         % Update Step
         % Magnetometer Update
-        while mag_idx <= length(mag_time) && current_time >= mag_time(mag_idx)
-            mag_x_cal = (mag_data(mag_idx, 1) - mag_hard_iron(1)) * mag_soft_iron(1);
-            mag_y_cal = (mag_data(mag_idx, 2) - mag_hard_iron(2)) * mag_soft_iron(2);
+        if ENABLE_MAG_UPDATE
+            while mag_idx <= length(mag_time) && current_time >= mag_time(mag_idx)
+                mag_x_cal = (mag_data(mag_idx, 1) - mag_hard_iron(1)) * mag_soft_iron(1);
+                mag_y_cal = (mag_data(mag_idx, 2) - mag_hard_iron(2)) * mag_soft_iron(2);
 
-            z_mag = wrapToPi(atan2(mag_y_cal, mag_x_cal) + mag_global_offset);
-            H_mag = [0 0 1 0 0];
-            S_mag = H_mag * P * H_mag' + R_mag;
-            innovation = wrapToPi(z_mag - X(3));
-            K_mag = P * H_mag' / S_mag;
+                z_mag = wrapToPi(atan2(mag_y_cal, mag_x_cal) + mag_global_offset);
+                H_mag = [0 0 1 0 0];
+                S_mag = H_mag * P * H_mag' + R_mag;
+                innovation = wrapToPi(z_mag - X(3));
+                K_mag = P * H_mag' / S_mag;
 
-            X = X + K_mag * innovation;
-            X(3) = wrapToPi(X(3));
-            P = (eye(5) - K_mag * H_mag) * P;
+                X = X + K_mag * innovation;
+                X(3) = wrapToPi(X(3));
+                P = (eye(5) - K_mag * H_mag) * P;
 
-            mag_idx = mag_idx + 1;
+                mag_idx = mag_idx + 1;
+            end
         end
 
         % ToF 1 Update (Forward)
-        while tof1_idx <= length(tof1_time) && current_time >= tof1_time(tof1_idx)
-            if tof1_data(tof1_idx, 4) == 0
-                [X, P] = tof_update(X, P, tof1_data(tof1_idx, 1), arena_bounds, alpha_tof(1), R_tof, gamma_thresh);
-            end
+        if ENABLE_TOF1_UPDATE
+            while tof1_idx <= length(tof1_time) && current_time >= tof1_time(tof1_idx)
+                if tof1_data(tof1_idx, 4) == 0
+                    [X, P] = tof_update(X, P, tof1_data(tof1_idx, 1), arena_bounds, alpha_tof(1), R_tof, gamma_thresh);
+                end
 
-            tof1_idx = tof1_idx + 1;
+                tof1_idx = tof1_idx + 1;
+            end
         end
 
         % ToF 2 Update (Left)
-        while tof2_idx <= length(tof2_time) && current_time >= tof2_time(tof2_idx)
-            if tof2_data(tof2_idx, 4) == 0
-                [X, P] = tof_update(X, P, tof2_data(tof2_idx, 1), arena_bounds, alpha_tof(2), R_tof, gamma_thresh);
-            end
+        if ENABLE_TOF2_UPDATE
+            while tof2_idx <= length(tof2_time) && current_time >= tof2_time(tof2_idx)
+                if tof2_data(tof2_idx, 4) == 0
+                    [X, P] = tof_update(X, P, tof2_data(tof2_idx, 1), arena_bounds, alpha_tof(2), R_tof, gamma_thresh);
+                end
 
-            tof2_idx = tof2_idx + 1;
+                tof2_idx = tof2_idx + 1;
+            end
         end
 
         % ToF 3 Update (Right)
-        while tof3_idx <= length(tof3_time) && current_time >= tof3_time(tof3_idx)
-            if tof3_data(tof3_idx, 4) == 0
-                [X, P] = tof_update(X, P, tof3_data(tof3_idx, 1), arena_bounds, alpha_tof(3), R_tof, gamma_thresh);
-            end
+        if ENABLE_TOF3_UPDATE
+            while tof3_idx <= length(tof3_time) && current_time >= tof3_time(tof3_idx)
+                if tof3_data(tof3_idx, 4) == 0
+                    [X, P] = tof_update(X, P, tof3_data(tof3_idx, 1), arena_bounds, alpha_tof(3), R_tof, gamma_thresh);
+                end
 
-            tof3_idx = tof3_idx + 1;
+                tof3_idx = tof3_idx + 1;
+            end
         end
+
+        % Clamp position to arena bounds to prevent divergence due to bad updates
+        X(1) = max(arena_bounds.x_min, min(arena_bounds.x_max, X(1)));
+        X(2) = max(arena_bounds.y_min, min(arena_bounds.y_max, X(2)));
 
         X_Est(out_idx, :) = X';
         P_Est(:, :, out_idx) = P;
