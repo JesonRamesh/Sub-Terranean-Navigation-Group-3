@@ -25,13 +25,18 @@ function [X_Est, P_Est, GT] = myEKF(out)
     arena_bounds = struct('x_max', 2.0, 'x_min', -2.0, 'y_max', 2.0, 'y_min', -2.0);
     alpha_tof = [0, pi/2, -pi/2];   % Forward, Left, Right mount angles
 
-    % Offline bias placeholders (fill these from calibration.m / gyro.m / accelorometer.m)
-    % Units:
-    %   OFFLINE_GYRO_BIAS  : rad/s  [bx, by, bz]
-    %   OFFLINE_ACCEL_BIAS : m/s^2  [ax, ay, az]
-    OFFLINE_GYRO_BIAS  = [0, 0, 0];
-    OFFLINE_ACCEL_BIAS = [0, 0, 0];
-    USE_OFFLINE_BIAS   = any(OFFLINE_GYRO_BIAS ~= 0) || any(OFFLINE_ACCEL_BIAS ~= 0);
+    % Accelerometer axis mapping (set from accelorometer.m on calib2_straight.mat)
+    % Robot forward = sensor col IDX_FWD, lateral = sensor col IDX_LAT; signs SGN_FWD, SGN_LAT.
+    IDX_FWD = 1;   % sensor column for forward acceleration
+    IDX_LAT = 2;   % sensor column for lateral acceleration
+    SGN_FWD = 1;   % +1 or -1 so positive forward motion => positive ax
+    SGN_LAT = 1;   % +1 or -1 for lateral
+
+    % Offline biases from calibration.m on calib2_straight.mat (first 60 s stationary)
+    % Paste printed Gyro bias and Accel mean from calibration.m summary.
+    OFFLINE_GYRO_BIAS  = [0, 0, 0];   % rad/s [X,Y,Z]
+    OFFLINE_ACCEL_BIAS = [0, 0, 0];   % m/s^2 [col1,col2,col3]; match IDX_FWD/IDX_LAT
+    USE_OFFLINE_BIAS   = true;   % use stationary-period biases from Calibration data 1
 
     % Noise parameters
     % Q corresponds to process noise on [x, y, theta, v_x, v_y].
@@ -43,15 +48,17 @@ function [X_Est, P_Est, GT] = myEKF(out)
     R_tof = 0.05;                               % TODO: tune using calib.tof.var
     gamma_thresh = 9.0;  % Mahalanobis gate (3 sigma)
 
-    % Measurement update toggles (for debugging / predict-only runs)
+    % Measurement update toggles. For predict-only verification: set all to false, run test_ekf.m;
+    % trajectory should drift but not explode. Then set all back to true for full fusion.
     ENABLE_MAG_UPDATE  = true;
     ENABLE_TOF1_UPDATE = true;
     ENABLE_TOF2_UPDATE = true;
     ENABLE_TOF3_UPDATE = true;
 
-    % Magnetometer calibration constants (from offline calibration data)
-    MAG_HARD_IRON = [5.7e-06, -3.7e-05];
-    MAG_SOFT_IRON = [3.7500, 0.5769];
+    % Magnetometer: use columns 2 and 3 (same as calibration.m). Paste from calibration summary.
+    MAG_COL_YAW = [2, 3];   % sensor columns for yaw (calibration.m uses mag(2,:), mag(3,:))
+    MAG_HARD_IRON = [5.7e-06, -3.7e-05];   % [hard_iron_y, hard_iron_z] for cols 2,3
+    MAG_SOFT_IRON = [3.7500, 0.5769];      % [soft_iron_y, soft_iron_z]
 
     %% Data Extraction
     imu_time = out.Sensor_GYRO.time;
@@ -105,9 +112,9 @@ function [X_Est, P_Est, GT] = myEKF(out)
         x0 = gt_pos(1, 1);
         y0 = gt_pos(1, 2);
 
-        % Initial yaw from first magnetometer reading
-        mag_x0 = (mag_data(1, 1) - mag_hard_iron(1)) * mag_soft_iron(1);
-        mag_y0 = (mag_data(1, 2) - mag_hard_iron(2)) * mag_soft_iron(2);
+        % Initial yaw from first magnetometer reading (columns 2 and 3, aligned with calibration.m)
+        mag_x0 = (mag_data(1, MAG_COL_YAW(1)) - mag_hard_iron(1)) * mag_soft_iron(1);
+        mag_y0 = (mag_data(1, MAG_COL_YAW(2)) - mag_hard_iron(2)) * mag_soft_iron(2);
         theta0 = atan2(mag_y0, mag_x0);
 
         % Compute mag to arena alignment offset using first 10 GT points
@@ -224,10 +231,10 @@ function [X_Est, P_Est, GT] = myEKF(out)
             continue
         end
 
-        % Calibrate IMU inputs
+        % Calibrate IMU inputs (axis mapping from accelorometer.m)
         omega = gyro_data(k, 3) - gyro_bias(3);
-        ax = accel_data(k, 1) - accel_bias(1);
-        ay = accel_data(k, 2) - accel_bias(2);
+        ax = SGN_FWD * (accel_data(k, IDX_FWD) - accel_bias(IDX_FWD));
+        ay = SGN_LAT * (accel_data(k, IDX_LAT) - accel_bias(IDX_LAT));
 
         % Predict Step
         X_pred = zeros(5, 1);
@@ -254,8 +261,8 @@ function [X_Est, P_Est, GT] = myEKF(out)
         % Magnetometer Update
         if ENABLE_MAG_UPDATE
             while mag_idx <= length(mag_time) && current_time >= mag_time(mag_idx)
-                mag_x_cal = (mag_data(mag_idx, 1) - mag_hard_iron(1)) * mag_soft_iron(1);
-                mag_y_cal = (mag_data(mag_idx, 2) - mag_hard_iron(2)) * mag_soft_iron(2);
+                mag_x_cal = (mag_data(mag_idx, MAG_COL_YAW(1)) - mag_hard_iron(1)) * mag_soft_iron(1);
+                mag_y_cal = (mag_data(mag_idx, MAG_COL_YAW(2)) - mag_hard_iron(2)) * mag_soft_iron(2);
 
                 z_mag = wrapToPi(atan2(mag_y_cal, mag_x_cal) + mag_global_offset);
                 H_mag = [0 0 1 0 0];

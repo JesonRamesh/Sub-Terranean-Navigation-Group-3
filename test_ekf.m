@@ -1,9 +1,12 @@
 % test_ekf.m
 % Offline evaluation script for Training data 1 (Task 1).
-% For different tuning phases:
-%   - Predict-only:   set ENABLE_MAG_UPDATE = false and ENABLE_TOF*_UPDATE = false in myEKF.m
+% Before running: run calibration.m and paste Gyro bias, Accel mean, Mag constants into myEKF.m.
+% For axis mapping run accelorometer.m and set IDX_FWD, IDX_LAT, SGN_FWD, SGN_LAT in myEKF.m.
+% Tuning phases:
+%   - Predict-only:   set ENABLE_MAG_UPDATE = false and all ENABLE_TOF*_UPDATE = false in myEKF.m;
+%     trajectory should drift but not explode (if it explodes, recheck axes and biases).
 %   - Mag only:       ENABLE_MAG_UPDATE = true, all ENABLE_TOF*_UPDATE = false
-%   - Full fusion:    ENABLE_MAG_UPDATE = true, all ENABLE_TOF*_UPDATE = true
+%   - Full fusion:    all ENABLE_* = true
 
 clear; clc; close all;
 
@@ -13,11 +16,16 @@ load('Training Data/task1_1 1.mat'); % Change this to test different runs of Tas
 % 2. Run your filter
 [X_Est, P_Est, GT] = myEKF(out);
 
-% 3. Calculate RMSE for X and Y position
+% 3. Calculate RMSE for X and Y position (relative to start origin)
+% Shift both GT and estimate so that the first GT point is at (0,0).
+origin_xy = GT(1, 1:2);
+GT_xy = GT(:, 1:2) - origin_xy;
+X_xy = X_Est(:, 1:2) - origin_xy;
+
 % Ensure GT and X_Est are the same length for the calculation
-n_samples = min(size(GT, 1), size(X_Est, 1));
-err_x = X_Est(1:n_samples, 1) - GT(1:n_samples, 1);
-err_y = X_Est(1:n_samples, 2) - GT(1:n_samples, 2);
+n_samples = min(size(GT_xy, 1), size(X_xy, 1));
+err_x = X_xy(1:n_samples, 1) - GT_xy(1:n_samples, 1);
+err_y = X_xy(1:n_samples, 2) - GT_xy(1:n_samples, 2);
 
 rmse_x = sqrt(mean(err_x.^2));
 rmse_y = sqrt(mean(err_y.^2));
@@ -47,10 +55,10 @@ if isfield(out, 'GT_rotation')
     fprintf('RMSE Yaw: %.4f rad\n', rmse_yaw);
 end
 
-% 4. Plot the 2D Trajectory
+% 4. Plot the 2D Trajectory (start at origin)
 figure;
-plot(GT(:, 1), GT(:, 2), 'k-', 'LineWidth', 2); hold on;
-plot(X_Est(:, 1), X_Est(:, 2), 'b--', 'LineWidth', 1.5);
+plot(GT_xy(:, 1), GT_xy(:, 2), 'k-', 'LineWidth', 2); hold on;
+plot(X_xy(:, 1), X_xy(:, 2), 'b--', 'LineWidth', 1.5);
 legend('Ground Truth (PhaseSpace)', 'EKF Estimate');
 xlabel('X Position (m)');
 ylabel('Y Position (m)');

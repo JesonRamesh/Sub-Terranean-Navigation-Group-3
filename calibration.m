@@ -99,9 +99,11 @@ calib.mag.soft_iron_z  = soft_iron_z;
 calib.tof.mean         = [tof1_mean; tof2_mean; tof3_mean];
 calib.tof.var          = [tof1_var;  tof2_var;  tof3_var];
 
-%% 
+%%
 fprintf('=== Calibration Summary ===\n')
 fprintf('Gyro bias:      X=%.5f  Y=%.5f  Z=%.5f rad/s\n', calib.gyro.bias)
+fprintf('Accel mean:     X=%.5f  Y=%.5f  Z=%.5f m/s^2 (paste into myEKF OFFLINE_ACCEL_BIAS)\n', calib.accel.mean)
 fprintf('Accel scale:    %.4f\n', calib.accel.scale)
 fprintf('Mag hard iron:  Y=%.3e  Z=%.3e T\n', calib.mag.hard_iron_y, calib.mag.hard_iron_z)
+fprintf('Mag soft iron:  Y=%.4f  Z=%.4f (paste into myEKF MAG_SOFT_IRON)\n', calib.mag.soft_iron_y, calib.mag.soft_iron_z)
 fprintf('ToF std:        %.4f  %.4f  %.4f m\n', sqrt(calib.tof.var))
