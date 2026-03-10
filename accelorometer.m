@@ -1,0 +1,25 @@
+accel = squeeze(out.Sensor_ACCEL.signals.values);
+time_a = out.Sensor_ACCEL.time;
+
+figure;
+plot(time, accel(1,:), 'r'); hold on;
+plot(time, accel(2,:), 'g');
+plot(time, accel(3,:), 'b');
+legend('X', 'Y', 'Z');
+xlabel('Time (s)');
+ylabel('Acceleration');
+title('Accelorometer - ISM330DHCX');
+%%
+stat_idx_a = time_a < 60;
+accel_mean = mean(accel(:, stat_idx_a), 2)
+g_measured = norm(accel_mean)
+g_true = 9.80665
+scale_factor = g_true / g_measured
+accel_noise_var = var(accel(:, stat_idx_a), 0, 2)
+
+%% Calibration parameters
+calib.gyro.bias     = gyro_bias;
+calib.gyro.var      = gyro_noise_var;
+calib.accel.mean    = accel_mean;
+calib.accel.scale   = scale_factor;
+calib.accel.var     = accel_noise_var;
