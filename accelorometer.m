@@ -1,18 +1,12 @@
 %% Accelerometer axis and noise analysis using Calibration data 1 (straight + stationary)
-% This script is for offline analysis only and is NOT called from myEKF.m.
-% It uses calib2_straight.mat to:
-%   - Visualise raw accelerometer axes over time
-%   - Estimate accel bias and noise during the stationary period
-%   - Compare each accel axis against ground-truth forward velocity to
-%     identify which axis best represents robot-forward acceleration.
-
 clear; clc; close all;
 
 %% Load Calibration data 1 (straight line)
 load('Training Data/calib2_straight.mat');  % provides struct 'out'
 
-accel = squeeze(out.Sensor_ACCEL.signals.values);   % 3 x N
-time_a = out.Sensor_ACCEL.time;                     % 1 x N
+accel = squeeze(out.Sensor_ACCEL.signals.values);   
+time_a = out.Sensor_ACCEL.time;                     
+time_a = time_a(:); % Force into a column vector
 
 % Ensure accel is 3 x N
 if size(accel, 1) ~= 3 && size(accel, 2) == 3
@@ -45,11 +39,8 @@ fprintf('Measured |g|: %.5f m/s^2, scale factor: %.5f\n', g_measured, scale_fact
 fprintf('Noise variance (X,Y,Z): [%.4e  %.4e  %.4e] (m/s^2)^2\n', accel_noise_var);
 
 %% Compare accelerometer axes with ground-truth forward motion
-% Use GT_position to infer principal straight-line direction, then compute
-% forward velocity and correlate it with each accel axis.
-
-gt_pos = squeeze(out.GT_position.signals.values);   % 3 x M or M x 3
-gt_time = out.GT_time;                              % 1 x M or M x 1
+gt_pos = squeeze(out.GT_position.signals.values);   
+gt_time = out.GT_time.signals.values;                              
 
 if size(gt_pos, 1) == 3
     gt_pos = gt_pos.';
@@ -62,7 +53,10 @@ x_gt = gt_pos(:, 1);
 y_gt = gt_pos(:, 2);
 
 % Numerical differentiation to get velocity in world frame
-dt_gt = [diff(gt_time); mean(diff(gt_time))];
+dt_gt = diff(gt_time);
+dt_gt(dt_gt <= 0) = 0.005; % CRITICAL: Prevent division by zero from duplicate timestamps
+dt_gt = [dt_gt; mean(dt_gt)];
+
 vx_world = [0; diff(x_gt) ./ dt_gt(1:end-1)];
 vy_world = [0; diff(y_gt) ./ dt_gt(1:end-1)];
 
@@ -75,15 +69,24 @@ dir_world = dir_world / norm(dir_world + 1e-9);
 v_forward_world = vx_world * dir_world(1) + vy_world * dir_world(2);
 
 % Interpolate forward velocity to accelerometer timestamps
-v_forward_interp = interp1(gt_time, v_forward_world, time_a, 'linear', 'extrap');
+[gt_time_unique, unique_idx] = unique(gt_time);
+v_forward_unique = v_forward_world(unique_idx);
+
+v_forward_interp = interp1(gt_time_unique, v_forward_unique, time_a, 'linear', 'extrap');
 
 % Remove mean from both accel and velocity for correlation
 accel_demean = accel - mean(accel, 2);
 v_forward_demean = v_forward_interp - mean(v_forward_interp);
 
-corr_x = corr(accel_demean(1, :)', v_forward_demean');
-corr_y = corr(accel_demean(2, :)', v_forward_demean');
-corr_z = corr(accel_demean(3, :)', v_forward_demean');
+% CRITICAL FIX: Force everything into 1D column vectors for the corr() function
+vf_col = v_forward_demean(:);
+ax_col = accel_demean(1, :)';
+ay_col = accel_demean(2, :)';
+az_col = accel_demean(3, :)';
+
+corr_x = corr(ax_col, vf_col);
+corr_y = corr(ay_col, vf_col);
+corr_z = corr(az_col, vf_col);
 
 fprintf('Correlation of accel axes with forward velocity:\n');
 fprintf('  Corr(accel X, v_forward) = %.4f\n', corr_x);
@@ -112,8 +115,3 @@ plot(time_a, accel_demean(3, :), 'b');
 ylabel('Accel Z (demeaned)');
 xlabel('Time (s)');
 grid on;
-
-fprintf('\nInterpretation tip:\n');
-fprintf('- The axis with the largest |corr| and visually aligned pulses with v_{forward}\n');
-fprintf('  is your best candidate for the robot-forward acceleration axis.\n');
-fprintf('- Use the sign of corr and the plots to decide whether that axis needs a sign flip.\n');
