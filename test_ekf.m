@@ -10,13 +10,14 @@
 
 clear; clc; close all;
 
-% 1. Load a training dataset (Task 1 straight course)
-load('Training Data/task1_1 1.mat'); % Change this to test different runs of Task 1
+% Load training dataset
+load('Training Data/task1_1 1.mat');
+%load('Training Data/task2_1 1.mat');
 
-% 2. Run your filter
+% Run filter
 [X_Est, P_Est, GT] = myEKF(out);
 
-% 3. Calculate RMSE for X and Y position (relative to start origin)
+% Calculate RMSE for X and Y position (relative to start origin)
 % Shift both GT and estimate so that the first GT point is at (0,0).
 origin_xy = GT(1, 1:2);
 GT_xy = GT(:, 1:2) - origin_xy;
