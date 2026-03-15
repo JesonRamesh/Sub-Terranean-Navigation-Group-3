@@ -66,10 +66,10 @@ ylabel('Y Position (m)');
 title('Robot Trajectory: Estimate vs Ground Truth (Task 1)');
 grid on; axis equal;
 
-% subplot(1,2,2);
-% plot(, 'b--', 'LineWidth', 1.5);
-% legend('Ground Truth (PhaseSpace)', 'EKF Estimate');
-% xlabel('X Position (m)');
-% ylabel('Y Position (m)');
-% title('Robot Trajectory: Estimate vs Ground Truth (Task 1)');
-% grid on; axis equal;
+subplot(1,2,2);
+plot(X_Est, 'b--', 'LineWidth', 1.5);
+legend('Ground Truth (PhaseSpace)', 'EKF Estimate');
+xlabel('X Position (m)');
+ylabel('Y Position (m)');
+title('Robot Trajectory: Estimate vs Ground Truth (Task 1)');
+grid on; axis equal;
