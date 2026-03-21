@@ -8,7 +8,7 @@ load('Training Data/task1_1 1.mat');
 
 %% 2. Run Filter
 % Calls your EKF function
-[X_Est, P_Est] = EKF3(out);
+[X_Est, P_Est] = myEKF(out);
 
 %% 3. Position Performance (RMSE)
 % Shift both GT and estimate so that the first GT point is at (0,0) for plotting
@@ -45,7 +45,7 @@ rmse_yaw = sqrt(mean(yaw_err.^2));
 
 fprintf('RMSE Yaw: %.4f rad\n', rmse_yaw);
 
-%% 5. Visualization
+%% 5. Visualisation
 
 % --- Figure 1: 2D Trajectory ---
 figure('Name', 'Trajectory Analysis', 'NumberTitle', 'off');
@@ -76,8 +76,3 @@ ylabel('X Error (m)'); title('Position Error Components'); grid on;
 subplot(2,1,2);
 plot(t_imu(1:n_samples), err_y, 'g');
 ylabel('Y Error (m)'); xlabel('Time (s)'); grid on;
-
-%% Helper Functions
-function angle_wrapped = wrapToPi(angle)
-    angle_wrapped = mod(angle + pi, 2*pi) - pi;
-end
