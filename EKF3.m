@@ -1,4 +1,4 @@
-function [X_Est, P_Est, GT] = EKF2(out)
+function [X_Est, P_Est] = EKF3(out)
     %% 1. Data Extraction & Ground Truth Initialization [cite: 51, 52]
     imu_time = out.Sensor_GYRO.time;
     gyro_data = squeeze(out.Sensor_GYRO.signals.values)';
@@ -18,7 +18,6 @@ function [X_Est, P_Est, GT] = EKF2(out)
     
     gt_pos = squeeze(out.GT_position.signals.values);
     if size(gt_pos, 1) == 3, gt_pos = gt_pos'; end
-    GT = gt_pos;
 
     %% 2. Online Calibration (First 0.5s)
     static_idx = imu_time < (imu_time(1) + 0.5);
@@ -85,7 +84,7 @@ function [X_Est, P_Est, GT] = EKF2(out)
 
         X(1) = X(1) + (X(4)*cos(X(3)) - X(5)*sin(X(3)))*dt;
         X(2) = X(2) + (X(4)*sin(X(3)) + X(5)*cos(X(3)))*dt;
-        X(3) = wrapToPi(X(3) + omega*dt);
+        X(3) = -wrapToPi(X(3) + omega*dt);
         X(4) = vx_new;
         X(5) = vy_new;
 
@@ -93,7 +92,7 @@ function [X_Est, P_Est, GT] = EKF2(out)
         F = eye(5);
         F(1,3) = (-X(4)*sin(X(3)) - X(5)*cos(X(3)))*dt;
         F(1,4) = cos(X(3))*dt; F(1,5) = -sin(X(3))*dt;
-        F(2,3) = (X(4)*cos(X(3)) - X(5)*sin(X(3)))*dt;
+        F(2,3) = -(X(4)*cos(X(3)) - X(5)*sin(X(3)))*dt;
         F(2,4) = sin(X(3))*dt; F(2,5) = cos(X(3))*dt;
         F(4,4) = vel_decay;
         F(5,5) = vel_decay;
