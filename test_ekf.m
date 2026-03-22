@@ -4,7 +4,7 @@ clear; clc; close all;
 
 %% 1. Load Data
 % Ensure the file path matches your local directory structure
-load('Training Data/task1_1 1.mat'); 
+load('Training Data/task2_1 1.mat'); 
 
 %% 2. Run Filter
 % Calls your EKF function
@@ -31,7 +31,7 @@ fprintf('RMSE Y: %.4f m\n', rmse_y);
 fprintf('Total RMSE (XY): %.4f m\n', total_rmse);
 
 %% 4. Heading (Yaw) Diagnostic 
-% Convert Ground Truth Quaternions to Yaw [cite: 50, 52]
+% Convert Ground Truth Quaternions to Yaw
 quat = squeeze(out.GT_rotation.signals.values); 
 if size(quat, 1) == 4, quat = quat.'; end
 
