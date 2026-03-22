@@ -1,5 +1,5 @@
 %% straight line file
-load('calib1_rotate.mat') % Make sure path is correct
+load('Training Data/calib2_straight.mat') % Make sure path is correct
 
 % Define a strictly STATIONARY time window (e.g., first 2 seconds)
 % Adjust this based on looking at a plot of your ToF or Accel data!
@@ -53,7 +53,7 @@ tof2_var  = var(tof2_stat);
 tof3_var  = var(tof3_stat);
 
 %% rotate file
-load('calib1_rotate.mat') % Make sure path is correct
+load('Training Data/calib1_rotate.mat') % Make sure path is correct
 % Magnetometer (Your code here was perfect!)
 mag    = squeeze(out.Sensor_MAG.signals.values);
 time_m = out.Sensor_MAG.time;

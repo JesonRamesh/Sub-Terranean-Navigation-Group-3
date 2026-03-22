@@ -8,7 +8,7 @@ load('Training Data/task2_1 1.mat');
 
 %% 2. Run Filter
 % Calls your EKF function
-[X_Est, P_Est, GT] = EKF3(out);
+[X_Est, P_Est, GT] = EKF4(out);
 
 %% 3. Position Performance (RMSE)
 % Shift both GT and estimate so that the first GT point is at (0,0) for plotting

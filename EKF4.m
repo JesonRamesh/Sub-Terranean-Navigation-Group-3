@@ -25,7 +25,6 @@ function [X_Est, P_Est, GT] = EKF2(out)
     gyro_bias = mean(gyro_data(static_idx, :), 1);
     accel_static = mean(accel_data(static_idx, :), 1); %#ok<NASGU>
     
-    % Magnetometer calibration from calib1_rotate dataset
     mag_hard = [-3.705e-05, 4.415e-05]; 
     mag_soft = [1.0958, 0.9196];
 
@@ -39,27 +38,16 @@ function [X_Est, P_Est, GT] = EKF2(out)
     X = [gt_pos(1,1); gt_pos(1,2); theta0; 0; 0];
     P = diag([0.01, 0.01, 0.01, 0.1, 0.1]);
 
-    Q = diag([1e-4, 1e-4, 1e-7, 0.5, 0.5]);
-
-    % R_tof: tighter than before — we trust ToF more to anchor position.
-    % The systematic drift right/down suggests velocity is carrying the
-    % estimate away between ToF corrections; tighter R_tof = stronger pull back.
-    R_tof = 0.003;   % (0.03m)^2 — tighter than original 0.005
-
-    R_mag = 0.5;      % unchanged
-
-    % Gate: chi2(0.99,1) + absolute cap
+    Q = diag([1e-4, 1e-4, 1e-7, 0.2, 0.2]);
+    R_tof = 0.0001;   % restored to best-known value
+    R_mag = 0.3;
     gate_threshold = 6.63;
-    gate_abs = 0.45;   % slightly tighter than before to be more aggressive about outliers
+    gate_abs = 0.5;
+    vel_decay = 0.981;  % restored to best-known value
 
-    % Velocity decay — faster decay (tau~0.3s) so residual velocity
-    % from the previous motion segment doesn't carry the estimate too far
-    % before the next ToF correction arrives.
-    vel_decay = 0.975; % exp(-0.01/0.3) at ~100Hz
-
-    % Arena bounds
+    % RESTORED: correct rectangular arena bounds
     bounds = struct('x_max', 1.22, 'x_min', -1.22, 'y_max', 1.22, 'y_min', -1.22);
-    alpha_tofs = [0, -pi/2, pi/2]; % forward, left, right
+    alpha_tofs = [0, -pi/2, pi/2];
 
     num_steps = length(imu_time);
     X_Est = zeros(num_steps, 5);
@@ -76,10 +64,8 @@ function [X_Est, P_Est, GT] = EKF2(out)
         prev_time = imu_time(k);
 
         % --- PREDICTION ---
-        omega = 1.18*(gyro_data(k, 1) - gyro_bias(1));
+        omega = 1.20*(gyro_data(k, 1) - gyro_bias(1));
 
-        % Velocity decays toward zero; ToF updates inject corrections.
-        % No accel integration — avoids double-integration drift.
         vx_new = vel_decay * X(4);
         vy_new = vel_decay * X(5);
 
@@ -89,7 +75,6 @@ function [X_Est, P_Est, GT] = EKF2(out)
         X(4) = vx_new;
         X(5) = vy_new;
 
-        % Jacobian F
         F = eye(5);
         F(1,3) = (-X(4)*sin(X(3)) - X(5)*cos(X(3)))*dt;
         F(1,4) = cos(X(3))*dt; F(1,5) = -sin(X(3))*dt;
@@ -100,7 +85,15 @@ function [X_Est, P_Est, GT] = EKF2(out)
         
         P = F * P * F' + Q;
 
-        % --- UPDATE: Magnetometer --- unchanged
+        % --- DIAGNOSTIC: print P diagonal at step 500 ---
+        if k == 500
+            fprintf('[Diag k=500] P diag: x=%.2e  y=%.2e  th=%.2e  vx=%.2e  vy=%.2e\n', ...
+                P(1,1), P(2,2), P(3,3), P(4,4), P(5,5));
+            fprintf('[Diag k=500] K_tof(x) approx (using ToF1 H=[1,0,0,0,0]): %.4f\n', ...
+                P(1,1) / (P(1,1) + R_tof));
+        end
+
+        % --- UPDATE: Magnetometer ---
         if mag_idx <= length(mag_time) && imu_time(k) >= mag_time(mag_idx)
             my = (mag_data(mag_idx, 2) - mag_hard(1)) * mag_soft(1);
             mz = (mag_data(mag_idx, 3) - mag_hard(2)) * mag_soft(2);
@@ -143,16 +136,16 @@ function [X_Est, P_Est, GT] = EKF2(out)
     end
 end
 
-%% Helper Functions — unchanged from original
+%% Helper Functions
 function [h, H] = ray_cast(X, b, alpha)
     phi = wrapToPi(X(3) + alpha);
     cp = cos(phi); sp = sin(phi);
     
     d = [inf, inf, inf, inf];
-    if cp > 1e-6,  d(1) = (b.x_max - X(1))/cp; end % Right Wall
-    if cp < -1e-6, d(2) = (b.x_min - X(1))/cp; end % Left Wall
-    if sp > 1e-6,  d(3) = (b.y_max - X(2))/sp; end % Top Wall
-    if sp < -1e-6, d(4) = (b.y_min - X(2))/sp; end % Bottom Wall
+    if cp > 1e-6,  d(1) = (b.x_max - X(1))/cp; end
+    if cp < -1e-6, d(2) = (b.x_min - X(1))/cp; end
+    if sp > 1e-6,  d(3) = (b.y_max - X(2))/sp; end
+    if sp < -1e-6, d(4) = (b.y_min - X(2))/sp; end
     
     [h, idx] = min(d);
     H = zeros(1,5);
