@@ -41,9 +41,9 @@ function [X_Est, P_Est] = myEKF(out)
     arena_bounds = struct('x_max', 1.22, 'x_min', -1.22, 'y_max', 1.22, 'y_min', -1.22); % Update B: 244cm x 244cm arena, origin at centre
 
     % ToF mounting angles relative to robot forward axis
-    alpha_tof1 = pi/2;    % Left (was incorrectly labelled Forward)
+    alpha_tof1 = -pi/2;    % Left (was incorrectly labelled Forward)
     alpha_tof2 = 0;       % Forward (was incorrectly labelled Left)
-    alpha_tof3 = -pi/2;   % Right (confirmed correct)
+    alpha_tof3 = pi/2;   % Right (confirmed correct)
 
     %% Filter Initialization
     x0 = gt_pos(1, 1);
@@ -78,7 +78,7 @@ function [X_Est, P_Est] = myEKF(out)
 
     R_mag = 100.0; % Very weak magnetometer: motor EMI corrupts mag during Task 2
                    % circuit. K_mag ≈ 0.001 so gyro dominates heading (was 0.1→1.0→100)
-    R_tof = 0.01;
+    R_tof = 0.05;
 
     % Outlier Rejection Threshold (Reduced to block 'holes in the wall')
     % gamma_threshold = 3.84;

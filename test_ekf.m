@@ -2,8 +2,8 @@
 clear; clc; close all;
 
 %% 1. Load dataset
-%load('Training Data/task1_1 1.mat');
-load('Training Data/task2_1 1.mat');
+load('Training Data/task1_1 1.mat');
+%load('Training Data/task2_1 1.mat');
 
 %% 2. Run EKF
 [X_Est, P_Est] = myEKF(out);
