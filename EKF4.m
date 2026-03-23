@@ -43,7 +43,7 @@ function [X_Est, P_Est, GT] = EKF2(out)
     R_mag = 0.5;
     gate_threshold = 6.63;
     gate_abs = 0.5;
-    vel_decay = 0.981;  % restored to best-known value
+    vel_decay = 0.981;  % restored to best-known value 0.981
 
     % RESTORED: correct rectangular arena bounds
     bounds = struct('x_max', 1.22, 'x_min', -1.22, 'y_max', 1.22, 'y_min', -1.22);
@@ -64,7 +64,7 @@ function [X_Est, P_Est, GT] = EKF2(out)
         prev_time = imu_time(k);
 
         % --- PREDICTION ---
-        omega = 1.20*(gyro_data(k, 1) - gyro_bias(1));
+        omega = 1*(gyro_data(k, 1) - gyro_bias(1));
 
         vx_new = vel_decay * X(4);
         vy_new = vel_decay * X(5);
@@ -99,7 +99,17 @@ function [X_Est, P_Est, GT] = EKF2(out)
             mz = (mag_data(mag_idx, 3) - mag_hard(2)) * mag_soft(2);
             z_mag = wrapToPi(atan2(mz, my)); 
             
-            if mag_idx == 1, mag_offset = wrapToPi(theta0 - z_mag); end
+            % Replace the single-sample offset with average of first 5 samples
+            if mag_idx == 1
+                n_avg = min(5, length(mag_time));
+                z_avg = zeros(n_avg,1);
+                for mi = 1:n_avg
+                    my_i = (mag_data(mi,2) - mag_hard(1)) * mag_soft(1);
+                    mz_i = (mag_data(mi,3) - mag_hard(2)) * mag_soft(2);
+                    z_avg(mi) = atan2(mz_i, my_i);
+                end
+                mag_offset = wrapToPi(theta0 - atan2(mean(sin(z_avg)), mean(cos(z_avg))));
+            end
             inn_mag = wrapToPi((z_mag + mag_offset) - X(3));
             
             H_mag = [0, 0, 1, 0, 0];

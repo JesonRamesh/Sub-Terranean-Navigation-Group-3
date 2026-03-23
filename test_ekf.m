@@ -80,3 +80,11 @@ ylabel('Y Error (m)'); xlabel('Time (s)'); grid on;
 function angle_wrapped = wrapToPi(angle)
     angle_wrapped = mod(angle + pi, 2*pi) - pi;
 end
+% Add this to your test script temporarily, run for task1_1 then task1_2
+quat = squeeze(out.GT_rotation.signals.values);
+if size(quat,1)==4, quat=quat.'; end
+qw=quat(:,1); qx=quat(:,2); qy=quat(:,3); qz=quat(:,4);
+yaw_gt = atan2(2*(qw.*qz+qx.*qy), 1-2*(qy.^2+qz.^2));
+figure; plot(yaw_gt); title('GT Yaw'); ylabel('rad');
+fprintf('Initial GT yaw: %.4f rad\n', yaw_gt(1));
+fprintf('GT yaw range: %.4f to %.4f rad\n', min(yaw_gt), max(yaw_gt));
