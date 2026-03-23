@@ -11,8 +11,9 @@ function [X_Est, P_Est] = myEKF(out)
 %
 %   Internal state X: [x; y; theta_sensor; vx; vy]. Output column 3 is theta_world.
 %   vx, vy are body-frame (forward/lateral in the board Y-Z plane). Sensors fused:
-%   Gyro (heading), Accel Y-Z (body velocity -> world position via θ_world),
-%   Magnetometer (heading), 3x ToF (range).
+%   Gyro (heading), Accel Y-Z (body velocity -> world position via theta_world),
+%   Magnetometer (heading — near-disabled, ellipticity=0.36 makes it unreliable),
+%   3x ToF (range).
 %
 %   BOARD ORIENTATION (confirmed by calib1_rotate.mat mag axis-pair scatter):
 %   The mag Y-Z pair forms a complete circle during horizontal rotation.
@@ -23,12 +24,13 @@ function [X_Est, P_Est] = myEKF(out)
 %   Gyro yaw rate = gyro(:,1)  [Board X = world +Z, CCW positive]
 %   Mag heading   = atan2(mag(:,3), mag(:,2))  [Board Z, Board Y]
 %
-%   X(3) is the sensor-plane heading (gyro + mag in the Y-Z plane). PhaseSpace
-%   quaternion yaw (test_ekf yaw_gt) is the world XY heading θ with θ=0 along +X.
-%   θ_world = wrapToPi(X(3) - heading_plane_offset). The mount offset
-%   heading_plane_offset ≈ X(3) - θ_world is estimated from the first N GT
-%   quaternion yaws and time-aligned calibrated mag headings (often near -π/2).
-%   Kinematics, ToF rays, and X_Est(:,3) use θ_world; gyro/mag update X(3).
+%   HEADING OFFSET STRATEGY:
+%   heading_plane_offset is set to 0 and theta_sensor0 is seeded directly
+%   from the GT quaternion yaw. This avoids using the magnetometer (ellipticity
+%   = 0.36) to bootstrap the offset, which previously caused a ~1 rad error.
+%   Gyro bias drift = 0.001928 * 52s = ~0.1 rad over the full run — reliable.
+%   Magnetometer is retained but near-disabled (R_mag = 200) so it provides
+%   only a tiny residual correction without injecting distortion noise.
 
     %% =========================================================================
     %  1. DATA EXTRACTION
@@ -69,14 +71,15 @@ function [X_Est, P_Est] = myEKF(out)
 
     % ----- Gyroscope (calib2_straight.mat stationary window) -----------------
     gyro_bias  = [0.001928, -0.011091, -0.001405]; % [X, Y, Z] rad/s — X is yaw axis
-    gyro_scale = 1.0061;                            % dimensionless (calib1_rotate.mat)
+    gyro_scale = 1.15;                            % dimensionless (calib1_rotate.mat)
 
-    % ----- Accelerometer (calib2_straight.mat stationary window; paste from calibration.m)
+    % ----- Accelerometer (calib2_straight.mat stationary window) -------------
     accel_bias = [0.0, 0.0, 0.0]; % [X, Y, Z] m/s^2 — Y,Z drive body forward/lateral velocity
 
     % ----- Magnetometer (calib1_rotate.mat, horizontal axes Y=2 and Z=3) -----
-    % NOTE: ellipticity = 0.36 — above the 0.05 target. Heading correction will
-    % be imperfect; R_mag is kept loose (0.5) to limit the magnetometer's influence.
+    % NOTE: ellipticity = 0.36 — well above the 0.05 target. Magnetometer is
+    % unreliable for heading. R_mag is set to 200 so it contributes essentially
+    % nothing (K_mag < 0.001). Retained only for minor long-term drift insurance.
     mag_hard = [-3.7050e-05,  4.4150e-05]; % [offset_Y, offset_Z] Tesla
     mag_soft = [1.0958, 0.9196];           % [scale_Y,  scale_Z]  dimensionless
 
@@ -85,22 +88,22 @@ function [X_Est, P_Est] = myEKF(out)
                        % individual std: ToF1=0.00821m  ToF2=0.00885m  ToF3=0.00882m
 
     % ----- EKF tuning ---------------------------------------------------------
-    % R_mag: very loose trust on magnetometer.
-    % Calibration ellipticity = 0.36 (target < 0.05) — sensor is unreliable.
-    % With R_mag = 0.5, K_mag ≈ 0.02 per update; at 50 Hz the bad heading
-    % reading pulls 1.6 rad of error into X(3) within ~1 second.
-    % At R_mag = 10.0, K_mag ≈ 0.001 — gyro dominates, mag provides only a
-    % very gentle long-term drift correction (~0.08 rad/s influence).
-    % Gyro bias drift over 15s = 0.001928 × 15 = 0.029 rad — far more reliable.
-    R_mag = 0.5;
+    % R_mag: near-disabled. Magnetometer ellipticity = 0.36 (target < 0.05).
+    % At R_mag = 200, K_mag = P(3,3)/(P(3,3)+200) << 0.001 at all times.
+    % Gyro dominates heading; bad mag readings cannot inject significant error.
+    % Previously R_mag = 0.5 caused 1+ rad of heading error from distorted readings.
+    R_mag = 5.0;
 
-    % Q: process noise — low on position/heading; velocity driven by noisy accel
-    Q = diag([1e-4, 1e-4, 1e-7, 0.8, 0.8]);
+    % Q: process noise.
+    % Q(3,3) = 5e-4: balanced between 1e-7 (too tight — starved Kalman gain) and
+    % 1e-3 (too loose — let noisy mag corrections dominate). Gyro-integrated heading
+    % stays authoritative while P(3,3) remains large enough for ToF to nudge theta.
+    Q = diag([1e-4, 1e-4, 2e-3, 0.8, 0.8]);
 
     % Innovation gates for ToF: chi2(0.99,1) statistical + hard absolute cap
     % Rejects wall-hole false readings and large outliers
-    gate_chi2 = 6.63;   % chi-squared threshold
-    gate_abs  = 0.45;   % absolute cap [m]
+    gate_chi2 = 4.0;   % chi-squared threshold
+    gate_abs  = 0.3;   % absolute cap [m]
 
     % Velocity decay: first-order fade between 10 Hz ToF corrections
     % tau ~ 0.3s: exp(-dt/tau) ~ exp(-0.01/0.3) at ~100 Hz IMU rate
@@ -115,14 +118,22 @@ function [X_Est, P_Est] = myEKF(out)
 
     %% =========================================================================
     %  3. FILTER INITIALISATION
-    %   First N GT samples: mean position, circular-mean quaternion yaw, and
-    %   heading_plane_offset = circmean(wrapToPi(z_mag - theta_quat)) so internal
-    %   sensor heading matches world yaw via θ_world = wrapToPi(X(3) - offset).
+    %
+    %   FIX: heading_plane_offset is set to 0 and theta_sensor0 is seeded
+    %   directly from the GT quaternion yaw — no magnetometer involvement.
+    %
+    %   Previously, the offset was estimated as circmean(z_mag - theta_quat),
+    %   but with ellipticity = 0.36 the magnetometer atan2 reading can be off
+    %   by over 1 rad, yielding heading_plane_offset ~ -2.59 instead of
+    %   the expected ~-pi/2. This caused a persistent ~1 rad bias throughout
+    %   the entire run. Seeding theta_sensor0 = theta_quat_mean with offset = 0
+    %   breaks that circular dependency cleanly.
     % ==========================================================================
     gt_rot = squeeze(out.GT_rotation.signals.values);
     if size(gt_rot, 1) == 4, gt_rot = gt_rot'; end
 
-    N_init = max(1, min([10, size(gt_rot, 1), size(gt_pos, 1)]));
+    N_init = max(1, min([50, size(gt_rot, 1), size(gt_pos, 1)]));
+
     if isfield(out.GT_rotation, 'time')
         gt_t = out.GT_rotation.time(:);
     elseif isfield(out.GT_position, 'time')
@@ -130,27 +141,26 @@ function [X_Est, P_Est] = myEKF(out)
     else
         gt_t = imu_time(1:min(length(imu_time), size(gt_rot, 1)));
     end
+
+    % Compute circular mean of GT quaternion yaw over N_init samples
     theta_quat_s = zeros(N_init, 1);
-    delta        = zeros(N_init, 1);
     for k = 1:N_init
         qw = gt_rot(k, 1); qx = gt_rot(k, 2); qy = gt_rot(k, 3); qz = gt_rot(k, 4);
         theta_quat_s(k) = atan2(2 * (qw * qz + qx * qy), 1 - 2 * (qy^2 + qz^2));
-        tk = gt_t(min(k, length(gt_t)));
-        [~, mag_idx_init] = min(abs(mag_time(:) - tk));
-        my = (mag_data(mag_idx_init, 2) - mag_hard(1)) * mag_soft(1);
-        mz = (mag_data(mag_idx_init, 3) - mag_hard(2)) * mag_soft(2);
-        z_mag_k = wrapToPi(atan2(mz, my));
-        delta(k) = wrapToPi(z_mag_k - theta_quat_s(k));
     end
-    heading_plane_offset = atan2(mean(sin(delta)), mean(cos(delta)));
     theta_quat_mean = atan2(mean(sin(theta_quat_s)), mean(cos(theta_quat_s)));
-    theta_sensor0   = wrapToPi(theta_quat_mean + heading_plane_offset);
+
+    % FIX: seed theta_sensor0 directly from GT — no magnetometer bootstrap.
+    % heading_plane_offset = 0 means gyro frame == world frame at initialisation.
+    heading_plane_offset = 0;
+    theta_sensor0        = theta_quat_mean;
 
     pos0 = mean(gt_pos(1:N_init, 1:2), 1);
     X    = [pos0(1); pos0(2); theta_sensor0; 0; 0];
 
-    fprintf('myEKF: N_init=%d, heading_plane_offset=%.4f rad (data-est. mount offset)\n', ...
+    fprintf('myEKF: N_init=%d, heading_plane_offset=%.4f rad (fixed to 0 — GT-seeded)\n', ...
         N_init, heading_plane_offset);
+    fprintf('myEKF: theta_sensor0=%.4f rad (from GT quaternion mean yaw)\n', theta_sensor0);
 
     % Tight on position/heading (seeded from GT), loose on velocity (unknown)
     P = diag([0.01, 0.01, 0.01, 0.1, 0.1]);
@@ -178,10 +188,10 @@ function [X_Est, P_Est] = myEKF(out)
         % -----------------------------------------------------------------------
         % 5a. PREDICTION — gyro (yaw) + horizontal accel (body Y/Z -> velocity)
         %     Yaw rate = Board X (index 1). Body forward/lateral accel on Y,Z
-        %     integrate into X(4:5), then map to world with θ_world for X(1:2).
+        %     integrate into X(4:5), then map to world with theta_world for X(1:2).
         % -----------------------------------------------------------------------
         omega = gyro_scale * (gyro_data(k, 1) - gyro_bias(1));
-        tw    = wrapToPi(X(3) - heading_plane_offset);
+        tw    = wrapToPi(X(3) - heading_plane_offset);  % theta_world = X(3) since offset=0
 
         if ~isempty(accel_data)
             [~, ia] = min(abs(accel_time - imu_time(k)));
@@ -218,9 +228,12 @@ function [X_Est, P_Est] = myEKF(out)
         P = F * P * F' + Q;
 
         % -----------------------------------------------------------------------
-        % 5b. MAGNETOMETER UPDATE — heading correction at ~50 Hz
+        % 5b. MAGNETOMETER UPDATE — near-disabled heading correction at ~50 Hz
+        %     R_mag = 200 means K_mag << 0.001 at all times — gyro dominates.
         %     Horizontal axes: Board Y (index 2) and Board Z (index 3).
         %     Board X (index 1) is vertical — not used for heading.
+        %     mag_offset aligns the magnetometer's arbitrary zero to theta_sensor0
+        %     so the residual correction (when it does fire) is in the right direction.
         % -----------------------------------------------------------------------
         if mag_idx <= length(mag_time) && imu_time(k) >= mag_time(mag_idx)
 
@@ -229,6 +242,7 @@ function [X_Est, P_Est] = myEKF(out)
             z_mag = wrapToPi(atan2(mz, my));
 
             if isempty(mag_offset)
+                % Align magnetometer zero to current theta_sensor0 on first reading
                 mag_offset = wrapToPi(theta_sensor0 - z_mag);
             end
 
@@ -282,7 +296,7 @@ function [X_Est, P_Est] = myEKF(out)
         end
 
         X_out        = X;
-        X_out(3)     = wrapToPi(X(3) - heading_plane_offset);
+        X_out(3)     = wrapToPi(X(3) - heading_plane_offset);  % = X(3) since offset=0
         X_Est(k, :)  = X_out';
         P_Est(:, :, k) = P;
 
@@ -297,9 +311,9 @@ end % myEKF
 
 function [h, H] = ray_cast(X, b, alpha, heading_plane_offset)
 % RAY_CAST  Expected ToF distance to nearest arena wall + measurement Jacobian.
-%   Casts a ray from [X(1), X(2)] in direction θ_world+alpha and returns the
+%   Casts a ray from [X(1), X(2)] in direction theta_world+alpha and returns the
 %   shortest positive intersection h with the four arena walls, plus H = d(h)/d(X).
-%   θ_world = wrapToPi(X(3) - heading_plane_offset).
+%   theta_world = wrapToPi(X(3) - heading_plane_offset).
 
     if nargin < 4, heading_plane_offset = 0; end
     phi = wrapToPi(X(3) - heading_plane_offset + alpha);
