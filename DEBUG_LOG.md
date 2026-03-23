@@ -1376,7 +1376,7 @@ EKF_REVIEW.md implemented in one atomic commit. Previous piecemeal attempts
 ### Motivation
 
 EKF_REVIEW.md (written 2026-03-22) compared jeson-fixes against the main
-codebase (Iter 15) and identified 6 missing features accounting for 93% of
+codebase and identified 6 missing features accounting for 93% of
 the Task 2 performance gap:
 
 | Feature | Contribution to gap |
@@ -1559,3 +1559,54 @@ Fallback: 0.00186, -0.396, 0.07485
 
 Arena bounds: estimated from ToF medians in stat_range at theta0=pi/2.
 Fallback: ±1.22 hardcoded.
+
+## Simulink Integration — Current Status
+
+### Context
+Submission changed from standalone myEKF.m to Simulink model.
+Online (persistent-variable) version of myEKF implemented.
+Batch version (with RTS smoother) remains on jeson-review-improvements branch.
+
+### Current RMSE (Simulink online version, test_simulink.m wrapper)
+Task 1: D1=0.038m  D2=0.041m  D3=0.037m  avg=0.039m  TARGET MET
+Task 2: D1=0.334m  D2=0.058m  D3=0.040m  avg=0.144m  TARGET MET
+
+### Simulink Function Signature
+function [X_Est, P_Est] = myEKF(acc, gyro, mag, ToF1, ToF2, ToF3, Temp, LP_acc)
+
+### Input dimensions (confirmed from diagnostic)
+acc:   3x1   (col 3 = forward, col 2 = lateral)
+gyro:  3x1   (col 1 = yaw axis)
+mag:   3x1   (col 2, col 3 = horizontal axes)
+ToF1:  4x1   (col 1 = distance, col 4 = status)
+ToF2:  4x1   (same)
+ToF3:  4x1   (same)
+Temp:  unused placeholder
+LP_acc: unused placeholder
+
+### Output dimensions required by Simulink block
+X_Est: 1x5  [x, y, theta, vx_world, vy_world]
+P_Est: 5x5  covariance
+
+### Simulink errors encountered
+Error 1: "Inferred size [1 5] for X_Est does not match back propagated 
+          size [8] from Simulink"
+  → Simulink model expects X_Est to be 1x8 not 1x5
+  → Need to check what the model's output port expects
+  → Fix: either pad X_Est to 1x8 or check Ports and Data Manager
+
+Error 2: Cannot determine sizes/types for MATLAB Function3 outputs
+  → Downstream from Error 1
+
+### To load training data for Simulink
+load('Training Data/task2_1 1.mat');
+sensorLog = out;
+Then press Run in Simulink.
+
+### Key files
+myEKF.m — contains BOTH functions:
+  Lines 1-570:   batch version myEKF(out) — kept for reference
+  Lines 572-end: Simulink version myEKF(acc,gyro,mag,ToF1,ToF2,ToF3,Temp,LP_acc)
+
+Branch: jeson-review-improvements
+Backup: myEKF_locked_baseline.m (original locked 5-state body-frame version)

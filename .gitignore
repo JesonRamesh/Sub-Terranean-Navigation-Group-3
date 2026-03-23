@@ -1,2 +1,6 @@
 .DS_Store
 *.asv
+*.slxc
+slprj/
+_jitprj/
+_sfprj/
