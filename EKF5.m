@@ -40,7 +40,7 @@ function [X_Est, P_Est, GT] = EKF2(out)
 
     Q = diag([1e-4, 1e-4, 1e-7, 0.2, 0.2]);
     R_tof = 0.0001;   % restored to best-known value
-    R_mag = 0.5;
+    R_mag = 0.3;
     gate_threshold = 6.63;
     gate_abs = 0.5;
     vel_decay = 0.981;  % restored to best-known value
