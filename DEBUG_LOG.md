@@ -1315,3 +1315,247 @@ P_init           = diag([0.1, 0.1, 0.1, 2.0, 2.0, 0.25])
 X_Est output     = 5 states only (X(1:5)')
 P_Est output     = 5×5 only (P(1:5,1:5))
 ```
+
+---
+
+## jeson-review-improvements — Change 1: ZUPT (Zero Velocity Update)
+**Date:** 2026-03-22
+**Branch:** `jeson-review-improvements`
+**Status:** REVERTED — FAILURE
+
+### What was tried
+Added a ZUPT block after all ToF updates. Detects stationarity via variance over
+a 40-sample (0.2s) window: `var(accel[:,3]) < 0.05 AND var(gyro[:,1]) < 0.0005`.
+When triggered, applies a soft Kalman update driving vx, vy → 0 with R_zupt = 0.002.
+
+### Results
+
+| Dataset | Baseline | ZUPT | Change |
+|---------|----------|------|--------|
+| Task 1 D1 | 0.042m | 0.0414m | -0.001m ✓ |
+| Task 1 D2 | 0.029m | 0.0279m | -0.001m ✓ |
+| Task 1 D3 | 0.031m | 0.0298m | -0.001m ✓ |
+| **Task 1 avg** | **0.034m** | **0.033m** | ✓ improved |
+| Task 2 D1 | 0.881m | 0.8047m | -0.076m ✓ |
+| Task 2 D2 | 1.047m | **1.8725m** | **+0.826m ✗ CATASTROPHIC** |
+| Task 2 D3 | 0.058m | 0.0546m | -0.003m ✓ |
+| **Task 2 avg** | **0.662m** | **0.911m** | **WORSE (+37%)** |
+
+### Root cause of D2 regression
+ZUPT threshold (`var < 0.05, var < 0.0005`) triggers during slow motion segments
+of Task 2 D2's rectangular circuit, zeroing velocity while the robot is still
+moving. This causes position to freeze → accumulating error when motion resumes.
+Task 1 and T2-D1/D3 are unaffected likely because their motion profiles
+don't include the same low-speed creep that fools the detector in D2.
+
+### Decision
+REVERTED. `myEKF.m` restored from `myEKF_locked_baseline.m`.
+Baseline confirmed at line 128: `X_pred(4) = X(4) + ax * dt;`
+
+---
+
+## Change 3 — World-frame velocity redesign: FAILED
+T2 avg 0.662m → 1.254m. D3 regressed from 0.058m to 1.173m.
+Root cause: world-frame velocity integration requires accurate heading
+from magnetometer anomaly detection + ToF rate heading working together.
+Cannot implement piecemeal.
+
+---
+
+## Session 6 — Full Architectural Rewrite (Atomic)
+**Date:** 2026-03-23
+**Branch:** `jeson-review-improvements`
+**Commit:** `2eff6c0`
+**Pre-session baseline:** T1 avg = 0.034m, T2 avg = 0.662m (jeson-fixes locked)
+**Approach:** Complete rewrite of myEKF.m from scratch. All improvements from
+EKF_REVIEW.md implemented in one atomic commit. Previous piecemeal attempts
+(Changes 1–3) failed because the features are interdependent.
+
+---
+
+### Motivation
+
+EKF_REVIEW.md (written 2026-03-22) compared jeson-fixes against the main
+codebase (Iter 15) and identified 6 missing features accounting for 93% of
+the Task 2 performance gap:
+
+| Feature | Contribution to gap |
+|---------|-------------------|
+| No magnetometer anomaly detection | 50–60% |
+| No ZUPT | 15–20% |
+| No RTS smoother | 15–20% |
+| Fixed calibration | 5–10% |
+| No adaptive Q | 5% |
+| Hardcoded arena bounds | minor |
+
+The key insight from the failed piecemeal attempts: world-frame velocities
+require mag anomaly detection + ToF rate heading to be present simultaneously.
+Implementing any one feature without the others causes RMSE regression.
+
+---
+
+### Architecture Changes
+
+| Component | Old (jeson-fixes) | New (Session 6) |
+|-----------|------------------|-----------------|
+| Velocity frame | Body-frame (vx rotated to world in position update) | World-frame (vx, vy are world-frame throughout) |
+| Calibration | Hardcoded constants | Per-run: scan first 500 samples, find 100 consecutive gyro norm < 0.01 rad/s, use up to 200 samples. Fallback to hardcoded if no stationary period found |
+| Arena bounds | Hardcoded ±1.22 | Estimated from median ToF readings in stationary window using theta0=pi/2 geometry. Fallback to ±1.22 |
+| Q values | diag([1e-4,1e-4,1e-4,0.1,0.1,1e-6]) fixed | diag([1e-4,1e-4,1.1e-3,0.5,0.5,1.5e-5])*dt, adaptive: turn boost on Q(3,3), mag-off boost on Q(4:5,4:5), speed boost on Q(6,6) |
+| R_mag | 100.0 (effectively disabled) | 4.0 — anomaly detection now handles bad readings |
+| Mag update | Single Mahalanobis gate only | Multi-criterion anomaly detection (3 criteria) + R_mag=4.0 |
+| ToF updates | Distance only | Distance + rate-based heading (mag-disabled periods only) |
+| ZUPT | None | Three-part: velocity + gyro bias + soft heading, 40-sample variance window |
+| Smoother | None | RTS backward pass (heading row G(3,:)=0 blocked) |
+| Output | X_Est built inside loop | Built from smoothed X_s after backward pass |
+
+---
+
+### Magnetometer Anomaly Detection (Section 5c)
+
+Replaced R_mag=100 workaround with a three-criterion detection system plus
+independent gyro-only heading reference (theta_gyro_ref):
+
+- **Criterion 1 — Buffer statistics:** Rolling 20-sample innovation buffer.
+  If var > 0.04 or RMS > 0.15 → disable mag for 400 steps (2s).
+- **Criterion 2 — Growing innovation:** If |innov| > |prev_innov| + 0.02 for
+  5 consecutive mag steps → disable for 400 steps.
+- **Criterion 3 — Sustained divergence from gyro reference:** Compute
+  |z_mag - theta_gyro_ref|. If > (0.008*t + 0.12) for 50 consecutive steps
+  → disable for 400 steps.
+
+When mag disabled: `k <= mag_disable_until`, update skipped entirely.
+When mag enabled: R_mag=4.0, standard Mahalanobis gate (gamma=9.0).
+After successful update: slow-track gyro_ref_bias toward X(6) (α=0.05).
+
+This is the primary driver of the Task 2 improvement. The previous R_mag=100
+approach still processed corrupted readings (just with low gain); the new
+approach correctly identifies and skips them entirely.
+
+---
+
+### ToF Rate-Based Heading Update (Section 5e)
+
+Added dD/dt measurement model for heading when mag is disabled.
+Fires only when: genuine new reading AND k <= mag_disable_until AND
+dt_genuine > 0.08s AND speed > 0.05 m/s AND |omega| < 0.2 rad/s.
+
+For sensor with mounting angle alpha at heading theta:
+```
+phi = theta + alpha
+d_rate_exp = -(vx_world * cos(phi) + vy_world * sin(phi))
+H_rate(3) = vx*sin(phi) - vy*cos(phi)   % theta coupling
+H_rate(4) = -cos(phi)
+H_rate(5) = -sin(phi)
+R_rate = 0.5
+```
+Genuine reading detection: `raw_dist ~= prev_dist`.
+Mahalanobis gate: `innov_rate^2 < 9.0 * S_rate`.
+
+---
+
+### ZUPT (Section 5f)
+
+Three-part ZUPT triggered when all three variance conditions met
+over a 40-sample (0.2s) window:
+`var(accel_fwd) < 0.005 AND var(accel_lat) < 0.005 AND var(gyro) < 0.0005`
+
+Note: tighter threshold than the failed Change 1 attempt (which used 0.05
+for accel variance — 10× too loose, triggering during slow motion in T2-D2).
+
+- **Part 1 — Velocity:** H_v = [0 0 0 1 0 0; 0 0 0 0 1 0], R=0.002*I,
+  innovation = -[vx; vy]
+- **Part 2 — Gyro bias:** H_b = [0 0 0 0 0 1], R=0.00005,
+  innovation = gyro_data(k,1) - X(6)  (stationary → gyro reading = bias)
+- **Part 3 — Soft heading:** H_h = [0 0 1 0 0 0], R=0.005,
+  innovation = -(omega * dt)  (no rotation when stationary)
+
+Also updates gyro_ref_bias = X(6) after Part 2.
+
+---
+
+### RTS Smoother (Section 6)
+
+Standard Rauch-Tung-Striebel backward pass.
+Forward pass stores X_fwd (num_steps×6), P_fwd (6×6×N),
+X_prd (predicted means), P_prd (predicted covariances), F_all (Jacobians).
+
+Backward pass (k = N-1 down to 1):
+```
+P_prd_reg = P_prd(:,:,k+1) + 1e-9*eye(6)   % regularisation
+G = P_fwd(:,:,k) * F_all(:,:,k+1)' / P_prd_reg
+G(3,:) = 0   % Block heading row — safe first pass
+X_s(k,:) = X_fwd(k,:) + (G * (X_s(k+1,:)' - X_prd(k+1,:)'))';
+P_s(:,:,k) = P_fwd(:,:,k) + G*(P_s(:,:,k+1)-P_prd(:,:,k+1))*G'
+```
+
+Output built from smoothed estimates in Section 7:
+`X_Est = X_s(:,1:5)`, `P_Est = P_s(1:5,1:5,:)`
+X_Est is NOT built inside the main loop.
+
+---
+
+### Results
+
+| Dataset | Baseline (jeson-fixes) | Session 6 | Change |
+|---------|----------------------|-----------|--------|
+| Task 1 D1 | 0.042m | **0.0181m** | −57% |
+| Task 1 D2 | 0.029m | **0.0152m** | −48% |
+| Task 1 D3 | 0.031m | **0.0164m** | −47% |
+| **Task 1 avg** | **0.034m** | **0.0166m** | **−51%** |
+| Task 2 D1 | 0.881m | **0.0722m** | −92% |
+| Task 2 D2 | 1.047m | **0.0496m** | −95% |
+| Task 2 D3 | 0.058m | **0.0190m** | −67% |
+| **Task 2 avg** | **0.662m** | **0.0469m** | **−93%** |
+
+Both targets met:
+- Task 1 ≤ 0.05m: ✓ (0.0166m, 3× better than target)
+- Task 2 ≤ 0.30m: ✓ (0.0469m, 6× better than target)
+
+---
+
+### Why This Worked When Piecemeal Attempts Failed
+
+Change 1 (ZUPT only): Loose threshold (var < 0.05) triggered during slow motion
+in T2-D2 → velocity frozen mid-motion → +37% T2 regression.
+
+Change 3 (world-frame velocities only): Without mag anomaly detection,
+heading errors compound → world-frame velocity projections diverge →
+T2 avg went from 0.662m to 1.254m.
+
+Session 6 (all features together): Mag anomaly detection provides reliable
+heading during the circuit. World-frame velocities + ToF rate heading
+give correct position updates during mag-off periods. ZUPT with tight
+thresholds (var < 0.005) only fires when truly stationary. RTS smoother
+refines the full trajectory retrospectively. All features reinforce each other.
+
+---
+
+### Locked Parameter State (Session 6)
+
+```
+dt               = 0.005
+theta0           = pi/2
+alpha_tof1       = -pi/2,  alpha_tof2 = 0,  alpha_tof3 = pi/2
+H_tof(3)         = 0         (heading decoupled from distance updates)
+R_tof            = 0.01
+R_mag            = 4.0       (was 100.0 — anomaly detection now handles EMI)
+gamma_threshold  = 9.0
+Q                = diag([1e-4, 1e-4, 1.1e-3, 0.5, 0.5, 1.5e-5]) * dt
+P_init           = diag([0.1, 0.1, 0.1, 2.0, 2.0, 0.25])
+vel_damp         = 1 - 0.5*dt  (world-frame velocity decay per step)
+State X          = [x; y; theta; vx_world; vy_world; b_gyro]
+X_Est output     = X_s(:,1:5)  (from RTS smoother)
+P_Est output     = P_s(1:5,1:5,:)  (from RTS smoother)
+```
+
+Per-run calibration (if stationary window found):
+```
+gyro_bias      = mean(gyro_data(stat_range, 1))
+accel_bias_fwd = mean(accel_data(stat_range, 3))
+accel_bias_lat = mean(accel_data(stat_range, 2))
+```
+Fallback: 0.00186, -0.396, 0.07485
+
+Arena bounds: estimated from ToF medians in stat_range at theta0=pi/2.
+Fallback: ±1.22 hardcoded.
