@@ -45,8 +45,8 @@ dt              = 0.005;
 alpha_tof1      = -pi/2;
 alpha_tof2      =  0;
 alpha_tof3      =  pi/2;
-mag_hard_iron   = [-3.705e-05,  4.415e-05];
-mag_soft_iron   = [ 1.0958,     0.9196   ];
+mag_hard_iron   = [-3.705e-05; 4.415e-05];           % Now a 2x1 column vector
+mag_soft_matrix = [1.0958, 0.0120; 0.0120, 0.9196];  % New 2x2 matrix
 theta0          = pi/2;
 R_mag           = 4.0;
 R_tof           = 0.01;
@@ -188,39 +188,17 @@ if ~startup_done
                 end
             end
 
-            % Magnetometer global offset
-            mag_y_cal0        = (startup_mag(1,2) - mag_hard_iron(1)) * mag_soft_iron(1);
-            mag_z_cal0        = (startup_mag(1,3) - mag_hard_iron(2)) * mag_soft_iron(2);
-            z_mag0            = atan2(mag_z_cal0, mag_y_cal0);
+            % 1. Initial offset calculation
+            mag_raw0   = [startup_mag(1,2); startup_mag(1,3)]; % This is 2x1
+            mag_cal0   = mag_soft_matrix * (mag_raw0 - mag_hard_iron); % No ' needed here if hard_iron is 2x1
+            z_mag0     = atan2(mag_cal0(2), mag_cal0(1));
             mag_global_offset = wrapToPi_fn(theta0 - z_mag0);
-
-            % Check for 180-degree polarity flip at startup
-            % Use gyro integration over first stat_range to verify mag direction
-            % If mag disagreement with gyro exceeds 90 degrees after offset,
-            % the field is polarity-flipped — add pi to correct
-            gyro_mean_stat = mean(startup_gyro(stat_range, 1));
-            theta_stat_end = theta0 + gyro_mean_stat * length(stat_range) * dt;
-            mag_y_check = (startup_mag(stat_range(end),2) - mag_hard_iron(1)) * mag_soft_iron(1);
-            mag_z_check = (startup_mag(stat_range(end),3) - mag_hard_iron(2)) * mag_soft_iron(2);
-            z_mag_check = wrapToPi_fn(atan2(mag_z_check, mag_y_check) + mag_global_offset);
-            if abs(wrapToPi_fn(z_mag_check - theta_stat_end)) > pi/2
-                mag_global_offset = wrapToPi_fn(mag_global_offset + pi);
-            end
-
-            mag_y_cal_stat = (startup_mag(stat_range, 2) - mag_hard_iron(1)) * mag_soft_iron(1);
-            mag_z_cal_stat = (startup_mag(stat_range, 3) - mag_hard_iron(2)) * mag_soft_iron(2);
-
-            % Compute the expected squared norm of the magnetic field
-            mag_norm_ref = mean(mag_y_cal_stat.^2 + mag_z_cal_stat.^2);
-
-            % % Magnetometer global offset — median over stationary window
-            % mag_y_cal_buf = (startup_mag(stat_range,2) - mag_hard_iron(1)) .* mag_soft_iron(1);
-            % mag_z_cal_buf = (startup_mag(stat_range,3) - mag_hard_iron(2)) .* mag_soft_iron(2);
-            % z_mag_buf = atan2(mag_z_cal_buf, mag_y_cal_buf);
-            % 
-            % % Circular mean (robust to angle wrapping)
-            % z_mag_median = atan2(sum(sin(z_mag_buf)), sum(cos(z_mag_buf)));
-            % mag_global_offset = wrapToPi_fn(theta0 - z_mag_median);
+            
+            % 2. Norm reference (The error line)
+            mag_stat_raw = startup_mag(stat_range, 2:3)'; % This is 2 x N
+            % We subtract hard_iron from every column of the buffer
+            mag_stat_cal = mag_soft_matrix * (mag_stat_raw - repmat(mag_hard_iron, 1, size(mag_stat_raw, 2)));
+            mag_norm_ref = mean(mag_stat_cal(1,:).^2 + mag_stat_cal(2,:).^2);
 
             % Initialise filter state with estimated x0, y0
             X = [x0; y0; theta0; 0; 0; gyro_bias];
@@ -256,8 +234,15 @@ mag_z = mag(3);
 
 %% Prediction step
 omega   = gx - X(6);
-Q_base  = diag([1e-4, 1e-4, 1.1e-3, 0.5, 0.5, 1.5e-5]) * dt;
-%Q_base = diag([5e-4, 5e-4, 1.1e-3, 0.5, 0.5, 1.5e-5]) * dt;
+% [x, y, theta, vx, vy, gyro_bias]
+Q_base = diag([ ...
+    1e-6, ...   % x (Position doesn't change much on its own)
+    1e-6, ...   % y
+    2e-4, ...   % theta (Tighter heading makes it rely more on the Gyro)
+    0.05, ...   % vx (Significant reduction from 0.5 to prevent "ghost" velocity)
+    0.05, ...   % vy 
+    1e-6  ...   % gyro_bias (Make bias very stable)
+]) * dt;
 
 ax_body = max(-2.0, min(2.0, ax_body_raw - accel_bias_fwd));
 ay_body = max(-2.0, min(2.0, ay_body_raw - accel_bias_lat));
@@ -298,14 +283,20 @@ F(5, 3) = ( ax_body * cos(X(3)) - ay_body * sin(X(3))) * dt;
 F(4, 4) = vel_damp;
 F(5, 5) = vel_damp;
 
-% Adaptive Q
+% Adaptive Q adjustment
 Q_k = Q_base;
+
+% If we are turning, we EXPECT the heading to change, so we loosen Q(3,3)
 if abs(omega) > 0.15
-    Q_k(3,3) = Q_k(3,3) * (1.0 + 9.0 * (abs(omega) - 0.15));
+    Q_k(3,3) = Q_k(3,3) * 5.0; 
 end
+
+% If Mag is disabled, TIGHTEN heading noise.
+% This prevents ToF noise from kicking the heading while the Mag is gone.
 if call_count <= mag_disable_until
-    Q_k(4,4) = Q_k(4,4) * 1.5;
-    Q_k(5,5) = Q_k(5,5) * 1.5;
+    Q_k(3,3) = Q_k(3,3) * 0.1; % Make heading 10x "heavier"
+    Q_k(4,4) = Q_k(4,4) * 0.5; % Don't let velocity wander
+    Q_k(5,5) = Q_k(5,5) * 0.5;
 end
 speed = sqrt(X(4)^2 + X(5)^2);
 if speed > 0.05
@@ -316,15 +307,20 @@ P_pred = F * P * F' + Q_k;
 X      = X_pred;
 P      = P_pred;
 
-P(3,3) = min(P(3,3), 0.05);
+% Covariance Capping (Safety Guard)
+P(1,1) = min(P(1,1), 0.2);  % Cap X uncertainty
+P(2,2) = min(P(2,2), 0.2);  % Cap Y uncertainty
+P(3,3) = min(P(3,3), 0.02); % Cap Heading uncertainty (approx 8 degrees)
 
 %% Gyro reference update
 %theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - gyro_ref_bias) * dt);
 theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - X(6)) * dt);
 
 %% Magnetometer update with anomaly detection
-mag_y_cal = (mag_y - mag_hard_iron(1)) * mag_soft_iron(1);
-mag_z_cal = (mag_z - mag_hard_iron(2)) * mag_soft_iron(2);
+mag_raw   = [mag_y; mag_z];
+mag_cal   = mag_soft_matrix * (mag_raw - mag_hard_iron'); % Note the transpose ' if hard_iron is 1x2
+mag_y_cal = mag_cal(1);
+mag_z_cal = mag_cal(2);
 
 current_norm2 = mag_y_cal^2 + mag_z_cal^2;
 norm_error_ratio = abs(current_norm2 - mag_norm_ref) / mag_norm_ref;
@@ -685,10 +681,14 @@ function [h_x, H_tof] = calc_tof(X, xmax, xmin, ymax, ymin, alpha)
     H_tof = zeros(1, 6);
     if wall_idx == 1 || wall_idx == 2
         H_tof(1) = -1 / cos(phi);
-        H_tof(3) = 0;
+        if abs(tan(phi)) < 0.7 % Only trust if hitting wall nearly straight-on
+            H_tof(3) = h_x * tan(phi) * 0.05; 
+        end
     else
         H_tof(2) = -1 / sin(phi);
-        H_tof(3) = 0;
+        if abs(cos(phi)/sin(phi)) < 0.7
+            H_tof(3) = -h_x * (cos(phi) / sin(phi)) * 0.05;
+        end
     end
 end
 
