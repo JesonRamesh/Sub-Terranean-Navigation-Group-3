@@ -64,14 +64,14 @@
 clear all; clc;
 
 datasets = {
-    'Training Data/task1_1 1.mat', 'T1_D1';
-    'Training Data/task1_2 1.mat', 'T1_D2';
+    'Training Data/task1_1.mat', 'T1_D1';
+    'Training Data/task1_2.mat', 'T1_D2';
     'Training Data/task1_3.mat', 'T1_D3';
     'Training Data/task1_4.mat', 'T1_D4';
-    'Training Data/task2_1 1.mat', 'T2_D1';
-    'Training Data/task2_2 1.mat', 'T2_D2';
-    'Training Data/task2_3 1.mat', 'T2_D3';
-    'Training Data/task2_4 1.mat', 'T2_D4';
+    'Training Data/task2_1.mat', 'T2_D1';
+    'Training Data/task2_2.mat', 'T2_D2';
+    'Training Data/task2_3.mat', 'T2_D3';
+    'Training Data/task2_4.mat', 'T2_D4';
 };
 
 results = zeros(8, 1);
