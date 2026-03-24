@@ -82,17 +82,15 @@ time_results = cell(8, 1);
 for d = 1:8
     clear myEKF;
     load(datasets{d, 1});
-
     gyro_data  = squeeze(out.Sensor_GYRO.signals.values)';
     accel_data = squeeze(out.Sensor_ACCEL.signals.values)';
     mag_data   = squeeze(out.Sensor_MAG.signals.values)';
     tof1_data  = squeeze(out.Sensor_ToF1.signals.values);
     tof2_data  = squeeze(out.Sensor_ToF2.signals.values);
     tof3_data  = squeeze(out.Sensor_ToF3.signals.values);
-
+    
     N = size(gyro_data, 1);
     X_all = zeros(N, 8);
-
     for k = 1:N
         [xe, ~] = myEKF(accel_data(k,:)', gyro_data(k,:)', mag_data(k,:)', ...
                         tof1_data(k,:)', tof2_data(k,:)', tof3_data(k,:)', 0, 0);
@@ -102,26 +100,34 @@ for d = 1:8
     imu_time = out.Sensor_GYRO.time;
     gt_pos = squeeze(out.GT_position.signals.values);
     if size(gt_pos,1)==3, gt_pos=gt_pos'; end
-
+    
+    % GT Heading Calculation
     quat = squeeze(out.GT_rotation.signals.values);
     if size(quat,1) == 4, quat = quat'; end
     gt_rot_time = out.GT_rotation.time;
-
-    qw = quat(:,1); qx_q = quat(:,2);
-    qy_q = quat(:,3); qz_q = quat(:,4);
+    qw = quat(:,1); qx_q = quat(:,2); qy_q = quat(:,3); qz_q = quat(:,4);
     yaw_gt_raw = atan2(2*(qw.*qz_q + qx_q.*qy_q), 1 - 2*(qy_q.^2 + qz_q.^2));
-
-    GT_heading = interp1(gt_rot_time, yaw_gt_raw, imu_time, 'linear', 'extrap');
-
+    gt_heading_interp = interp1(gt_rot_time, yaw_gt_raw, imu_time, 'linear', 'extrap');
+    
     GT_x = interp1(out.GT_position.time, gt_pos(:,1), imu_time,'linear','extrap');
     GT_y = interp1(out.GT_position.time, gt_pos(:,2), imu_time,'linear','extrap');
 
+    % Find the initial heading difference
+    heading_offset = gt_heading_interp(1) - X_all(1,3);
+
+    % Shift EKF heading to match GT start
+    X_all(:,3) = X_all(:,3) + heading_offset;
+
+    % Normalise EKF heading to [-pi, pi]
+    X_all(:,3) = atan2(sin(X_all(:,3)), cos(X_all(:,3)));
+
     rmse = sqrt(mean((X_all(:,1)-GT_x).^2 + (X_all(:,2)-GT_y).^2));
     results(d) = rmse;
+    
     X_results{d} = X_all;
-    GT_results{d} = [GT_x, GT_y, GT_heading];
+    GT_results{d} = [GT_x, GT_y, gt_heading_interp];
     time_results{d} = imu_time;
-
+    
     fprintf('%s: %.4f m\n', datasets{d,2}, rmse);
 end
 
