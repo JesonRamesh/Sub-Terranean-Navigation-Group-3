@@ -1,0 +1,2383 @@
+ARM GAS  C:\Temp\ccGLcWda.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"iks02a1_motion_sensors_ex.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c"
+  20              		.section	.text.IKS02A1_MOTION_SENSOR_Get_DRDY_Status,"ax",%progbits
+  21              		.align	1
+  22              		.global	IKS02A1_MOTION_SENSOR_Get_DRDY_Status
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	IKS02A1_MOTION_SENSOR_Get_DRDY_Status:
+  28              	.LVL0:
+  29              	.LFB134:
+   1:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+   2:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   ******************************************************************************
+   3:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @file    iks02a1_motion_sensors_ex.c
+   4:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @author  MEMS Software Solutions Team
+   5:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief   This file provides a set of extended functions needed to manage the motion sensors
+   6:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   ******************************************************************************
+   7:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @attention
+   8:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *
+   9:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * Copyright (c) 2019 STMicroelectronics.
+  10:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * All rights reserved.
+  11:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *
+  12:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * in the root directory of this software component.
+  14:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *
+  16:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   ******************************************************************************
+  17:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  18:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  19:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /* Includes ------------------------------------------------------------------*/
+  20:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #include "iks02a1_motion_sensors_ex.h"
+  21:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  22:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /** @addtogroup BSP BSP
+  23:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @{
+  24:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  25:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  26:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /** @addtogroup IKS02A1 IKS02A1
+  27:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @{
+  28:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  29:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ARM GAS  C:\Temp\ccGLcWda.s 			page 2
+
+
+  30:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /** @defgroup IKS02A1_MOTION_SENSOR_EX IKS02A1 MOTION SENSOR EX
+  31:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @{
+  32:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  33:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  34:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /** @defgroup IKS02A1_MOTION_SENSOR_EX_Imported_Variables IKS02A1 MOTION SENSOR EX Imported Variabl
+  35:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @{
+  36:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  37:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  38:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** extern void *MotionCompObj[IKS02A1_MOTION_INSTANCES_NBR];
+  39:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  40:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+  41:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @}
+  42:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  43:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  44:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /** @defgroup IKS02A1_MOTION_SENSOR_EX_Exported_Functions IKS02A1 MOTION SENSOR EX Exported Functio
+  45:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @{
+  46:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  47:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  48:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+  49:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Get the status of data ready bit (available only for ISM330DHCX, IIS2DLPC, IIS2MDC, ASM
+  50:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+  51:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Function Motion sensor function. Could be:
+  52:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_ACCELERO or MOTION_GYRO for instance IKS02A1_ISM330DHCX_0, IKS02A1_ASM330LHHX_
+  53:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_ACCELERO for instance IKS02A1_IIS2DLPC_0
+  54:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_MAGNETO for instance IKS02A1_IIS2MDC_0
+  55:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Status the pointer to the status
+  56:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+  57:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+  58:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_Get_DRDY_Status(uint32_t Instance, uint32_t Function, uint8_t *Status
+  59:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+  30              		.loc 1 59 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		.loc 1 59 1 is_stmt 0 view .LVU1
+  35 0000 08B5     		push	{r3, lr}
+  36              		.cfi_def_cfa_offset 8
+  37              		.cfi_offset 3, -8
+  38              		.cfi_offset 14, -4
+  39 0002 0B46     		mov	r3, r1
+  40 0004 1146     		mov	r1, r2
+  41              	.LVL1:
+  60:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+  42              		.loc 1 60 3 is_stmt 1 view .LVU2
+  61:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  62:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+  43              		.loc 1 62 3 view .LVU3
+  44 0006 0128     		cmp	r0, #1
+  45 0008 1FD0     		beq	.L2
+  46 000a 0228     		cmp	r0, #2
+  47 000c 2AD0     		beq	.L3
+  48 000e 10B1     		cbz	r0, .L11
+  49 0010 6FF00100 		mvn	r0, #1
+  50              	.LVL2:
+  51              	.L1:
+  63:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+  64:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ARM GAS  C:\Temp\ccGLcWda.s 			page 3
+
+
+  65:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+  66:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+  67:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  68:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330DHCX_ACC_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+  69:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  70:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+  71:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+  72:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+  73:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  74:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+  75:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+  76:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+  77:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+  78:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  79:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330DHCX_GYRO_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+  80:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  81:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+  82:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+  83:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+  84:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  85:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+  86:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+  87:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+  88:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+  89:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  90:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+  91:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+  92:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+  93:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+  94:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+  95:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2DLPC_0 == 1)
+  96:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2DLPC_0:
+  97:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+  98:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  99:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IIS2DLPC_ACC_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 100:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 101:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 102:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 103:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 104:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 105:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 106:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 107:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 108:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 109:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 110:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 111:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 112:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 113:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 114:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 115:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2MDC_0 == 1)
+ 116:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2MDC_0:
+ 117:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_MAGNETO) == MOTION_MAGNETO)
+ 118:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 119:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IIS2MDC_MAG_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 120:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 121:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ARM GAS  C:\Temp\ccGLcWda.s 			page 4
+
+
+ 122:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 123:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 124:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 125:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 126:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 127:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 128:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 129:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 130:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 131:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 132:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 133:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 134:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 135:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2ICLX_0 == 1)
+ 136:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2ICLX_0:
+ 137:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 138:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 139:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IIS2ICLX_ACC_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 140:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 141:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 142:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 143:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 144:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 145:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 146:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 147:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 148:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 149:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 150:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 151:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 152:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 153:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 154:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 155:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ASM330LHHX_0 == 1)
+ 156:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ASM330LHHX_0:
+ 157:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 158:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 159:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ASM330LHHX_ACC_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 160:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 161:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 162:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 163:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 164:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 165:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 166:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 167:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 168:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+ 169:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 170:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ASM330LHHX_GYRO_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 171:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 172:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 173:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 174:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 175:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 176:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 177:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 178:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ARM GAS  C:\Temp\ccGLcWda.s 			page 5
+
+
+ 179:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 180:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 181:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 182:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 183:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 184:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 185:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 186:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330BX_0 == 1)
+ 187:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330BX_0:
+ 188:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 189:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 190:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330BX_ACC_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 191:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 192:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 193:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 194:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 195:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 196:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 197:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 198:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 199:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+ 200:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 201:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330BX_GYRO_Get_DRDY_Status(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 202:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 203:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 204:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 205:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 206:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 207:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 208:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 209:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 210:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 211:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 212:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 213:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 214:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 215:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 216:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 217:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 218:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 219:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 220:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 221:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 222:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 223:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+  52              		.loc 1 223 1 is_stmt 0 view .LVU4
+  53 0014 08BD     		pop	{r3, pc}
+  54              	.LVL3:
+  55              	.L11:
+  66:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  56              		.loc 1 66 7 is_stmt 1 view .LVU5
+  66:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  57              		.loc 1 66 10 is_stmt 0 view .LVU6
+  58 0016 13F0020F 		tst	r3, #2
+  59 001a 0CD1     		bne	.L12
+  77:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  60              		.loc 1 77 12 is_stmt 1 view .LVU7
+ARM GAS  C:\Temp\ccGLcWda.s 			page 6
+
+
+  77:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+  61              		.loc 1 77 15 is_stmt 0 view .LVU8
+  62 001c 13F0010F 		tst	r3, #1
+  63 0020 2DD0     		beq	.L7
+  79:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  64              		.loc 1 79 9 is_stmt 1 view .LVU9
+  79:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  65              		.loc 1 79 13 is_stmt 0 view .LVU10
+  66 0022 1B4B     		ldr	r3, .L13
+  67              	.LVL4:
+  79:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  68              		.loc 1 79 13 view .LVU11
+  69 0024 53F82000 		ldr	r0, [r3, r0, lsl #2]
+  70              	.LVL5:
+  79:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  71              		.loc 1 79 13 view .LVU12
+  72 0028 FFF7FEFF 		bl	ISM330DHCX_GYRO_Get_DRDY_Status
+  73              	.LVL6:
+  79:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  74              		.loc 1 79 12 view .LVU13
+  75 002c 0028     		cmp	r0, #0
+  76 002e F1D0     		beq	.L1
+  81:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+  77              		.loc 1 81 15 view .LVU14
+  78 0030 6FF00400 		mvn	r0, #4
+  79 0034 EEE7     		b	.L1
+  80              	.LVL7:
+  81              	.L12:
+  68:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  82              		.loc 1 68 9 is_stmt 1 view .LVU15
+  68:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  83              		.loc 1 68 13 is_stmt 0 view .LVU16
+  84 0036 164B     		ldr	r3, .L13
+  85              	.LVL8:
+  68:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  86              		.loc 1 68 13 view .LVU17
+  87 0038 53F82000 		ldr	r0, [r3, r0, lsl #2]
+  88              	.LVL9:
+  68:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  89              		.loc 1 68 13 view .LVU18
+  90 003c FFF7FEFF 		bl	ISM330DHCX_ACC_Get_DRDY_Status
+  91              	.LVL10:
+  68:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+  92              		.loc 1 68 12 view .LVU19
+  93 0040 0028     		cmp	r0, #0
+  94 0042 E7D0     		beq	.L1
+  70:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+  95              		.loc 1 70 15 view .LVU20
+  96 0044 6FF00400 		mvn	r0, #4
+  97 0048 E4E7     		b	.L1
+  98              	.LVL11:
+  99              	.L2:
+  97:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 100              		.loc 1 97 7 is_stmt 1 view .LVU21
+  97:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 101              		.loc 1 97 10 is_stmt 0 view .LVU22
+ 102 004a 13F0020F 		tst	r3, #2
+ARM GAS  C:\Temp\ccGLcWda.s 			page 7
+
+
+ 103 004e 19D0     		beq	.L8
+  99:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 104              		.loc 1 99 9 is_stmt 1 view .LVU23
+  99:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 105              		.loc 1 99 13 is_stmt 0 view .LVU24
+ 106 0050 0F4B     		ldr	r3, .L13
+ 107              	.LVL12:
+  99:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 108              		.loc 1 99 13 view .LVU25
+ 109 0052 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 110              	.LVL13:
+  99:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 111              		.loc 1 99 13 view .LVU26
+ 112 0056 FFF7FEFF 		bl	IIS2DLPC_ACC_Get_DRDY_Status
+ 113              	.LVL14:
+  99:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 114              		.loc 1 99 12 view .LVU27
+ 115 005a 0028     		cmp	r0, #0
+ 116 005c DAD0     		beq	.L1
+ 101:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 117              		.loc 1 101 15 view .LVU28
+ 118 005e 6FF00400 		mvn	r0, #4
+ 119 0062 D7E7     		b	.L1
+ 120              	.LVL15:
+ 121              	.L3:
+ 117:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 122              		.loc 1 117 7 is_stmt 1 view .LVU29
+ 117:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 123              		.loc 1 117 10 is_stmt 0 view .LVU30
+ 124 0064 13F0040F 		tst	r3, #4
+ 125 0068 0FD0     		beq	.L9
+ 119:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 126              		.loc 1 119 9 is_stmt 1 view .LVU31
+ 119:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 127              		.loc 1 119 13 is_stmt 0 view .LVU32
+ 128 006a 094B     		ldr	r3, .L13
+ 129              	.LVL16:
+ 119:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 130              		.loc 1 119 13 view .LVU33
+ 131 006c 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 132              	.LVL17:
+ 119:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 133              		.loc 1 119 13 view .LVU34
+ 134 0070 FFF7FEFF 		bl	IIS2MDC_MAG_Get_DRDY_Status
+ 135              	.LVL18:
+ 119:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 136              		.loc 1 119 12 view .LVU35
+ 137 0074 0028     		cmp	r0, #0
+ 138 0076 CDD0     		beq	.L1
+ 121:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 139              		.loc 1 121 15 view .LVU36
+ 140 0078 6FF00400 		mvn	r0, #4
+ 141 007c CAE7     		b	.L1
+ 142              	.LVL19:
+ 143              	.L7:
+  90:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 144              		.loc 1 90 13 view .LVU37
+ARM GAS  C:\Temp\ccGLcWda.s 			page 8
+
+
+ 145 007e 6FF00400 		mvn	r0, #4
+ 146              	.LVL20:
+  90:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 147              		.loc 1 90 13 view .LVU38
+ 148 0082 C7E7     		b	.L1
+ 149              	.LVL21:
+ 150              	.L8:
+ 110:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 151              		.loc 1 110 13 view .LVU39
+ 152 0084 6FF00400 		mvn	r0, #4
+ 153              	.LVL22:
+ 110:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 154              		.loc 1 110 13 view .LVU40
+ 155 0088 C4E7     		b	.L1
+ 156              	.LVL23:
+ 157              	.L9:
+ 130:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 158              		.loc 1 130 13 view .LVU41
+ 159 008a 6FF00400 		mvn	r0, #4
+ 160              	.LVL24:
+ 222:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 161              		.loc 1 222 3 is_stmt 1 view .LVU42
+ 222:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 162              		.loc 1 222 10 is_stmt 0 view .LVU43
+ 163 008e C1E7     		b	.L1
+ 164              	.L14:
+ 165              		.align	2
+ 166              	.L13:
+ 167 0090 00000000 		.word	MotionCompObj
+ 168              		.cfi_endproc
+ 169              	.LFE134:
+ 171              		.section	.text.IKS02A1_MOTION_SENSOR_Read_Register,"ax",%progbits
+ 172              		.align	1
+ 173              		.global	IKS02A1_MOTION_SENSOR_Read_Register
+ 174              		.syntax unified
+ 175              		.thumb
+ 176              		.thumb_func
+ 178              	IKS02A1_MOTION_SENSOR_Read_Register:
+ 179              	.LVL25:
+ 180              	.LFB135:
+ 224:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 225:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 226:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Get the register value (available only for ISM330DHCX, IIS2DLPC, IIS2MDC, ASM330LHHX, I
+ 227:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 228:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Reg address to be read
+ 229:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Data pointer where the value is written to
+ 230:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 231:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 232:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_Read_Register(uint32_t Instance, uint8_t Reg, uint8_t *Data)
+ 233:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 181              		.loc 1 233 1 is_stmt 1 view -0
+ 182              		.cfi_startproc
+ 183              		@ args = 0, pretend = 0, frame = 0
+ 184              		@ frame_needed = 0, uses_anonymous_args = 0
+ 185              		.loc 1 233 1 is_stmt 0 view .LVU45
+ 186 0000 08B5     		push	{r3, lr}
+ 187              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Temp\ccGLcWda.s 			page 9
+
+
+ 188              		.cfi_offset 3, -8
+ 189              		.cfi_offset 14, -4
+ 234:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 190              		.loc 1 234 3 is_stmt 1 view .LVU46
+ 235:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 236:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 191              		.loc 1 236 3 view .LVU47
+ 192 0002 0128     		cmp	r0, #1
+ 193 0004 0FD0     		beq	.L16
+ 194 0006 0228     		cmp	r0, #2
+ 195 0008 17D0     		beq	.L17
+ 196 000a 10B1     		cbz	r0, .L21
+ 197 000c 6FF00100 		mvn	r0, #1
+ 198              	.LVL26:
+ 237:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 238:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 239:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 240:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_Read_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 241:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 242:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 243:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 244:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 245:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 246:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 247:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 248:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 249:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 250:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 251:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2DLPC_0 == 1)
+ 252:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2DLPC_0:
+ 253:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (IIS2DLPC_Read_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 254:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 255:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 256:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 257:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 258:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 259:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 260:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 261:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 262:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 263:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 264:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2MDC_0 == 1)
+ 265:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2MDC_0:
+ 266:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (IIS2MDC_Read_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 267:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 268:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 269:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 270:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 271:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 272:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 273:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 274:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 275:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 276:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 277:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2ICLX_0 == 1)
+ 278:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2ICLX_0:
+ 279:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (IIS2ICLX_Read_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ARM GAS  C:\Temp\ccGLcWda.s 			page 10
+
+
+ 280:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 281:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 282:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 283:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 284:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 285:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 286:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 287:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 288:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 289:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 290:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ASM330LHHX_0 == 1)
+ 291:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ASM330LHHX_0:
+ 292:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ASM330LHHX_Read_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 293:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 294:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 295:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 296:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 297:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 298:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 299:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 300:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 301:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 302:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 303:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 304:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 305:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 306:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 307:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 308:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 199              		.loc 1 308 3 view .LVU48
+ 200              	.L15:
+ 309:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 201              		.loc 1 309 1 is_stmt 0 view .LVU49
+ 202 0010 08BD     		pop	{r3, pc}
+ 203              	.LVL27:
+ 204              	.L21:
+ 240:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 205              		.loc 1 240 7 is_stmt 1 view .LVU50
+ 240:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 206              		.loc 1 240 11 is_stmt 0 view .LVU51
+ 207 0012 0F4B     		ldr	r3, .L22
+ 208 0014 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 209              	.LVL28:
+ 240:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 210              		.loc 1 240 11 view .LVU52
+ 211 0018 FFF7FEFF 		bl	ISM330DHCX_Read_Reg
+ 212              	.LVL29:
+ 240:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 213              		.loc 1 240 10 view .LVU53
+ 214 001c 0028     		cmp	r0, #0
+ 215 001e F7D0     		beq	.L15
+ 242:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 216              		.loc 1 242 13 view .LVU54
+ 217 0020 6FF00400 		mvn	r0, #4
+ 218 0024 F4E7     		b	.L15
+ 219              	.LVL30:
+ 220              	.L16:
+ARM GAS  C:\Temp\ccGLcWda.s 			page 11
+
+
+ 253:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 221              		.loc 1 253 7 is_stmt 1 view .LVU55
+ 253:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 222              		.loc 1 253 11 is_stmt 0 view .LVU56
+ 223 0026 0A4B     		ldr	r3, .L22
+ 224 0028 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 225              	.LVL31:
+ 253:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 226              		.loc 1 253 11 view .LVU57
+ 227 002c FFF7FEFF 		bl	IIS2DLPC_Read_Reg
+ 228              	.LVL32:
+ 253:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 229              		.loc 1 253 10 view .LVU58
+ 230 0030 0028     		cmp	r0, #0
+ 231 0032 EDD0     		beq	.L15
+ 255:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 232              		.loc 1 255 13 view .LVU59
+ 233 0034 6FF00400 		mvn	r0, #4
+ 234 0038 EAE7     		b	.L15
+ 235              	.LVL33:
+ 236              	.L17:
+ 266:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 237              		.loc 1 266 7 is_stmt 1 view .LVU60
+ 266:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 238              		.loc 1 266 11 is_stmt 0 view .LVU61
+ 239 003a 054B     		ldr	r3, .L22
+ 240 003c 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 241              	.LVL34:
+ 266:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 242              		.loc 1 266 11 view .LVU62
+ 243 0040 FFF7FEFF 		bl	IIS2MDC_Read_Reg
+ 244              	.LVL35:
+ 266:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 245              		.loc 1 266 10 view .LVU63
+ 246 0044 0028     		cmp	r0, #0
+ 247 0046 E3D0     		beq	.L15
+ 268:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 248              		.loc 1 268 13 view .LVU64
+ 249 0048 6FF00400 		mvn	r0, #4
+ 250 004c E0E7     		b	.L15
+ 251              	.L23:
+ 252 004e 00BF     		.align	2
+ 253              	.L22:
+ 254 0050 00000000 		.word	MotionCompObj
+ 255              		.cfi_endproc
+ 256              	.LFE135:
+ 258              		.section	.text.IKS02A1_MOTION_SENSOR_Write_Register,"ax",%progbits
+ 259              		.align	1
+ 260              		.global	IKS02A1_MOTION_SENSOR_Write_Register
+ 261              		.syntax unified
+ 262              		.thumb
+ 263              		.thumb_func
+ 265              	IKS02A1_MOTION_SENSOR_Write_Register:
+ 266              	.LVL36:
+ 267              	.LFB136:
+ 310:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 311:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ARM GAS  C:\Temp\ccGLcWda.s 			page 12
+
+
+ 312:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set the register value (available only for ISM330DHCX, IIS2DLPC, IIS2MDC, ASM330LHHX, I
+ 313:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 314:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Reg address to be read
+ 315:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Data value to be written
+ 316:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 317:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 318:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_Write_Register(uint32_t Instance, uint8_t Reg, uint8_t Data)
+ 319:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 268              		.loc 1 319 1 is_stmt 1 view -0
+ 269              		.cfi_startproc
+ 270              		@ args = 0, pretend = 0, frame = 0
+ 271              		@ frame_needed = 0, uses_anonymous_args = 0
+ 272              		.loc 1 319 1 is_stmt 0 view .LVU66
+ 273 0000 08B5     		push	{r3, lr}
+ 274              		.cfi_def_cfa_offset 8
+ 275              		.cfi_offset 3, -8
+ 276              		.cfi_offset 14, -4
+ 320:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 277              		.loc 1 320 3 is_stmt 1 view .LVU67
+ 321:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 322:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 278              		.loc 1 322 3 view .LVU68
+ 279 0002 0128     		cmp	r0, #1
+ 280 0004 0FD0     		beq	.L25
+ 281 0006 0228     		cmp	r0, #2
+ 282 0008 17D0     		beq	.L26
+ 283 000a 10B1     		cbz	r0, .L30
+ 284 000c 6FF00100 		mvn	r0, #1
+ 285              	.LVL37:
+ 323:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 324:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 325:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 326:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_Write_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 327:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 328:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 329:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 330:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 331:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 332:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 333:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 334:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 335:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 336:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 337:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2DLPC_0 == 1)
+ 338:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2DLPC_0:
+ 339:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (IIS2DLPC_Write_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 340:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 341:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 342:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 343:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 344:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 345:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 346:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 347:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 348:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 349:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 350:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2MDC_0 == 1)
+ARM GAS  C:\Temp\ccGLcWda.s 			page 13
+
+
+ 351:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2MDC_0:
+ 352:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (IIS2MDC_Write_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 353:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 354:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 355:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 356:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 357:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 358:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 359:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 360:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 361:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 362:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 363:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_IIS2ICLX_0 == 1)
+ 364:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_IIS2ICLX_0:
+ 365:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (IIS2ICLX_Write_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 366:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 367:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 368:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 369:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 370:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 371:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 372:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 373:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 374:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 375:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 376:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ASM330LHHX_0 == 1)
+ 377:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ASM330LHHX_0:
+ 378:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ASM330LHHX_Write_Reg(MotionCompObj[Instance], Reg, Data) != BSP_ERROR_NONE)
+ 379:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 380:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 381:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 382:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 383:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 384:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 385:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 386:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 387:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 388:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 389:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330BX_0 == 1)
+ 390:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330BX_0:
+ 391:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330BX_Read_Reg(MotionCompObj[Instance], Reg, &Data) != BSP_ERROR_NONE)
+ 392:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 393:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 394:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 395:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 396:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 397:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 398:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 399:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 400:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 401:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 402:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 403:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 404:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 405:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 406:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 407:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ARM GAS  C:\Temp\ccGLcWda.s 			page 14
+
+
+ 286              		.loc 1 407 3 view .LVU69
+ 287              	.L24:
+ 408:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 288              		.loc 1 408 1 is_stmt 0 view .LVU70
+ 289 0010 08BD     		pop	{r3, pc}
+ 290              	.LVL38:
+ 291              	.L30:
+ 326:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 292              		.loc 1 326 7 is_stmt 1 view .LVU71
+ 326:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 293              		.loc 1 326 11 is_stmt 0 view .LVU72
+ 294 0012 0F4B     		ldr	r3, .L31
+ 295 0014 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 296              	.LVL39:
+ 326:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 297              		.loc 1 326 11 view .LVU73
+ 298 0018 FFF7FEFF 		bl	ISM330DHCX_Write_Reg
+ 299              	.LVL40:
+ 326:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 300              		.loc 1 326 10 view .LVU74
+ 301 001c 0028     		cmp	r0, #0
+ 302 001e F7D0     		beq	.L24
+ 328:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 303              		.loc 1 328 13 view .LVU75
+ 304 0020 6FF00400 		mvn	r0, #4
+ 305 0024 F4E7     		b	.L24
+ 306              	.LVL41:
+ 307              	.L25:
+ 339:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 308              		.loc 1 339 7 is_stmt 1 view .LVU76
+ 339:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 309              		.loc 1 339 11 is_stmt 0 view .LVU77
+ 310 0026 0A4B     		ldr	r3, .L31
+ 311 0028 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 312              	.LVL42:
+ 339:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 313              		.loc 1 339 11 view .LVU78
+ 314 002c FFF7FEFF 		bl	IIS2DLPC_Write_Reg
+ 315              	.LVL43:
+ 339:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 316              		.loc 1 339 10 view .LVU79
+ 317 0030 0028     		cmp	r0, #0
+ 318 0032 EDD0     		beq	.L24
+ 341:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 319              		.loc 1 341 13 view .LVU80
+ 320 0034 6FF00400 		mvn	r0, #4
+ 321 0038 EAE7     		b	.L24
+ 322              	.LVL44:
+ 323              	.L26:
+ 352:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 324              		.loc 1 352 7 is_stmt 1 view .LVU81
+ 352:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 325              		.loc 1 352 11 is_stmt 0 view .LVU82
+ 326 003a 054B     		ldr	r3, .L31
+ 327 003c 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 328              	.LVL45:
+ 352:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ARM GAS  C:\Temp\ccGLcWda.s 			page 15
+
+
+ 329              		.loc 1 352 11 view .LVU83
+ 330 0040 FFF7FEFF 		bl	IIS2MDC_Write_Reg
+ 331              	.LVL46:
+ 352:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 332              		.loc 1 352 10 view .LVU84
+ 333 0044 0028     		cmp	r0, #0
+ 334 0046 E3D0     		beq	.L24
+ 354:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 335              		.loc 1 354 13 view .LVU85
+ 336 0048 6FF00400 		mvn	r0, #4
+ 337 004c E0E7     		b	.L24
+ 338              	.L32:
+ 339 004e 00BF     		.align	2
+ 340              	.L31:
+ 341 0050 00000000 		.word	MotionCompObj
+ 342              		.cfi_endproc
+ 343              	.LFE136:
+ 345              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples,"ax",%progbits
+ 346              		.align	1
+ 347              		.global	IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples
+ 348              		.syntax unified
+ 349              		.thumb
+ 350              		.thumb_func
+ 352              	IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples:
+ 353              	.LVL47:
+ 354              	.LFB137:
+ 409:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 410:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 411:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Get number of unread FIFO samples (available only for ISM330DHCX sensor)
+ 412:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 413:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  NumSamples number of unread FIFO samples
+ 414:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 415:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 416:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples(uint32_t Instance, uint16_t *NumSamples)
+ 417:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 355              		.loc 1 417 1 is_stmt 1 view -0
+ 356              		.cfi_startproc
+ 357              		@ args = 0, pretend = 0, frame = 0
+ 358              		@ frame_needed = 0, uses_anonymous_args = 0
+ 418:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 359              		.loc 1 418 3 view .LVU87
+ 419:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 420:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 360              		.loc 1 420 3 view .LVU88
+ 361 0000 50B9     		cbnz	r0, .L35
+ 417:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 362              		.loc 1 417 1 is_stmt 0 view .LVU89
+ 363 0002 08B5     		push	{r3, lr}
+ 364              		.cfi_def_cfa_offset 8
+ 365              		.cfi_offset 3, -8
+ 366              		.cfi_offset 14, -4
+ 421:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 422:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 423:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 424:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_FIFO_Get_Num_Samples(MotionCompObj[Instance], NumSamples) != BSP_ERROR_NONE)
+ 367              		.loc 1 424 7 is_stmt 1 view .LVU90
+ 368              		.loc 1 424 11 is_stmt 0 view .LVU91
+ARM GAS  C:\Temp\ccGLcWda.s 			page 16
+
+
+ 369 0004 064A     		ldr	r2, .L41
+ 370 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 371              	.LVL48:
+ 372              		.loc 1 424 11 view .LVU92
+ 373 000a FFF7FEFF 		bl	ISM330DHCX_FIFO_Get_Num_Samples
+ 374              	.LVL49:
+ 375              		.loc 1 424 10 view .LVU93
+ 376 000e 00B9     		cbnz	r0, .L40
+ 377              	.L33:
+ 425:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 426:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 427:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 428:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 429:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 430:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 431:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 432:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 433:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 434:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 435:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 436:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 437:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 438:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 439:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 440:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 441:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 378              		.loc 1 441 1 view .LVU94
+ 379 0010 08BD     		pop	{r3, pc}
+ 380              	.L40:
+ 426:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 381              		.loc 1 426 13 view .LVU95
+ 382 0012 6FF00400 		mvn	r0, #4
+ 383 0016 FBE7     		b	.L33
+ 384              	.LVL50:
+ 385              	.L35:
+ 386              		.cfi_def_cfa_offset 0
+ 387              		.cfi_restore 3
+ 388              		.cfi_restore 14
+ 436:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 389              		.loc 1 436 11 view .LVU96
+ 390 0018 6FF00100 		mvn	r0, #1
+ 391              	.LVL51:
+ 440:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 392              		.loc 1 440 3 is_stmt 1 view .LVU97
+ 393              		.loc 1 441 1 is_stmt 0 view .LVU98
+ 394 001c 7047     		bx	lr
+ 395              	.L42:
+ 396 001e 00BF     		.align	2
+ 397              	.L41:
+ 398 0020 00000000 		.word	MotionCompObj
+ 399              		.cfi_endproc
+ 400              	.LFE137:
+ 402              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Set_BDR,"ax",%progbits
+ 403              		.align	1
+ 404              		.global	IKS02A1_MOTION_SENSOR_FIFO_Set_BDR
+ 405              		.syntax unified
+ 406              		.thumb
+ARM GAS  C:\Temp\ccGLcWda.s 			page 17
+
+
+ 407              		.thumb_func
+ 409              	IKS02A1_MOTION_SENSOR_FIFO_Set_BDR:
+ 410              	.LVL52:
+ 411              	.LFB138:
+ 442:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 443:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 444:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set FIFO BDR value (available only for ISM330DHCX sensor)
+ 445:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 446:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Function Motion sensor function. Could be:
+ 447:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_GYRO or MOTION_ACCELERO for instance IKS02A1_ISM330DHCX_0
+ 448:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Bdr FIFO BDR value
+ 449:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 450:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 451:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Set_BDR(uint32_t Instance, uint32_t Function, float_t Bdr)
+ 452:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 412              		.loc 1 452 1 is_stmt 1 view -0
+ 413              		.cfi_startproc
+ 414              		@ args = 0, pretend = 0, frame = 0
+ 415              		@ frame_needed = 0, uses_anonymous_args = 0
+ 453:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 416              		.loc 1 453 3 view .LVU100
+ 454:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 455:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 417              		.loc 1 455 3 view .LVU101
+ 418 0000 D0B9     		cbnz	r0, .L46
+ 452:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 419              		.loc 1 452 1 is_stmt 0 view .LVU102
+ 420 0002 08B5     		push	{r3, lr}
+ 421              		.cfi_def_cfa_offset 8
+ 422              		.cfi_offset 3, -8
+ 423              		.cfi_offset 14, -4
+ 456:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 457:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 458:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 459:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 424              		.loc 1 459 7 is_stmt 1 view .LVU103
+ 425              		.loc 1 459 10 is_stmt 0 view .LVU104
+ 426 0004 11F0020F 		tst	r1, #2
+ 427 0008 09D1     		bne	.L52
+ 460:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 461:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330DHCX_FIFO_ACC_Set_BDR(MotionCompObj[Instance], Bdr) != BSP_ERROR_NONE)
+ 462:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 463:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 464:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 465:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 466:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 467:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 468:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 469:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 470:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+ 428              		.loc 1 470 12 is_stmt 1 view .LVU105
+ 429              		.loc 1 470 15 is_stmt 0 view .LVU106
+ 430 000a 11F0010F 		tst	r1, #1
+ 431 000e 16D0     		beq	.L47
+ 471:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 472:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330DHCX_FIFO_GYRO_Set_BDR(MotionCompObj[Instance], Bdr) != BSP_ERROR_NONE)
+ 432              		.loc 1 472 9 is_stmt 1 view .LVU107
+ARM GAS  C:\Temp\ccGLcWda.s 			page 18
+
+
+ 433              		.loc 1 472 13 is_stmt 0 view .LVU108
+ 434 0010 0C4A     		ldr	r2, .L54
+ 435 0012 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 436              	.LVL53:
+ 437              		.loc 1 472 13 view .LVU109
+ 438 0016 FFF7FEFF 		bl	ISM330DHCX_FIFO_GYRO_Set_BDR
+ 439              	.LVL54:
+ 440              		.loc 1 472 12 view .LVU110
+ 441 001a 50B9     		cbnz	r0, .L53
+ 442              	.L43:
+ 473:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 474:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 475:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 476:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 477:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 478:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 479:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 480:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 481:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 482:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 483:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_WRONG_PARAM;
+ 484:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 485:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 486:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 487:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 488:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 489:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 490:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 491:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 492:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 493:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 494:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 443              		.loc 1 494 1 view .LVU111
+ 444 001c 08BD     		pop	{r3, pc}
+ 445              	.LVL55:
+ 446              	.L52:
+ 461:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 447              		.loc 1 461 9 is_stmt 1 view .LVU112
+ 461:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 448              		.loc 1 461 13 is_stmt 0 view .LVU113
+ 449 001e 094A     		ldr	r2, .L54
+ 450 0020 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 451              	.LVL56:
+ 461:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 452              		.loc 1 461 13 view .LVU114
+ 453 0024 FFF7FEFF 		bl	ISM330DHCX_FIFO_ACC_Set_BDR
+ 454              	.LVL57:
+ 461:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 455              		.loc 1 461 12 view .LVU115
+ 456 0028 0028     		cmp	r0, #0
+ 457 002a F7D0     		beq	.L43
+ 463:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 458              		.loc 1 463 15 view .LVU116
+ 459 002c 6FF00400 		mvn	r0, #4
+ 460 0030 F4E7     		b	.L43
+ 461              	.L53:
+ 474:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ARM GAS  C:\Temp\ccGLcWda.s 			page 19
+
+
+ 462              		.loc 1 474 15 view .LVU117
+ 463 0032 6FF00400 		mvn	r0, #4
+ 464 0036 F1E7     		b	.L43
+ 465              	.LVL58:
+ 466              	.L46:
+ 467              		.cfi_def_cfa_offset 0
+ 468              		.cfi_restore 3
+ 469              		.cfi_restore 14
+ 489:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 470              		.loc 1 489 11 view .LVU118
+ 471 0038 6FF00100 		mvn	r0, #1
+ 472              	.LVL59:
+ 473              		.loc 1 494 1 view .LVU119
+ 474 003c 7047     		bx	lr
+ 475              	.LVL60:
+ 476              	.L47:
+ 477              		.cfi_def_cfa_offset 8
+ 478              		.cfi_offset 3, -8
+ 479              		.cfi_offset 14, -4
+ 483:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 480              		.loc 1 483 13 view .LVU120
+ 481 003e 6FF00100 		mvn	r0, #1
+ 482              	.LVL61:
+ 493:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 483              		.loc 1 493 3 is_stmt 1 view .LVU121
+ 493:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 484              		.loc 1 493 10 is_stmt 0 view .LVU122
+ 485 0042 EBE7     		b	.L43
+ 486              	.L55:
+ 487              		.align	2
+ 488              	.L54:
+ 489 0044 00000000 		.word	MotionCompObj
+ 490              		.cfi_endproc
+ 491              	.LFE138:
+ 493              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full,"ax",%progbits
+ 494              		.align	1
+ 495              		.global	IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full
+ 496              		.syntax unified
+ 497              		.thumb
+ 498              		.thumb_func
+ 500              	IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full:
+ 501              	.LVL62:
+ 502              	.LFB139:
+ 495:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 496:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 497:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set FIFO full interrupt on INT1 pin (available only for ISM330DHCX sensor)
+ 498:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 499:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Status FIFO full interrupt on INT1 pin
+ 500:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 501:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 502:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full(uint32_t Instance, uint8_t Status)
+ 503:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 503              		.loc 1 503 1 is_stmt 1 view -0
+ 504              		.cfi_startproc
+ 505              		@ args = 0, pretend = 0, frame = 0
+ 506              		@ frame_needed = 0, uses_anonymous_args = 0
+ 504:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ARM GAS  C:\Temp\ccGLcWda.s 			page 20
+
+
+ 507              		.loc 1 504 3 view .LVU124
+ 505:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 506:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 508              		.loc 1 506 3 view .LVU125
+ 509 0000 50B9     		cbnz	r0, .L58
+ 503:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 510              		.loc 1 503 1 is_stmt 0 view .LVU126
+ 511 0002 08B5     		push	{r3, lr}
+ 512              		.cfi_def_cfa_offset 8
+ 513              		.cfi_offset 3, -8
+ 514              		.cfi_offset 14, -4
+ 507:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 508:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 509:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 510:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_FIFO_Set_INT1_FIFO_Full(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 515              		.loc 1 510 7 is_stmt 1 view .LVU127
+ 516              		.loc 1 510 11 is_stmt 0 view .LVU128
+ 517 0004 064A     		ldr	r2, .L64
+ 518 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 519              	.LVL63:
+ 520              		.loc 1 510 11 view .LVU129
+ 521 000a FFF7FEFF 		bl	ISM330DHCX_FIFO_Set_INT1_FIFO_Full
+ 522              	.LVL64:
+ 523              		.loc 1 510 10 view .LVU130
+ 524 000e 00B9     		cbnz	r0, .L63
+ 525              	.L56:
+ 511:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 512:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 513:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 514:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 515:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 516:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 517:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 518:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 519:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 520:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 521:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 522:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 523:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 524:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 525:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 526:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 527:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 526              		.loc 1 527 1 view .LVU131
+ 527 0010 08BD     		pop	{r3, pc}
+ 528              	.L63:
+ 512:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 529              		.loc 1 512 13 view .LVU132
+ 530 0012 6FF00400 		mvn	r0, #4
+ 531 0016 FBE7     		b	.L56
+ 532              	.LVL65:
+ 533              	.L58:
+ 534              		.cfi_def_cfa_offset 0
+ 535              		.cfi_restore 3
+ 536              		.cfi_restore 14
+ 522:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 537              		.loc 1 522 11 view .LVU133
+ARM GAS  C:\Temp\ccGLcWda.s 			page 21
+
+
+ 538 0018 6FF00100 		mvn	r0, #1
+ 539              	.LVL66:
+ 526:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 540              		.loc 1 526 3 is_stmt 1 view .LVU134
+ 541              		.loc 1 527 1 is_stmt 0 view .LVU135
+ 542 001c 7047     		bx	lr
+ 543              	.L65:
+ 544 001e 00BF     		.align	2
+ 545              	.L64:
+ 546 0020 00000000 		.word	MotionCompObj
+ 547              		.cfi_endproc
+ 548              	.LFE139:
+ 550              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level,"ax",%progbits
+ 551              		.align	1
+ 552              		.global	IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level
+ 553              		.syntax unified
+ 554              		.thumb
+ 555              		.thumb_func
+ 557              	IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level:
+ 558              	.LVL67:
+ 559              	.LFB140:
+ 528:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 529:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 530:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set FIFO watermark level (available only for ISM330DHCX sensor)
+ 531:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 532:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Watermark FIFO watermark level
+ 533:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 534:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 535:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level(uint32_t Instance, uint16_t Watermark)
+ 536:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 560              		.loc 1 536 1 is_stmt 1 view -0
+ 561              		.cfi_startproc
+ 562              		@ args = 0, pretend = 0, frame = 0
+ 563              		@ frame_needed = 0, uses_anonymous_args = 0
+ 537:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 564              		.loc 1 537 3 view .LVU137
+ 538:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 539:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 565              		.loc 1 539 3 view .LVU138
+ 566 0000 50B9     		cbnz	r0, .L68
+ 536:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 567              		.loc 1 536 1 is_stmt 0 view .LVU139
+ 568 0002 08B5     		push	{r3, lr}
+ 569              		.cfi_def_cfa_offset 8
+ 570              		.cfi_offset 3, -8
+ 571              		.cfi_offset 14, -4
+ 540:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 541:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 542:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 543:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_FIFO_Set_Watermark_Level(MotionCompObj[Instance], Watermark) != BSP_ERROR_NONE
+ 572              		.loc 1 543 7 is_stmt 1 view .LVU140
+ 573              		.loc 1 543 11 is_stmt 0 view .LVU141
+ 574 0004 064A     		ldr	r2, .L74
+ 575 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 576              	.LVL68:
+ 577              		.loc 1 543 11 view .LVU142
+ 578 000a FFF7FEFF 		bl	ISM330DHCX_FIFO_Set_Watermark_Level
+ARM GAS  C:\Temp\ccGLcWda.s 			page 22
+
+
+ 579              	.LVL69:
+ 580              		.loc 1 543 10 view .LVU143
+ 581 000e 00B9     		cbnz	r0, .L73
+ 582              	.L66:
+ 544:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 545:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 546:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 547:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 548:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 549:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 550:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 551:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 552:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 553:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 554:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 555:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 556:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 557:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 558:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 559:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 560:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 583              		.loc 1 560 1 view .LVU144
+ 584 0010 08BD     		pop	{r3, pc}
+ 585              	.L73:
+ 545:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 586              		.loc 1 545 13 view .LVU145
+ 587 0012 6FF00400 		mvn	r0, #4
+ 588 0016 FBE7     		b	.L66
+ 589              	.LVL70:
+ 590              	.L68:
+ 591              		.cfi_def_cfa_offset 0
+ 592              		.cfi_restore 3
+ 593              		.cfi_restore 14
+ 555:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 594              		.loc 1 555 11 view .LVU146
+ 595 0018 6FF00100 		mvn	r0, #1
+ 596              	.LVL71:
+ 559:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 597              		.loc 1 559 3 is_stmt 1 view .LVU147
+ 598              		.loc 1 560 1 is_stmt 0 view .LVU148
+ 599 001c 7047     		bx	lr
+ 600              	.L75:
+ 601 001e 00BF     		.align	2
+ 602              	.L74:
+ 603 0020 00000000 		.word	MotionCompObj
+ 604              		.cfi_endproc
+ 605              	.LFE140:
+ 607              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth,"ax",%progbits
+ 608              		.align	1
+ 609              		.global	IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth
+ 610              		.syntax unified
+ 611              		.thumb
+ 612              		.thumb_func
+ 614              	IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth:
+ 615              	.LVL72:
+ 616              	.LFB141:
+ 561:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ARM GAS  C:\Temp\ccGLcWda.s 			page 23
+
+
+ 562:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 563:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set FIFO stop on watermark (available only for ISM330DHCX sensor)
+ 564:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 565:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Status FIFO stop on watermark status
+ 566:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 567:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 568:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth(uint32_t Instance, uint8_t Status)
+ 569:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 617              		.loc 1 569 1 is_stmt 1 view -0
+ 618              		.cfi_startproc
+ 619              		@ args = 0, pretend = 0, frame = 0
+ 620              		@ frame_needed = 0, uses_anonymous_args = 0
+ 570:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 621              		.loc 1 570 3 view .LVU150
+ 571:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 572:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 622              		.loc 1 572 3 view .LVU151
+ 623 0000 50B9     		cbnz	r0, .L78
+ 569:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 624              		.loc 1 569 1 is_stmt 0 view .LVU152
+ 625 0002 08B5     		push	{r3, lr}
+ 626              		.cfi_def_cfa_offset 8
+ 627              		.cfi_offset 3, -8
+ 628              		.cfi_offset 14, -4
+ 573:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 574:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 575:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 576:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_FIFO_Set_Stop_On_Fth(MotionCompObj[Instance], Status) != BSP_ERROR_NONE)
+ 629              		.loc 1 576 7 is_stmt 1 view .LVU153
+ 630              		.loc 1 576 11 is_stmt 0 view .LVU154
+ 631 0004 064A     		ldr	r2, .L84
+ 632 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 633              	.LVL73:
+ 634              		.loc 1 576 11 view .LVU155
+ 635 000a FFF7FEFF 		bl	ISM330DHCX_FIFO_Set_Stop_On_Fth
+ 636              	.LVL74:
+ 637              		.loc 1 576 10 view .LVU156
+ 638 000e 00B9     		cbnz	r0, .L83
+ 639              	.L76:
+ 577:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 578:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 579:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 580:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 581:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 582:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 583:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 584:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 585:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 586:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 587:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 588:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 589:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 590:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 591:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 592:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 593:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 640              		.loc 1 593 1 view .LVU157
+ARM GAS  C:\Temp\ccGLcWda.s 			page 24
+
+
+ 641 0010 08BD     		pop	{r3, pc}
+ 642              	.L83:
+ 578:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 643              		.loc 1 578 13 view .LVU158
+ 644 0012 6FF00400 		mvn	r0, #4
+ 645 0016 FBE7     		b	.L76
+ 646              	.LVL75:
+ 647              	.L78:
+ 648              		.cfi_def_cfa_offset 0
+ 649              		.cfi_restore 3
+ 650              		.cfi_restore 14
+ 588:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 651              		.loc 1 588 11 view .LVU159
+ 652 0018 6FF00100 		mvn	r0, #1
+ 653              	.LVL76:
+ 592:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 654              		.loc 1 592 3 is_stmt 1 view .LVU160
+ 655              		.loc 1 593 1 is_stmt 0 view .LVU161
+ 656 001c 7047     		bx	lr
+ 657              	.L85:
+ 658 001e 00BF     		.align	2
+ 659              	.L84:
+ 660 0020 00000000 		.word	MotionCompObj
+ 661              		.cfi_endproc
+ 662              	.LFE141:
+ 664              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Set_Mode,"ax",%progbits
+ 665              		.align	1
+ 666              		.global	IKS02A1_MOTION_SENSOR_FIFO_Set_Mode
+ 667              		.syntax unified
+ 668              		.thumb
+ 669              		.thumb_func
+ 671              	IKS02A1_MOTION_SENSOR_FIFO_Set_Mode:
+ 672              	.LVL77:
+ 673              	.LFB142:
+ 594:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 595:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 596:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set FIFO mode (available only for ISM330DHCX sensor)
+ 597:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 598:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Mode FIFO mode
+ 599:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 600:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 601:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Set_Mode(uint32_t Instance, uint8_t Mode)
+ 602:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 674              		.loc 1 602 1 is_stmt 1 view -0
+ 675              		.cfi_startproc
+ 676              		@ args = 0, pretend = 0, frame = 0
+ 677              		@ frame_needed = 0, uses_anonymous_args = 0
+ 603:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 678              		.loc 1 603 3 view .LVU163
+ 604:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 605:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 679              		.loc 1 605 3 view .LVU164
+ 680 0000 50B9     		cbnz	r0, .L88
+ 602:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 681              		.loc 1 602 1 is_stmt 0 view .LVU165
+ 682 0002 08B5     		push	{r3, lr}
+ 683              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Temp\ccGLcWda.s 			page 25
+
+
+ 684              		.cfi_offset 3, -8
+ 685              		.cfi_offset 14, -4
+ 606:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 607:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 608:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 609:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_FIFO_Set_Mode(MotionCompObj[Instance], Mode) != BSP_ERROR_NONE)
+ 686              		.loc 1 609 7 is_stmt 1 view .LVU166
+ 687              		.loc 1 609 11 is_stmt 0 view .LVU167
+ 688 0004 064A     		ldr	r2, .L94
+ 689 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 690              	.LVL78:
+ 691              		.loc 1 609 11 view .LVU168
+ 692 000a FFF7FEFF 		bl	ISM330DHCX_FIFO_Set_Mode
+ 693              	.LVL79:
+ 694              		.loc 1 609 10 view .LVU169
+ 695 000e 00B9     		cbnz	r0, .L93
+ 696              	.L86:
+ 610:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 611:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 612:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 613:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 614:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 615:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 616:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 617:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 618:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 619:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 620:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 621:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 622:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 623:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 624:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 625:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 626:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 697              		.loc 1 626 1 view .LVU170
+ 698 0010 08BD     		pop	{r3, pc}
+ 699              	.L93:
+ 611:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 700              		.loc 1 611 13 view .LVU171
+ 701 0012 6FF00400 		mvn	r0, #4
+ 702 0016 FBE7     		b	.L86
+ 703              	.LVL80:
+ 704              	.L88:
+ 705              		.cfi_def_cfa_offset 0
+ 706              		.cfi_restore 3
+ 707              		.cfi_restore 14
+ 621:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 708              		.loc 1 621 11 view .LVU172
+ 709 0018 6FF00100 		mvn	r0, #1
+ 710              	.LVL81:
+ 625:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 711              		.loc 1 625 3 is_stmt 1 view .LVU173
+ 712              		.loc 1 626 1 is_stmt 0 view .LVU174
+ 713 001c 7047     		bx	lr
+ 714              	.L95:
+ 715 001e 00BF     		.align	2
+ 716              	.L94:
+ARM GAS  C:\Temp\ccGLcWda.s 			page 26
+
+
+ 717 0020 00000000 		.word	MotionCompObj
+ 718              		.cfi_endproc
+ 719              	.LFE142:
+ 721              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Get_Tag,"ax",%progbits
+ 722              		.align	1
+ 723              		.global	IKS02A1_MOTION_SENSOR_FIFO_Get_Tag
+ 724              		.syntax unified
+ 725              		.thumb
+ 726              		.thumb_func
+ 728              	IKS02A1_MOTION_SENSOR_FIFO_Get_Tag:
+ 729              	.LVL82:
+ 730              	.LFB143:
+ 627:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 628:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 629:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Get FIFO tag (available only for ISM330DHCX sensor)
+ 630:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 631:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Tag FIFO tag
+ 632:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 633:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 634:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Get_Tag(uint32_t Instance, uint8_t *Tag)
+ 635:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 731              		.loc 1 635 1 is_stmt 1 view -0
+ 732              		.cfi_startproc
+ 733              		@ args = 0, pretend = 0, frame = 0
+ 734              		@ frame_needed = 0, uses_anonymous_args = 0
+ 636:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 735              		.loc 1 636 3 view .LVU176
+ 637:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 638:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 736              		.loc 1 638 3 view .LVU177
+ 737 0000 50B9     		cbnz	r0, .L98
+ 635:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 738              		.loc 1 635 1 is_stmt 0 view .LVU178
+ 739 0002 08B5     		push	{r3, lr}
+ 740              		.cfi_def_cfa_offset 8
+ 741              		.cfi_offset 3, -8
+ 742              		.cfi_offset 14, -4
+ 639:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 640:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 641:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 642:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_FIFO_Get_Tag(MotionCompObj[Instance], Tag) != BSP_ERROR_NONE)
+ 743              		.loc 1 642 7 is_stmt 1 view .LVU179
+ 744              		.loc 1 642 11 is_stmt 0 view .LVU180
+ 745 0004 064A     		ldr	r2, .L104
+ 746 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 747              	.LVL83:
+ 748              		.loc 1 642 11 view .LVU181
+ 749 000a FFF7FEFF 		bl	ISM330DHCX_FIFO_Get_Tag
+ 750              	.LVL84:
+ 751              		.loc 1 642 10 view .LVU182
+ 752 000e 00B9     		cbnz	r0, .L103
+ 753              	.L96:
+ 643:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 644:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 645:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 646:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 647:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ARM GAS  C:\Temp\ccGLcWda.s 			page 27
+
+
+ 648:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 649:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 650:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 651:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 652:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 653:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 654:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 655:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 656:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 657:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 658:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 659:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 754              		.loc 1 659 1 view .LVU183
+ 755 0010 08BD     		pop	{r3, pc}
+ 756              	.L103:
+ 644:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 757              		.loc 1 644 13 view .LVU184
+ 758 0012 6FF00400 		mvn	r0, #4
+ 759 0016 FBE7     		b	.L96
+ 760              	.LVL85:
+ 761              	.L98:
+ 762              		.cfi_def_cfa_offset 0
+ 763              		.cfi_restore 3
+ 764              		.cfi_restore 14
+ 654:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 765              		.loc 1 654 11 view .LVU185
+ 766 0018 6FF00100 		mvn	r0, #1
+ 767              	.LVL86:
+ 658:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 768              		.loc 1 658 3 is_stmt 1 view .LVU186
+ 769              		.loc 1 659 1 is_stmt 0 view .LVU187
+ 770 001c 7047     		bx	lr
+ 771              	.L105:
+ 772 001e 00BF     		.align	2
+ 773              	.L104:
+ 774 0020 00000000 		.word	MotionCompObj
+ 775              		.cfi_endproc
+ 776              	.LFE143:
+ 778              		.section	.text.IKS02A1_MOTION_SENSOR_FIFO_Get_Axes,"ax",%progbits
+ 779              		.align	1
+ 780              		.global	IKS02A1_MOTION_SENSOR_FIFO_Get_Axes
+ 781              		.syntax unified
+ 782              		.thumb
+ 783              		.thumb_func
+ 785              	IKS02A1_MOTION_SENSOR_FIFO_Get_Axes:
+ 786              	.LVL87:
+ 787              	.LFB144:
+ 660:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 661:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 662:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Get FIFO axes data (available only for ISM330DHCX sensor)
+ 663:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 664:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Function Motion sensor function. Could be:
+ 665:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_GYRO or MOTION_ACCELERO for instance IKS02A1_ISM330DHCX_0
+ 666:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Data FIFO axes data
+ 667:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 668:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 669:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_FIFO_Get_Axes(uint32_t Instance, uint32_t Function, IKS02A1_MOTION_SE
+ARM GAS  C:\Temp\ccGLcWda.s 			page 28
+
+
+ 670:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 788              		.loc 1 670 1 is_stmt 1 view -0
+ 789              		.cfi_startproc
+ 790              		@ args = 0, pretend = 0, frame = 0
+ 791              		@ frame_needed = 0, uses_anonymous_args = 0
+ 671:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 792              		.loc 1 671 3 view .LVU189
+ 672:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 673:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 793              		.loc 1 673 3 view .LVU190
+ 794 0000 E0B9     		cbnz	r0, .L109
+ 670:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 795              		.loc 1 670 1 is_stmt 0 view .LVU191
+ 796 0002 08B5     		push	{r3, lr}
+ 797              		.cfi_def_cfa_offset 8
+ 798              		.cfi_offset 3, -8
+ 799              		.cfi_offset 14, -4
+ 800 0004 0B46     		mov	r3, r1
+ 801 0006 1146     		mov	r1, r2
+ 802              	.LVL88:
+ 674:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 675:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 676:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 677:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 803              		.loc 1 677 7 is_stmt 1 view .LVU192
+ 804              		.loc 1 677 10 is_stmt 0 view .LVU193
+ 805 0008 13F0020F 		tst	r3, #2
+ 806 000c 09D1     		bne	.L115
+ 678:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 679:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330DHCX_FIFO_ACC_Get_Axes(MotionCompObj[Instance], (ISM330DHCX_Axes_t *)Data) != BSP
+ 680:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 681:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 682:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 683:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 684:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 685:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 686:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 687:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 688:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+ 807              		.loc 1 688 12 is_stmt 1 view .LVU194
+ 808              		.loc 1 688 15 is_stmt 0 view .LVU195
+ 809 000e 13F0010F 		tst	r3, #1
+ 810 0012 16D0     		beq	.L110
+ 689:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 690:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (ISM330DHCX_FIFO_GYRO_Get_Axes(MotionCompObj[Instance], (ISM330DHCX_Axes_t *)Data) != BS
+ 811              		.loc 1 690 9 is_stmt 1 view .LVU196
+ 812              		.loc 1 690 13 is_stmt 0 view .LVU197
+ 813 0014 0C4B     		ldr	r3, .L117
+ 814              	.LVL89:
+ 815              		.loc 1 690 13 view .LVU198
+ 816 0016 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 817              	.LVL90:
+ 818              		.loc 1 690 13 view .LVU199
+ 819 001a FFF7FEFF 		bl	ISM330DHCX_FIFO_GYRO_Get_Axes
+ 820              	.LVL91:
+ 821              		.loc 1 690 12 view .LVU200
+ 822 001e 50B9     		cbnz	r0, .L116
+ARM GAS  C:\Temp\ccGLcWda.s 			page 29
+
+
+ 823              	.L106:
+ 691:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 692:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 693:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 694:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 695:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 696:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_NONE;
+ 697:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 698:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 699:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 700:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 701:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_WRONG_PARAM;
+ 702:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 703:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 704:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 705:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 706:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 707:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 708:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 709:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 710:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 711:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 712:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 824              		.loc 1 712 1 view .LVU201
+ 825 0020 08BD     		pop	{r3, pc}
+ 826              	.LVL92:
+ 827              	.L115:
+ 679:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 828              		.loc 1 679 9 is_stmt 1 view .LVU202
+ 679:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 829              		.loc 1 679 13 is_stmt 0 view .LVU203
+ 830 0022 094B     		ldr	r3, .L117
+ 831              	.LVL93:
+ 679:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 832              		.loc 1 679 13 view .LVU204
+ 833 0024 53F82000 		ldr	r0, [r3, r0, lsl #2]
+ 834              	.LVL94:
+ 679:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 835              		.loc 1 679 13 view .LVU205
+ 836 0028 FFF7FEFF 		bl	ISM330DHCX_FIFO_ACC_Get_Axes
+ 837              	.LVL95:
+ 679:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 838              		.loc 1 679 12 view .LVU206
+ 839 002c 0028     		cmp	r0, #0
+ 840 002e F7D0     		beq	.L106
+ 681:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 841              		.loc 1 681 15 view .LVU207
+ 842 0030 6FF00400 		mvn	r0, #4
+ 843 0034 F4E7     		b	.L106
+ 844              	.L116:
+ 692:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 845              		.loc 1 692 15 view .LVU208
+ 846 0036 6FF00400 		mvn	r0, #4
+ 847 003a F1E7     		b	.L106
+ 848              	.LVL96:
+ 849              	.L109:
+ 850              		.cfi_def_cfa_offset 0
+ARM GAS  C:\Temp\ccGLcWda.s 			page 30
+
+
+ 851              		.cfi_restore 3
+ 852              		.cfi_restore 14
+ 707:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 853              		.loc 1 707 11 view .LVU209
+ 854 003c 6FF00100 		mvn	r0, #1
+ 855              	.LVL97:
+ 856              		.loc 1 712 1 view .LVU210
+ 857 0040 7047     		bx	lr
+ 858              	.LVL98:
+ 859              	.L110:
+ 860              		.cfi_def_cfa_offset 8
+ 861              		.cfi_offset 3, -8
+ 862              		.cfi_offset 14, -4
+ 701:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 863              		.loc 1 701 13 view .LVU211
+ 864 0042 6FF00100 		mvn	r0, #1
+ 865              	.LVL99:
+ 711:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 866              		.loc 1 711 3 is_stmt 1 view .LVU212
+ 711:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 867              		.loc 1 711 10 is_stmt 0 view .LVU213
+ 868 0046 EBE7     		b	.L106
+ 869              	.L118:
+ 870              		.align	2
+ 871              	.L117:
+ 872 0048 00000000 		.word	MotionCompObj
+ 873              		.cfi_endproc
+ 874              	.LFE144:
+ 876              		.section	.text.IKS02A1_MOTION_SENSOR_DRDY_Set_Mode,"ax",%progbits
+ 877              		.align	1
+ 878              		.global	IKS02A1_MOTION_SENSOR_DRDY_Set_Mode
+ 879              		.syntax unified
+ 880              		.thumb
+ 881              		.thumb_func
+ 883              	IKS02A1_MOTION_SENSOR_DRDY_Set_Mode:
+ 884              	.LVL100:
+ 885              	.LFB145:
+ 713:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 714:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 715:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Set DRDY mode (available only for ISM330DHCX sensor)
+ 716:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 717:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Mode DRDY mode
+ 718:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 719:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 720:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_DRDY_Set_Mode(uint32_t Instance, uint8_t Mode)
+ 721:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 886              		.loc 1 721 1 is_stmt 1 view -0
+ 887              		.cfi_startproc
+ 888              		@ args = 0, pretend = 0, frame = 0
+ 889              		@ frame_needed = 0, uses_anonymous_args = 0
+ 722:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 890              		.loc 1 722 3 view .LVU215
+ 723:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 724:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 891              		.loc 1 724 3 view .LVU216
+ 892 0000 50B9     		cbnz	r0, .L121
+ 721:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ARM GAS  C:\Temp\ccGLcWda.s 			page 31
+
+
+ 893              		.loc 1 721 1 is_stmt 0 view .LVU217
+ 894 0002 08B5     		push	{r3, lr}
+ 895              		.cfi_def_cfa_offset 8
+ 896              		.cfi_offset 3, -8
+ 897              		.cfi_offset 14, -4
+ 725:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 726:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 727:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 728:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if (ISM330DHCX_DRDY_Set_Mode(MotionCompObj[Instance], Mode) != BSP_ERROR_NONE)
+ 898              		.loc 1 728 7 is_stmt 1 view .LVU218
+ 899              		.loc 1 728 11 is_stmt 0 view .LVU219
+ 900 0004 064A     		ldr	r2, .L127
+ 901 0006 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 902              	.LVL101:
+ 903              		.loc 1 728 11 view .LVU220
+ 904 000a FFF7FEFF 		bl	ISM330DHCX_DRDY_Set_Mode
+ 905              	.LVL102:
+ 906              		.loc 1 728 10 view .LVU221
+ 907 000e 00B9     		cbnz	r0, .L126
+ 908              	.L119:
+ 729:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 730:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 731:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 732:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 733:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 734:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_NONE;
+ 735:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 736:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 737:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 738:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 739:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 740:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 741:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 742:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 743:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 744:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 745:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 909              		.loc 1 745 1 view .LVU222
+ 910 0010 08BD     		pop	{r3, pc}
+ 911              	.L126:
+ 730:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 912              		.loc 1 730 13 view .LVU223
+ 913 0012 6FF00400 		mvn	r0, #4
+ 914 0016 FBE7     		b	.L119
+ 915              	.LVL103:
+ 916              	.L121:
+ 917              		.cfi_def_cfa_offset 0
+ 918              		.cfi_restore 3
+ 919              		.cfi_restore 14
+ 740:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 920              		.loc 1 740 11 view .LVU224
+ 921 0018 6FF00100 		mvn	r0, #1
+ 922              	.LVL104:
+ 744:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 923              		.loc 1 744 3 is_stmt 1 view .LVU225
+ 924              		.loc 1 745 1 is_stmt 0 view .LVU226
+ 925 001c 7047     		bx	lr
+ARM GAS  C:\Temp\ccGLcWda.s 			page 32
+
+
+ 926              	.L128:
+ 927 001e 00BF     		.align	2
+ 928              	.L127:
+ 929 0020 00000000 		.word	MotionCompObj
+ 930              		.cfi_endproc
+ 931              	.LFE145:
+ 933              		.section	.text.IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt,"ax",%progbits
+ 934              		.align	1
+ 935              		.global	IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt
+ 936              		.syntax unified
+ 937              		.thumb
+ 938              		.thumb_func
+ 940              	IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt:
+ 941              	.LVL105:
+ 942              	.LFB146:
+ 746:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 747:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 748:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Enable DRDY on selected interrupt pin (available only for ISM330DHCX sensor)
+ 749:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 750:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Function Motion sensor function. Could be:
+ 751:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_ACCELERO or MOTION_GYRO for instance IKS02A1_ISM330DHCX_0
+ 752:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  IntPin the interrupt pin to be used
+ 753:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 754:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 755:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt(uint32_t Instance, uint32_t Function,
+ 756:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****                                                     IKS02A1_MOTION_SENSOR_IntPin_t IntPin)
+ 757:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 943              		.loc 1 757 1 is_stmt 1 view -0
+ 944              		.cfi_startproc
+ 945              		@ args = 0, pretend = 0, frame = 0
+ 946              		@ frame_needed = 0, uses_anonymous_args = 0
+ 758:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 947              		.loc 1 758 3 view .LVU228
+ 759:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 760:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 948              		.loc 1 760 3 view .LVU229
+ 949 0000 E8B9     		cbnz	r0, .L132
+ 757:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 950              		.loc 1 757 1 is_stmt 0 view .LVU230
+ 951 0002 08B5     		push	{r3, lr}
+ 952              		.cfi_def_cfa_offset 8
+ 953              		.cfi_offset 3, -8
+ 954              		.cfi_offset 14, -4
+ 761:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 762:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 763:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 764:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 955              		.loc 1 764 7 is_stmt 1 view .LVU231
+ 956              		.loc 1 764 10 is_stmt 0 view .LVU232
+ 957 0004 11F0020F 		tst	r1, #2
+ 958 0008 0AD0     		beq	.L131
+ 765:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 766:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IntPin == IKS02A1_MOTION_SENSOR_INT1_PIN)
+ 959              		.loc 1 766 9 is_stmt 1 view .LVU233
+ 960              		.loc 1 766 12 is_stmt 0 view .LVU234
+ 961 000a DAB9     		cbnz	r2, .L133
+ 767:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ARM GAS  C:\Temp\ccGLcWda.s 			page 33
+
+
+ 768:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           if (ISM330DHCX_ACC_Enable_DRDY_On_INT1(MotionCompObj[Instance]) != BSP_ERROR_NONE)
+ 962              		.loc 1 768 11 is_stmt 1 view .LVU235
+ 963              		.loc 1 768 15 is_stmt 0 view .LVU236
+ 964 000c 124A     		ldr	r2, .L141
+ 965              	.LVL106:
+ 966              		.loc 1 768 15 view .LVU237
+ 967 000e 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 968              	.LVL107:
+ 969              		.loc 1 768 15 view .LVU238
+ 970 0012 FFF7FEFF 		bl	ISM330DHCX_ACC_Enable_DRDY_On_INT1
+ 971              	.LVL108:
+ 972              		.loc 1 768 14 view .LVU239
+ 973 0016 00B9     		cbnz	r0, .L140
+ 974              	.L129:
+ 769:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 770:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_COMPONENT_FAILURE;
+ 771:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 772:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           else
+ 773:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 774:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_NONE;
+ 775:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 776:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 777:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 778:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 779:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 780:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 781:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 782:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+ 783:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 784:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IntPin == IKS02A1_MOTION_SENSOR_INT2_PIN)
+ 785:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 786:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           if (ISM330DHCX_GYRO_Enable_DRDY_On_INT2(MotionCompObj[Instance]) != BSP_ERROR_NONE)
+ 787:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 788:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_COMPONENT_FAILURE;
+ 789:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 790:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           else
+ 791:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 792:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_NONE;
+ 793:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 794:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 795:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 796:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 797:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 798:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 799:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 800:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 801:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 802:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 803:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 804:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 805:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 806:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 807:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 808:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 809:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 810:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 811:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ARM GAS  C:\Temp\ccGLcWda.s 			page 34
+
+
+ 812:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 813:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 975              		.loc 1 813 1 view .LVU240
+ 976 0018 08BD     		pop	{r3, pc}
+ 977              	.L140:
+ 770:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 978              		.loc 1 770 17 view .LVU241
+ 979 001a 6FF00400 		mvn	r0, #4
+ 980 001e FBE7     		b	.L129
+ 981              	.LVL109:
+ 982              	.L131:
+ 782:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 983              		.loc 1 782 12 is_stmt 1 view .LVU242
+ 782:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 984              		.loc 1 782 15 is_stmt 0 view .LVU243
+ 985 0020 11F0010F 		tst	r1, #1
+ 986 0024 11D0     		beq	.L134
+ 784:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 987              		.loc 1 784 9 is_stmt 1 view .LVU244
+ 784:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 988              		.loc 1 784 12 is_stmt 0 view .LVU245
+ 989 0026 012A     		cmp	r2, #1
+ 990 0028 12D1     		bne	.L135
+ 786:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 991              		.loc 1 786 11 is_stmt 1 view .LVU246
+ 786:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 992              		.loc 1 786 15 is_stmt 0 view .LVU247
+ 993 002a 0B4A     		ldr	r2, .L141
+ 994              	.LVL110:
+ 786:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 995              		.loc 1 786 15 view .LVU248
+ 996 002c 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 997              	.LVL111:
+ 786:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 998              		.loc 1 786 15 view .LVU249
+ 999 0030 FFF7FEFF 		bl	ISM330DHCX_GYRO_Enable_DRDY_On_INT2
+ 1000              	.LVL112:
+ 786:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 1001              		.loc 1 786 14 view .LVU250
+ 1002 0034 0028     		cmp	r0, #0
+ 1003 0036 EFD0     		beq	.L129
+ 788:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 1004              		.loc 1 788 17 view .LVU251
+ 1005 0038 6FF00400 		mvn	r0, #4
+ 1006 003c ECE7     		b	.L129
+ 1007              	.LVL113:
+ 1008              	.L132:
+ 1009              		.cfi_def_cfa_offset 0
+ 1010              		.cfi_restore 3
+ 1011              		.cfi_restore 14
+ 808:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 1012              		.loc 1 808 11 view .LVU252
+ 1013 003e 6FF00100 		mvn	r0, #1
+ 1014              	.LVL114:
+ 1015              		.loc 1 813 1 view .LVU253
+ 1016 0042 7047     		bx	lr
+ 1017              	.LVL115:
+ARM GAS  C:\Temp\ccGLcWda.s 			page 35
+
+
+ 1018              	.L133:
+ 1019              		.cfi_def_cfa_offset 8
+ 1020              		.cfi_offset 3, -8
+ 1021              		.cfi_offset 14, -4
+ 779:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 1022              		.loc 1 779 15 view .LVU254
+ 1023 0044 6FF00400 		mvn	r0, #4
+ 1024              	.LVL116:
+ 779:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 1025              		.loc 1 779 15 view .LVU255
+ 1026 0048 E6E7     		b	.L129
+ 1027              	.LVL117:
+ 1028              	.L134:
+ 802:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 1029              		.loc 1 802 13 view .LVU256
+ 1030 004a 6FF00400 		mvn	r0, #4
+ 1031              	.LVL118:
+ 802:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 1032              		.loc 1 802 13 view .LVU257
+ 1033 004e E3E7     		b	.L129
+ 1034              	.LVL119:
+ 1035              	.L135:
+ 797:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 1036              		.loc 1 797 15 view .LVU258
+ 1037 0050 6FF00400 		mvn	r0, #4
+ 1038              	.LVL120:
+ 812:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 1039              		.loc 1 812 3 is_stmt 1 view .LVU259
+ 812:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 1040              		.loc 1 812 10 is_stmt 0 view .LVU260
+ 1041 0054 E0E7     		b	.L129
+ 1042              	.L142:
+ 1043 0056 00BF     		.align	2
+ 1044              	.L141:
+ 1045 0058 00000000 		.word	MotionCompObj
+ 1046              		.cfi_endproc
+ 1047              	.LFE146:
+ 1049              		.section	.text.IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt,"ax",%progbits
+ 1050              		.align	1
+ 1051              		.global	IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt
+ 1052              		.syntax unified
+ 1053              		.thumb
+ 1054              		.thumb_func
+ 1056              	IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt:
+ 1057              	.LVL121:
+ 1058              	.LFB147:
+ 814:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 815:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** /**
+ 816:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @brief  Disable DRDY on selected interrupt pin (available only for ISM330DHCX sensor)
+ 817:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Instance the device instance
+ 818:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  Function Motion sensor function. Could be:
+ 819:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   *         - MOTION_ACCELERO or MOTION_GYRO for instance IKS02A1_ISM330DHCX_0
+ 820:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @param  IntPin the interrupt pin to be used
+ 821:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   * @retval BSP status
+ 822:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   */
+ 823:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** int32_t IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt(uint32_t Instance, uint32_t Function,
+ 824:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****                                                      IKS02A1_MOTION_SENSOR_IntPin_t IntPin)
+ARM GAS  C:\Temp\ccGLcWda.s 			page 36
+
+
+ 825:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** {
+ 1059              		.loc 1 825 1 is_stmt 1 view -0
+ 1060              		.cfi_startproc
+ 1061              		@ args = 0, pretend = 0, frame = 0
+ 1062              		@ frame_needed = 0, uses_anonymous_args = 0
+ 826:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 1063              		.loc 1 826 3 view .LVU262
+ 827:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 828:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   switch (Instance)
+ 1064              		.loc 1 828 3 view .LVU263
+ 1065 0000 E8B9     		cbnz	r0, .L146
+ 825:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   int32_t ret;
+ 1066              		.loc 1 825 1 is_stmt 0 view .LVU264
+ 1067 0002 08B5     		push	{r3, lr}
+ 1068              		.cfi_def_cfa_offset 8
+ 1069              		.cfi_offset 3, -8
+ 1070              		.cfi_offset 14, -4
+ 829:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   {
+ 830:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #if (USE_IKS02A1_MOTION_SENSOR_ISM330DHCX_0 == 1)
+ 831:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     case IKS02A1_ISM330DHCX_0:
+ 832:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       if ((Function & MOTION_ACCELERO) == MOTION_ACCELERO)
+ 1071              		.loc 1 832 7 is_stmt 1 view .LVU265
+ 1072              		.loc 1 832 10 is_stmt 0 view .LVU266
+ 1073 0004 11F0020F 		tst	r1, #2
+ 1074 0008 0AD0     		beq	.L145
+ 833:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 834:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IntPin == IKS02A1_MOTION_SENSOR_INT1_PIN)
+ 1075              		.loc 1 834 9 is_stmt 1 view .LVU267
+ 1076              		.loc 1 834 12 is_stmt 0 view .LVU268
+ 1077 000a DAB9     		cbnz	r2, .L147
+ 835:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 836:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           if (ISM330DHCX_ACC_Disable_DRDY_On_INT1(MotionCompObj[Instance]) != BSP_ERROR_NONE)
+ 1078              		.loc 1 836 11 is_stmt 1 view .LVU269
+ 1079              		.loc 1 836 15 is_stmt 0 view .LVU270
+ 1080 000c 124A     		ldr	r2, .L155
+ 1081              	.LVL122:
+ 1082              		.loc 1 836 15 view .LVU271
+ 1083 000e 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 1084              	.LVL123:
+ 1085              		.loc 1 836 15 view .LVU272
+ 1086 0012 FFF7FEFF 		bl	ISM330DHCX_ACC_Disable_DRDY_On_INT1
+ 1087              	.LVL124:
+ 1088              		.loc 1 836 14 view .LVU273
+ 1089 0016 00B9     		cbnz	r0, .L154
+ 1090              	.L143:
+ 837:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 838:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_COMPONENT_FAILURE;
+ 839:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 840:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           else
+ 841:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 842:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_NONE;
+ 843:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 844:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 845:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 846:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 847:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 848:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ARM GAS  C:\Temp\ccGLcWda.s 			page 37
+
+
+ 849:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 850:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else if ((Function & MOTION_GYRO) == MOTION_GYRO)
+ 851:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 852:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         if (IntPin == IKS02A1_MOTION_SENSOR_INT2_PIN)
+ 853:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 854:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           if (ISM330DHCX_GYRO_Disable_DRDY_On_INT2(MotionCompObj[Instance]) != BSP_ERROR_NONE)
+ 855:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 856:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_COMPONENT_FAILURE;
+ 857:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 858:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           else
+ 859:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 860:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****             ret = BSP_ERROR_NONE;
+ 861:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 862:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 863:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         else
+ 864:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 865:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           ret = BSP_ERROR_COMPONENT_FAILURE;
+ 866:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 867:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 868:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       else
+ 869:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 870:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         ret = BSP_ERROR_COMPONENT_FAILURE;
+ 871:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 872:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 873:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** #endif
+ 874:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 875:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****     default:
+ 876:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       ret = BSP_ERROR_WRONG_PARAM;
+ 877:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 878:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   }
+ 879:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** 
+ 880:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****   return ret;
+ 881:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 1091              		.loc 1 881 1 view .LVU274
+ 1092 0018 08BD     		pop	{r3, pc}
+ 1093              	.L154:
+ 838:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 1094              		.loc 1 838 17 view .LVU275
+ 1095 001a 6FF00400 		mvn	r0, #4
+ 1096 001e FBE7     		b	.L143
+ 1097              	.LVL125:
+ 1098              	.L145:
+ 850:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 1099              		.loc 1 850 12 is_stmt 1 view .LVU276
+ 850:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       {
+ 1100              		.loc 1 850 15 is_stmt 0 view .LVU277
+ 1101 0020 11F0010F 		tst	r1, #1
+ 1102 0024 11D0     		beq	.L148
+ 852:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 1103              		.loc 1 852 9 is_stmt 1 view .LVU278
+ 852:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         {
+ 1104              		.loc 1 852 12 is_stmt 0 view .LVU279
+ 1105 0026 012A     		cmp	r2, #1
+ 1106 0028 12D1     		bne	.L149
+ 854:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 1107              		.loc 1 854 11 is_stmt 1 view .LVU280
+ 854:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ARM GAS  C:\Temp\ccGLcWda.s 			page 38
+
+
+ 1108              		.loc 1 854 15 is_stmt 0 view .LVU281
+ 1109 002a 0B4A     		ldr	r2, .L155
+ 1110              	.LVL126:
+ 854:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 1111              		.loc 1 854 15 view .LVU282
+ 1112 002c 52F82000 		ldr	r0, [r2, r0, lsl #2]
+ 1113              	.LVL127:
+ 854:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 1114              		.loc 1 854 15 view .LVU283
+ 1115 0030 FFF7FEFF 		bl	ISM330DHCX_GYRO_Disable_DRDY_On_INT2
+ 1116              	.LVL128:
+ 854:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           {
+ 1117              		.loc 1 854 14 view .LVU284
+ 1118 0034 0028     		cmp	r0, #0
+ 1119 0036 EFD0     		beq	.L143
+ 856:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****           }
+ 1120              		.loc 1 856 17 view .LVU285
+ 1121 0038 6FF00400 		mvn	r0, #4
+ 1122 003c ECE7     		b	.L143
+ 1123              	.LVL129:
+ 1124              	.L146:
+ 1125              		.cfi_def_cfa_offset 0
+ 1126              		.cfi_restore 3
+ 1127              		.cfi_restore 14
+ 876:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       break;
+ 1128              		.loc 1 876 11 view .LVU286
+ 1129 003e 6FF00100 		mvn	r0, #1
+ 1130              	.LVL130:
+ 1131              		.loc 1 881 1 view .LVU287
+ 1132 0042 7047     		bx	lr
+ 1133              	.LVL131:
+ 1134              	.L147:
+ 1135              		.cfi_def_cfa_offset 8
+ 1136              		.cfi_offset 3, -8
+ 1137              		.cfi_offset 14, -4
+ 847:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 1138              		.loc 1 847 15 view .LVU288
+ 1139 0044 6FF00400 		mvn	r0, #4
+ 1140              	.LVL132:
+ 847:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 1141              		.loc 1 847 15 view .LVU289
+ 1142 0048 E6E7     		b	.L143
+ 1143              	.LVL133:
+ 1144              	.L148:
+ 870:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 1145              		.loc 1 870 13 view .LVU290
+ 1146 004a 6FF00400 		mvn	r0, #4
+ 1147              	.LVL134:
+ 870:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****       }
+ 1148              		.loc 1 870 13 view .LVU291
+ 1149 004e E3E7     		b	.L143
+ 1150              	.LVL135:
+ 1151              	.L149:
+ 865:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c ****         }
+ 1152              		.loc 1 865 15 view .LVU292
+ 1153 0050 6FF00400 		mvn	r0, #4
+ 1154              	.LVL136:
+ARM GAS  C:\Temp\ccGLcWda.s 			page 39
+
+
+ 880:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 1155              		.loc 1 880 3 is_stmt 1 view .LVU293
+ 880:Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.c **** }
+ 1156              		.loc 1 880 10 is_stmt 0 view .LVU294
+ 1157 0054 E0E7     		b	.L143
+ 1158              	.L156:
+ 1159 0056 00BF     		.align	2
+ 1160              	.L155:
+ 1161 0058 00000000 		.word	MotionCompObj
+ 1162              		.cfi_endproc
+ 1163              	.LFE147:
+ 1165              		.text
+ 1166              	.Letext0:
+ 1167              		.file 2 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1168              		.file 3 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1169              		.file 4 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1170              		.file 5 "Drivers/BSP/Components/ism330dhcx/ism330dhcx_reg.h"
+ 1171              		.file 6 "Drivers/BSP/Components/ism330dhcx/ism330dhcx.h"
+ 1172              		.file 7 "Drivers/BSP/Components/iis2dlpc/iis2dlpc.h"
+ 1173              		.file 8 "Drivers/BSP/Components/iis2mdc/iis2mdc.h"
+ 1174              		.file 9 "Drivers/BSP/IKS02A1/iks02a1_motion_sensors.h"
+ 1175              		.file 10 "Drivers/BSP/IKS02A1/iks02a1_motion_sensors_ex.h"
+ARM GAS  C:\Temp\ccGLcWda.s 			page 40
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 iks02a1_motion_sensors_ex.c
+  C:\Temp\ccGLcWda.s:21     .text.IKS02A1_MOTION_SENSOR_Get_DRDY_Status:00000000 $t
+  C:\Temp\ccGLcWda.s:27     .text.IKS02A1_MOTION_SENSOR_Get_DRDY_Status:00000000 IKS02A1_MOTION_SENSOR_Get_DRDY_Status
+  C:\Temp\ccGLcWda.s:167    .text.IKS02A1_MOTION_SENSOR_Get_DRDY_Status:00000090 $d
+  C:\Temp\ccGLcWda.s:172    .text.IKS02A1_MOTION_SENSOR_Read_Register:00000000 $t
+  C:\Temp\ccGLcWda.s:178    .text.IKS02A1_MOTION_SENSOR_Read_Register:00000000 IKS02A1_MOTION_SENSOR_Read_Register
+  C:\Temp\ccGLcWda.s:254    .text.IKS02A1_MOTION_SENSOR_Read_Register:00000050 $d
+  C:\Temp\ccGLcWda.s:259    .text.IKS02A1_MOTION_SENSOR_Write_Register:00000000 $t
+  C:\Temp\ccGLcWda.s:265    .text.IKS02A1_MOTION_SENSOR_Write_Register:00000000 IKS02A1_MOTION_SENSOR_Write_Register
+  C:\Temp\ccGLcWda.s:341    .text.IKS02A1_MOTION_SENSOR_Write_Register:00000050 $d
+  C:\Temp\ccGLcWda.s:346    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples:00000000 $t
+  C:\Temp\ccGLcWda.s:352    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples:00000000 IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples
+  C:\Temp\ccGLcWda.s:398    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Num_Samples:00000020 $d
+  C:\Temp\ccGLcWda.s:403    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_BDR:00000000 $t
+  C:\Temp\ccGLcWda.s:409    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_BDR:00000000 IKS02A1_MOTION_SENSOR_FIFO_Set_BDR
+  C:\Temp\ccGLcWda.s:489    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_BDR:00000044 $d
+  C:\Temp\ccGLcWda.s:494    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full:00000000 $t
+  C:\Temp\ccGLcWda.s:500    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full:00000000 IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full
+  C:\Temp\ccGLcWda.s:546    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_INT1_FIFO_Full:00000020 $d
+  C:\Temp\ccGLcWda.s:551    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level:00000000 $t
+  C:\Temp\ccGLcWda.s:557    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level:00000000 IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level
+  C:\Temp\ccGLcWda.s:603    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Watermark_Level:00000020 $d
+  C:\Temp\ccGLcWda.s:608    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth:00000000 $t
+  C:\Temp\ccGLcWda.s:614    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth:00000000 IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth
+  C:\Temp\ccGLcWda.s:660    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Stop_On_Fth:00000020 $d
+  C:\Temp\ccGLcWda.s:665    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Mode:00000000 $t
+  C:\Temp\ccGLcWda.s:671    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Mode:00000000 IKS02A1_MOTION_SENSOR_FIFO_Set_Mode
+  C:\Temp\ccGLcWda.s:717    .text.IKS02A1_MOTION_SENSOR_FIFO_Set_Mode:00000020 $d
+  C:\Temp\ccGLcWda.s:722    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Tag:00000000 $t
+  C:\Temp\ccGLcWda.s:728    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Tag:00000000 IKS02A1_MOTION_SENSOR_FIFO_Get_Tag
+  C:\Temp\ccGLcWda.s:774    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Tag:00000020 $d
+  C:\Temp\ccGLcWda.s:779    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Axes:00000000 $t
+  C:\Temp\ccGLcWda.s:785    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Axes:00000000 IKS02A1_MOTION_SENSOR_FIFO_Get_Axes
+  C:\Temp\ccGLcWda.s:872    .text.IKS02A1_MOTION_SENSOR_FIFO_Get_Axes:00000048 $d
+  C:\Temp\ccGLcWda.s:877    .text.IKS02A1_MOTION_SENSOR_DRDY_Set_Mode:00000000 $t
+  C:\Temp\ccGLcWda.s:883    .text.IKS02A1_MOTION_SENSOR_DRDY_Set_Mode:00000000 IKS02A1_MOTION_SENSOR_DRDY_Set_Mode
+  C:\Temp\ccGLcWda.s:929    .text.IKS02A1_MOTION_SENSOR_DRDY_Set_Mode:00000020 $d
+  C:\Temp\ccGLcWda.s:934    .text.IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt:00000000 $t
+  C:\Temp\ccGLcWda.s:940    .text.IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt:00000000 IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt
+  C:\Temp\ccGLcWda.s:1045   .text.IKS02A1_MOTION_SENSOR_DRDY_Enable_Interrupt:00000058 $d
+  C:\Temp\ccGLcWda.s:1050   .text.IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt:00000000 $t
+  C:\Temp\ccGLcWda.s:1056   .text.IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt:00000000 IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt
+  C:\Temp\ccGLcWda.s:1161   .text.IKS02A1_MOTION_SENSOR_DRDY_Disable_Interrupt:00000058 $d
+
+UNDEFINED SYMBOLS
+ISM330DHCX_GYRO_Get_DRDY_Status
+ISM330DHCX_ACC_Get_DRDY_Status
+IIS2DLPC_ACC_Get_DRDY_Status
+IIS2MDC_MAG_Get_DRDY_Status
+MotionCompObj
+ISM330DHCX_Read_Reg
+IIS2DLPC_Read_Reg
+IIS2MDC_Read_Reg
+ISM330DHCX_Write_Reg
+IIS2DLPC_Write_Reg
+IIS2MDC_Write_Reg
+ARM GAS  C:\Temp\ccGLcWda.s 			page 41
+
+
+ISM330DHCX_FIFO_Get_Num_Samples
+ISM330DHCX_FIFO_GYRO_Set_BDR
+ISM330DHCX_FIFO_ACC_Set_BDR
+ISM330DHCX_FIFO_Set_INT1_FIFO_Full
+ISM330DHCX_FIFO_Set_Watermark_Level
+ISM330DHCX_FIFO_Set_Stop_On_Fth
+ISM330DHCX_FIFO_Set_Mode
+ISM330DHCX_FIFO_Get_Tag
+ISM330DHCX_FIFO_GYRO_Get_Axes
+ISM330DHCX_FIFO_ACC_Get_Axes
+ISM330DHCX_DRDY_Set_Mode
+ISM330DHCX_ACC_Enable_DRDY_On_INT1
+ISM330DHCX_GYRO_Enable_DRDY_On_INT2
+ISM330DHCX_ACC_Disable_DRDY_On_INT1
+ISM330DHCX_GYRO_Disable_DRDY_On_INT2

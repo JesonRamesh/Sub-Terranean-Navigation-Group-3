@@ -1,0 +1,28 @@
+{
+  "configurations": [
+    {
+      "name": "STM32",
+      "includePath": [
+        "Core/Inc",
+        "Drivers/BSP/Components/Common",
+        "Drivers/BSP/Components/iis2dlpc",
+        "Drivers/BSP/Components/iis2mdc",
+        "Drivers/BSP/Components/ism330dhcx",
+        "Drivers/BSP/IKS02A1",
+        "Drivers/BSP/STM32F4xx_Nucleo",
+        "Drivers/CMSIS/Device/ST/STM32F4xx/Include",
+        "Drivers/CMSIS/Include",
+        "Drivers/STM32F4xx_HAL_Driver/Inc",
+        "Drivers/STM32F4xx_HAL_Driver/Inc/Legacy",
+        "MEMS/App",
+        "MEMS/Target"
+      ],
+      "defines": [
+        "STM32F411xE",
+        "USE_HAL_DRIVER"
+      ],
+      "compilerPath": "C:\\USERS\\JESSEJABEZARENDSE\\APPDATA\\ROAMING\\CODE\\USER\\GLOBALSTORAGE\\BMD.STM32-FOR-VSCODE\\@XPACK-DEV-TOOLS\\ARM-NONE-EABI-GCC\\12.3.1-1.2.1\\.CONTENT\\BIN\\ARM-NONE-EABI-GCC.EXE"
+    }
+  ],
+  "version": 4
+}

@@ -1,0 +1,2236 @@
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"iis2mdc.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "Drivers/BSP/Components/iis2mdc/iis2mdc.c"
+  20              		.section	.text.IIS2MDC_GetCapabilities,"ax",%progbits
+  21              		.align	1
+  22              		.global	IIS2MDC_GetCapabilities
+  23              		.syntax unified
+  24              		.thumb
+  25              		.thumb_func
+  27              	IIS2MDC_GetCapabilities:
+  28              	.LVL0:
+  29              	.LFB4:
+   1:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+   2:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   ******************************************************************************
+   3:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @file    iis2mdc.c
+   4:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @author  MEMS Software Solutions Team
+   5:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief   IIS2MDC driver file
+   6:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   ******************************************************************************
+   7:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @attention
+   8:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   *
+   9:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * Copyright (c) 2019 STMicroelectronics.
+  10:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * All rights reserved.
+  11:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   *
+  12:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * in the root directory of this software component.
+  14:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   *
+  16:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   ******************************************************************************
+  17:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  18:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  19:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /* Includes ------------------------------------------------------------------*/
+  20:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** #include "iis2mdc.h"
+  21:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  22:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @addtogroup BSP BSP
+  23:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+  24:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  25:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  26:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @addtogroup Component Component
+  27:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+  28:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  29:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 2
+
+
+  30:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @defgroup IIS2MDC IIS2MDC
+  31:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+  32:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  33:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  34:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @defgroup IIS2MDC_Exported_Variables IIS2MDC Exported Variables
+  35:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+  36:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  37:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  38:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** IIS2MDC_CommonDrv_t IIS2MDC_COMMON_Driver =
+  39:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+  40:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_Init,
+  41:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_DeInit,
+  42:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_ReadID,
+  43:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_GetCapabilities,
+  44:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** };
+  45:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  46:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** IIS2MDC_MAG_Drv_t IIS2MDC_MAG_Driver =
+  47:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+  48:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_Enable,
+  49:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_Disable,
+  50:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_GetSensitivity,
+  51:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_GetOutputDataRate,
+  52:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_SetOutputDataRate,
+  53:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_GetFullScale,
+  54:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_SetFullScale,
+  55:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_GetAxes,
+  56:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_MAG_GetAxesRaw,
+  57:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** };
+  58:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  59:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+  60:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @}
+  61:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  62:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  63:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @defgroup IIS2MDC_Private_Function_Prototypes IIS2MDC Private Function Prototypes
+  64:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+  65:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  66:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  67:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** static int32_t ReadMagRegWrap(void *Handle, uint8_t Reg, uint8_t *pData, uint16_t Length);
+  68:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** static int32_t WriteMagRegWrap(void *Handle, uint8_t Reg, uint8_t *pData, uint16_t Length);
+  69:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  70:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+  71:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @}
+  72:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  73:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  74:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @defgroup IIS2MDC_Exported_Functions IIS2MDC Exported Functions
+  75:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+  76:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  77:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+  78:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+  79:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Register Component Bus IO operations
+  80:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+  81:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+  82:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+  83:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_RegisterBusIO(IIS2MDC_Object_t *pObj, IIS2MDC_IO_t *pIO)
+  84:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+  85:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   int32_t ret = IIS2MDC_OK;
+  86:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 3
+
+
+  87:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj == NULL)
+  88:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+  89:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     ret = IIS2MDC_ERROR;
+  90:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+  91:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   else
+  92:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+  93:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.Init      = pIO->Init;
+  94:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.DeInit    = pIO->DeInit;
+  95:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.BusType   = pIO->BusType;
+  96:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.Address   = pIO->Address;
+  97:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.WriteReg  = pIO->WriteReg;
+  98:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.ReadReg   = pIO->ReadReg;
+  99:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.GetTick   = pIO->GetTick;
+ 100:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 101:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.read_reg  = ReadMagRegWrap;
+ 102:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.write_reg = WriteMagRegWrap;
+ 103:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.mdelay    = pIO->Delay;
+ 104:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.handle    = pObj;
+ 105:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 106:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     if (pObj->IO.Init == NULL)
+ 107:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 108:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       ret = IIS2MDC_ERROR;
+ 109:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     }
+ 110:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     else if (pObj->IO.Init() != IIS2MDC_OK)
+ 111:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 112:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       ret = IIS2MDC_ERROR;
+ 113:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     }
+ 114:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     else
+ 115:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 116:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       if (pObj->IO.BusType != IIS2MDC_I2C_BUS) /* If the bus type is not I2C */
+ 117:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       {
+ 118:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         /* Disable I2C interface support only the first time */
+ 119:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         if (pObj->is_initialized == 0U)
+ 120:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         {
+ 121:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           /* Disable I2C interface on the component */
+ 122:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           if (iis2mdc_i2c_interface_set(&(pObj->Ctx), IIS2MDC_I2C_DISABLE) != IIS2MDC_OK)
+ 123:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           {
+ 124:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             ret = IIS2MDC_ERROR;
+ 125:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           }
+ 126:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         }
+ 127:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       }
+ 128:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     }
+ 129:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 130:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 131:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return ret;
+ 132:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 133:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 134:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 135:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Initialize the IIS2MDC sensor
+ 136:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 137:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 138:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 139:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_Init(IIS2MDC_Object_t *pObj)
+ 140:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 141:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Enable BDU */
+ 142:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_block_data_update_set(&(pObj->Ctx), PROPERTY_ENABLE) != IIS2MDC_OK)
+ 143:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 4
+
+
+ 144:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 145:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 146:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 147:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Operating mode selection - power down */
+ 148:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_operating_mode_set(&(pObj->Ctx), IIS2MDC_POWER_DOWN) != IIS2MDC_OK)
+ 149:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 150:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 151:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 152:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 153:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Output data rate selection */
+ 154:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_data_rate_set(&(pObj->Ctx), IIS2MDC_ODR_100Hz) != IIS2MDC_OK)
+ 155:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 156:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 157:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 158:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 159:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Self Test disabled. */
+ 160:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_self_test_set(&(pObj->Ctx), PROPERTY_DISABLE) != IIS2MDC_OK)
+ 161:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 162:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 163:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 164:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 165:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   pObj->is_initialized = 1;
+ 166:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 167:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 168:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 169:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 170:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 171:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Deinitialize the IIS2MDC magnetometer sensor
+ 172:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 173:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 174:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 175:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_DeInit(IIS2MDC_Object_t *pObj)
+ 176:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 177:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Disable the component */
+ 178:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (IIS2MDC_MAG_Disable(pObj) != IIS2MDC_OK)
+ 179:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 180:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 181:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 182:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 183:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   pObj->is_initialized = 0;
+ 184:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 185:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 186:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 187:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 188:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 189:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Read component ID
+ 190:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 191:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Id the WHO_AM_I value
+ 192:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 193:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 194:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_ReadID(IIS2MDC_Object_t *pObj, uint8_t *Id)
+ 195:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 196:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_device_id_get(&(pObj->Ctx), Id) != IIS2MDC_OK)
+ 197:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 198:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 199:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 200:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 5
+
+
+ 201:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 202:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 203:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 204:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 205:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get IIS2MDC magnetometer sensor capabilities
+ 206:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj Component object pointer
+ 207:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Capabilities pointer to IIS2MDC magnetometer sensor capabilities
+ 208:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval Component status
+ 209:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 210:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_GetCapabilities(IIS2MDC_Object_t *pObj, IIS2MDC_Capabilities_t *Capabilities)
+ 211:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+  30              		.loc 1 211 1 view -0
+  31              		.cfi_startproc
+  32              		@ args = 0, pretend = 0, frame = 0
+  33              		@ frame_needed = 0, uses_anonymous_args = 0
+  34              		@ link register save eliminated.
+ 212:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Prevent unused argument(s) compilation warning */
+ 213:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   (void)(pObj);
+  35              		.loc 1 213 3 view .LVU1
+ 214:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 215:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->Acc          = 0;
+  36              		.loc 1 215 3 view .LVU2
+  37              		.loc 1 215 30 is_stmt 0 view .LVU3
+  38 0000 0020     		movs	r0, #0
+  39              	.LVL1:
+  40              		.loc 1 215 30 view .LVU4
+  41 0002 0870     		strb	r0, [r1]
+ 216:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->Gyro         = 0;
+  42              		.loc 1 216 3 is_stmt 1 view .LVU5
+  43              		.loc 1 216 30 is_stmt 0 view .LVU6
+  44 0004 4870     		strb	r0, [r1, #1]
+ 217:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->Magneto      = 1;
+  45              		.loc 1 217 3 is_stmt 1 view .LVU7
+  46              		.loc 1 217 30 is_stmt 0 view .LVU8
+  47 0006 0123     		movs	r3, #1
+  48 0008 8B70     		strb	r3, [r1, #2]
+ 218:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->LowPower     = 0;
+  49              		.loc 1 218 3 is_stmt 1 view .LVU9
+  50              		.loc 1 218 30 is_stmt 0 view .LVU10
+  51 000a C870     		strb	r0, [r1, #3]
+ 219:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->GyroMaxFS    = 0;
+  52              		.loc 1 219 3 is_stmt 1 view .LVU11
+  53              		.loc 1 219 30 is_stmt 0 view .LVU12
+  54 000c 4860     		str	r0, [r1, #4]
+ 220:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->AccMaxFS     = 0;
+  55              		.loc 1 220 3 is_stmt 1 view .LVU13
+  56              		.loc 1 220 30 is_stmt 0 view .LVU14
+  57 000e 8860     		str	r0, [r1, #8]
+ 221:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->MagMaxFS     = 50;
+  58              		.loc 1 221 3 is_stmt 1 view .LVU15
+  59              		.loc 1 221 30 is_stmt 0 view .LVU16
+  60 0010 3223     		movs	r3, #50
+  61 0012 CB60     		str	r3, [r1, #12]
+ 222:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->GyroMaxOdr   = 0.0f;
+  62              		.loc 1 222 3 is_stmt 1 view .LVU17
+  63              		.loc 1 222 30 is_stmt 0 view .LVU18
+  64 0014 0023     		movs	r3, #0
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 6
+
+
+  65 0016 0B61     		str	r3, [r1, #16]	@ float
+ 223:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->AccMaxOdr    = 0.0f;
+  66              		.loc 1 223 3 is_stmt 1 view .LVU19
+  67              		.loc 1 223 30 is_stmt 0 view .LVU20
+  68 0018 4B61     		str	r3, [r1, #20]	@ float
+ 224:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Capabilities->MagMaxOdr    = 100.0f;
+  69              		.loc 1 224 3 is_stmt 1 view .LVU21
+  70              		.loc 1 224 30 is_stmt 0 view .LVU22
+  71 001a 014B     		ldr	r3, .L2
+  72 001c 8B61     		str	r3, [r1, #24]	@ float
+ 225:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+  73              		.loc 1 225 3 is_stmt 1 view .LVU23
+ 226:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+  74              		.loc 1 226 1 is_stmt 0 view .LVU24
+  75 001e 7047     		bx	lr
+  76              	.L3:
+  77              		.align	2
+  78              	.L2:
+  79 0020 0000C842 		.word	1120403456
+  80              		.cfi_endproc
+  81              	.LFE4:
+  83              		.section	.text.IIS2MDC_MAG_GetSensitivity,"ax",%progbits
+  84              		.align	1
+  85              		.global	IIS2MDC_MAG_GetSensitivity
+  86              		.syntax unified
+  87              		.thumb
+  88              		.thumb_func
+  90              	IIS2MDC_MAG_GetSensitivity:
+  91              	.LVL2:
+  92              	.LFB7:
+ 227:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 228:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 229:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief Enable the IIS2MDC magnetometer sensor
+ 230:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param pObj the device pObj
+ 231:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 232:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 233:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_Enable(IIS2MDC_Object_t *pObj)
+ 234:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 235:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Check if the component is already enabled */
+ 236:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj->mag_is_enabled == 1U)
+ 237:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 238:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_OK;
+ 239:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 240:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 241:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Output data rate selection. */
+ 242:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_operating_mode_set(&(pObj->Ctx), IIS2MDC_CONTINUOUS_MODE) != IIS2MDC_OK)
+ 243:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 244:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 245:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 246:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 247:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   pObj->mag_is_enabled = 1;
+ 248:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 249:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 250:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 251:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 252:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 253:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief Disable the IIS2MDC magnetometer sensor
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 7
+
+
+ 254:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param pObj the device pObj
+ 255:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 256:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 257:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_Disable(IIS2MDC_Object_t *pObj)
+ 258:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 259:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Check if the component is already disabled */
+ 260:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj->mag_is_enabled == 0U)
+ 261:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 262:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_OK;
+ 263:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 264:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 265:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Output data rate selection - power down. */
+ 266:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_operating_mode_set(&(pObj->Ctx), IIS2MDC_POWER_DOWN) != IIS2MDC_OK)
+ 267:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 268:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 269:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 270:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 271:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   pObj->mag_is_enabled = 0;
+ 272:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 273:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 274:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 275:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 276:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 277:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC magnetometer sensor sensitivity
+ 278:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 279:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Sensitivity pointer
+ 280:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 281:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 282:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_GetSensitivity(IIS2MDC_Object_t *pObj, float_t *Sensitivity)
+ 283:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+  93              		.loc 1 283 1 is_stmt 1 view -0
+  94              		.cfi_startproc
+  95              		@ args = 0, pretend = 0, frame = 0
+  96              		@ frame_needed = 0, uses_anonymous_args = 0
+  97              		@ link register save eliminated.
+ 284:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   UNUSED(pObj);
+  98              		.loc 1 284 3 view .LVU26
+ 285:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   *Sensitivity = IIS2MDC_MAG_SENSITIVITY_FS_50GAUSS;
+  99              		.loc 1 285 3 view .LVU27
+ 100              		.loc 1 285 16 is_stmt 0 view .LVU28
+ 101 0000 4FF07F53 		mov	r3, #1069547520
+ 102 0004 0B60     		str	r3, [r1]	@ float
+ 286:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 287:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 103              		.loc 1 287 3 is_stmt 1 view .LVU29
+ 288:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 104              		.loc 1 288 1 is_stmt 0 view .LVU30
+ 105 0006 0020     		movs	r0, #0
+ 106              	.LVL3:
+ 107              		.loc 1 288 1 view .LVU31
+ 108 0008 7047     		bx	lr
+ 109              		.cfi_endproc
+ 110              	.LFE7:
+ 112              		.section	.text.IIS2MDC_MAG_GetFullScale,"ax",%progbits
+ 113              		.align	1
+ 114              		.global	IIS2MDC_MAG_GetFullScale
+ 115              		.syntax unified
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 8
+
+
+ 116              		.thumb
+ 117              		.thumb_func
+ 119              	IIS2MDC_MAG_GetFullScale:
+ 120              	.LVL4:
+ 121              	.LFB10:
+ 289:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 290:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 291:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC magnetometer sensor output data rate
+ 292:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 293:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Odr pointer where the output data rate is written
+ 294:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 295:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 296:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_GetOutputDataRate(IIS2MDC_Object_t *pObj, float_t *Odr)
+ 297:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 298:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   int32_t ret = IIS2MDC_OK;
+ 299:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_odr_t odr_low_level;
+ 300:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 301:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Get current output data rate. */
+ 302:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_data_rate_get(&(pObj->Ctx), &odr_low_level) != IIS2MDC_OK)
+ 303:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 304:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 305:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 306:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 307:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   switch (odr_low_level)
+ 308:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 309:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     case IIS2MDC_ODR_10Hz:
+ 310:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       *Odr = 10.0f;
+ 311:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 312:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 313:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     case IIS2MDC_ODR_20Hz:
+ 314:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       *Odr = 20.0f;
+ 315:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 316:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 317:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     case IIS2MDC_ODR_50Hz:
+ 318:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       *Odr = 50.0f;
+ 319:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 320:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 321:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     case IIS2MDC_ODR_100Hz:
+ 322:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       *Odr = 100.0f;
+ 323:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 324:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 325:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     default:
+ 326:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       ret = IIS2MDC_ERROR;
+ 327:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 328:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 329:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 330:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return ret;
+ 331:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 332:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 333:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 334:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Set the IIS2MDC magnetometer sensor output data rate
+ 335:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 336:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Odr the output data rate value to be set
+ 337:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 338:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 339:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_SetOutputDataRate(IIS2MDC_Object_t *pObj, float_t Odr)
+ 340:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 9
+
+
+ 341:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_odr_t new_odr;
+ 342:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 343:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   new_odr = (Odr <= 10.000f) ? IIS2MDC_ODR_10Hz
+ 344:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 20.000f) ? IIS2MDC_ODR_20Hz
+ 345:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 50.000f) ? IIS2MDC_ODR_50Hz
+ 346:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             :                    IIS2MDC_ODR_100Hz;
+ 347:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 348:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_data_rate_set(&(pObj->Ctx), new_odr) != IIS2MDC_OK)
+ 349:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 350:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 351:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 352:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 353:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 354:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 355:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 356:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 357:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 358:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC magnetometer sensor full scale
+ 359:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 360:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  FullScale pointer where the full scale is written
+ 361:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 362:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 363:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_GetFullScale(IIS2MDC_Object_t *pObj, int32_t *FullScale)
+ 364:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 122              		.loc 1 364 1 is_stmt 1 view -0
+ 123              		.cfi_startproc
+ 124              		@ args = 0, pretend = 0, frame = 0
+ 125              		@ frame_needed = 0, uses_anonymous_args = 0
+ 126              		@ link register save eliminated.
+ 365:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   UNUSED(pObj);
+ 127              		.loc 1 365 3 view .LVU33
+ 366:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   *FullScale = 50;
+ 128              		.loc 1 366 3 view .LVU34
+ 129              		.loc 1 366 14 is_stmt 0 view .LVU35
+ 130 0000 3223     		movs	r3, #50
+ 131 0002 0B60     		str	r3, [r1]
+ 367:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 368:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 132              		.loc 1 368 3 is_stmt 1 view .LVU36
+ 369:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 133              		.loc 1 369 1 is_stmt 0 view .LVU37
+ 134 0004 0020     		movs	r0, #0
+ 135              	.LVL5:
+ 136              		.loc 1 369 1 view .LVU38
+ 137 0006 7047     		bx	lr
+ 138              		.cfi_endproc
+ 139              	.LFE10:
+ 141              		.section	.text.IIS2MDC_MAG_SetFullScale,"ax",%progbits
+ 142              		.align	1
+ 143              		.global	IIS2MDC_MAG_SetFullScale
+ 144              		.syntax unified
+ 145              		.thumb
+ 146              		.thumb_func
+ 148              	IIS2MDC_MAG_SetFullScale:
+ 149              	.LVL6:
+ 150              	.LFB11:
+ 370:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 10
+
+
+ 371:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 372:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Set the IIS2MDC magnetometer sensor full scale
+ 373:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 374:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  FullScale the functional full scale to be set
+ 375:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 376:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 377:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_SetFullScale(IIS2MDC_Object_t *pObj, int32_t FullScale)
+ 378:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 151              		.loc 1 378 1 is_stmt 1 view -0
+ 152              		.cfi_startproc
+ 153              		@ args = 0, pretend = 0, frame = 0
+ 154              		@ frame_needed = 0, uses_anonymous_args = 0
+ 155              		@ link register save eliminated.
+ 379:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   UNUSED(pObj);
+ 156              		.loc 1 379 3 view .LVU40
+ 380:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   UNUSED(FullScale);
+ 157              		.loc 1 380 3 view .LVU41
+ 381:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 158              		.loc 1 381 3 view .LVU42
+ 382:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 159              		.loc 1 382 1 is_stmt 0 view .LVU43
+ 160 0000 0020     		movs	r0, #0
+ 161              	.LVL7:
+ 162              		.loc 1 382 1 view .LVU44
+ 163 0002 7047     		bx	lr
+ 164              		.cfi_endproc
+ 165              	.LFE11:
+ 167              		.section	.text.ReadMagRegWrap,"ax",%progbits
+ 168              		.align	1
+ 169              		.syntax unified
+ 170              		.thumb
+ 171              		.thumb_func
+ 173              	ReadMagRegWrap:
+ 174              	.LVL8:
+ 175              	.LFB18:
+ 383:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 384:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 385:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC magnetometer sensor raw axes
+ 386:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 387:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Value pointer where the raw values of the axes are written
+ 388:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 389:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 390:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_GetAxesRaw(IIS2MDC_Object_t *pObj, IIS2MDC_AxesRaw_t *Value)
+ 391:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 392:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_axis3bit16_t data_raw;
+ 393:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 394:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Read raw data values. */
+ 395:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_magnetic_raw_get(&(pObj->Ctx), data_raw.i16bit) != IIS2MDC_OK)
+ 396:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 397:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 398:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 399:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 400:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Format the data. */
+ 401:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->x = data_raw.i16bit[0];
+ 402:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->y = data_raw.i16bit[1];
+ 403:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->z = data_raw.i16bit[2];
+ 404:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 11
+
+
+ 405:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 406:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 407:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 408:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 409:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC magnetometer sensor axes
+ 410:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 411:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  MagneticField pointer where the values of the axes are written
+ 412:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 413:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 414:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_GetAxes(IIS2MDC_Object_t *pObj, IIS2MDC_Axes_t *MagneticField)
+ 415:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 416:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_axis3bit16_t data_raw;
+ 417:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   float_t sensitivity = 0.0f;
+ 418:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 419:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Read raw data values. */
+ 420:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_magnetic_raw_get(&(pObj->Ctx), data_raw.i16bit) != IIS2MDC_OK)
+ 421:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 422:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 423:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 424:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 425:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Get IIS2MDC actual sensitivity. */
+ 426:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   (void)IIS2MDC_MAG_GetSensitivity(pObj, &sensitivity);
+ 427:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 428:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Calculate the data. */
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->x = (int32_t)((float_t)((float_t)data_raw.i16bit[0] * sensitivity));
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 432:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 433:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 434:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 435:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 436:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 437:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC register value for magnetic sensor
+ 438:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 439:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Reg address to be read
+ 440:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Data pointer where the value is written
+ 441:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 442:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 443:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_Read_Reg(IIS2MDC_Object_t *pObj, uint8_t Reg, uint8_t *Data)
+ 444:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 445:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_read_reg(&(pObj->Ctx), Reg, Data, 1) != IIS2MDC_OK)
+ 446:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 447:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 448:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 449:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 450:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 451:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 452:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 453:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 454:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Set the IIS2MDC register value for magnetic sensor
+ 455:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 456:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Reg address to be written
+ 457:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Data value to be written
+ 458:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 459:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 460:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_Write_Reg(IIS2MDC_Object_t *pObj, uint8_t Reg, uint8_t Data)
+ 461:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 12
+
+
+ 462:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_write_reg(&(pObj->Ctx), Reg, &Data, 1) != IIS2MDC_OK)
+ 463:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 464:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 465:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 466:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 467:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 468:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 469:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 470:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 471:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC MAG data ready bit value
+ 472:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 473:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Status the status of data ready bit
+ 474:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 475:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 476:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_Get_DRDY_Status(IIS2MDC_Object_t *pObj, uint8_t *Status)
+ 477:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 478:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_mag_data_ready_get(&(pObj->Ctx), Status) != IIS2MDC_OK)
+ 479:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 480:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 481:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 482:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 483:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 484:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 485:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 486:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 487:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Get the IIS2MDC MAG initialization status
+ 488:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pObj the device pObj
+ 489:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Status 1 if initialized, 0 otherwise
+ 490:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 491:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 492:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** int32_t IIS2MDC_MAG_Get_Init_Status(IIS2MDC_Object_t *pObj, uint8_t *Status)
+ 493:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 494:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj == NULL)
+ 495:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 496:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return IIS2MDC_ERROR;
+ 497:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 498:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 499:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   *Status = pObj->is_initialized;
+ 500:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 501:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   return IIS2MDC_OK;
+ 502:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 503:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 504:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 505:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @}
+ 506:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 507:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 508:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /** @defgroup IIS2MDC_Private_Functions IIS2MDC Private Functions
+ 509:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @{
+ 510:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 511:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 512:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 513:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Wrap Read register component function to Bus IO function
+ 514:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Handle the device handler
+ 515:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Reg the register address
+ 516:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pData the stored data pointer
+ 517:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Length the length
+ 518:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 13
+
+
+ 519:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 520:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** static int32_t ReadMagRegWrap(void *Handle, uint8_t Reg, uint8_t *pData, uint16_t Length)
+ 521:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 176              		.loc 1 521 1 is_stmt 1 view -0
+ 177              		.cfi_startproc
+ 178              		@ args = 0, pretend = 0, frame = 0
+ 179              		@ frame_needed = 0, uses_anonymous_args = 0
+ 180              		.loc 1 521 1 is_stmt 0 view .LVU46
+ 181 0000 10B5     		push	{r4, lr}
+ 182              		.cfi_def_cfa_offset 8
+ 183              		.cfi_offset 4, -8
+ 184              		.cfi_offset 14, -4
+ 522:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_Object_t *pObj = (IIS2MDC_Object_t *)Handle;
+ 185              		.loc 1 522 3 is_stmt 1 view .LVU47
+ 186              	.LVL9:
+ 523:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 524:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj->IO.BusType == IIS2MDC_I2C_BUS) /* I2C */
+ 187              		.loc 1 524 3 view .LVU48
+ 188              		.loc 1 524 6 is_stmt 0 view .LVU49
+ 189 0002 8468     		ldr	r4, [r0, #8]
+ 190 0004 2CB9     		cbnz	r4, .L8
+ 525:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 526:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     /* Enable Multi-byte read */
+ 527:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return pObj->IO.ReadReg(pObj->IO.Address, (Reg | 0x80U), pData, Length);
+ 191              		.loc 1 527 5 is_stmt 1 view .LVU50
+ 192              		.loc 1 527 20 is_stmt 0 view .LVU51
+ 193 0006 4469     		ldr	r4, [r0, #20]
+ 194              		.loc 1 527 12 view .LVU52
+ 195 0008 41F08001 		orr	r1, r1, #128
+ 196              	.LVL10:
+ 197              		.loc 1 527 12 view .LVU53
+ 198 000c 007B     		ldrb	r0, [r0, #12]	@ zero_extendqisi2
+ 199              	.LVL11:
+ 200              		.loc 1 527 12 view .LVU54
+ 201 000e A047     		blx	r4
+ 202              	.LVL12:
+ 203              	.L7:
+ 528:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 529:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   else   /* SPI 3-Wires */
+ 530:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 531:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     /* Enable Multi-byte read */
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return pObj->IO.ReadReg(pObj->IO.Address, (Reg | 0x40U), pData, Length);
+ 533:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 534:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 204              		.loc 1 534 1 view .LVU55
+ 205 0010 10BD     		pop	{r4, pc}
+ 206              	.LVL13:
+ 207              	.L8:
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 208              		.loc 1 532 5 is_stmt 1 view .LVU56
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 209              		.loc 1 532 20 is_stmt 0 view .LVU57
+ 210 0012 4469     		ldr	r4, [r0, #20]
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 211              		.loc 1 532 12 view .LVU58
+ 212 0014 41F04001 		orr	r1, r1, #64
+ 213              	.LVL14:
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 14
+
+
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 214              		.loc 1 532 12 view .LVU59
+ 215 0018 007B     		ldrb	r0, [r0, #12]	@ zero_extendqisi2
+ 216              	.LVL15:
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 217              		.loc 1 532 12 view .LVU60
+ 218 001a A047     		blx	r4
+ 219              	.LVL16:
+ 532:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 220              		.loc 1 532 12 view .LVU61
+ 221 001c F8E7     		b	.L7
+ 222              		.cfi_endproc
+ 223              	.LFE18:
+ 225              		.section	.text.WriteMagRegWrap,"ax",%progbits
+ 226              		.align	1
+ 227              		.syntax unified
+ 228              		.thumb
+ 229              		.thumb_func
+ 231              	WriteMagRegWrap:
+ 232              	.LVL17:
+ 233              	.LFB19:
+ 535:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 536:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** /**
+ 537:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @brief  Wrap Write register component function to Bus IO function
+ 538:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Handle the device handler
+ 539:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Reg the register address
+ 540:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  pData the stored data pointer
+ 541:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @param  Length the length
+ 542:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   * @retval 0 in case of success, an error code otherwise
+ 543:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   */
+ 544:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** static int32_t WriteMagRegWrap(void *Handle, uint8_t Reg, uint8_t *pData, uint16_t Length)
+ 545:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** {
+ 234              		.loc 1 545 1 is_stmt 1 view -0
+ 235              		.cfi_startproc
+ 236              		@ args = 0, pretend = 0, frame = 0
+ 237              		@ frame_needed = 0, uses_anonymous_args = 0
+ 238              		.loc 1 545 1 is_stmt 0 view .LVU63
+ 239 0000 10B5     		push	{r4, lr}
+ 240              		.cfi_def_cfa_offset 8
+ 241              		.cfi_offset 4, -8
+ 242              		.cfi_offset 14, -4
+ 546:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   IIS2MDC_Object_t *pObj = (IIS2MDC_Object_t *)Handle;
+ 243              		.loc 1 546 3 is_stmt 1 view .LVU64
+ 244              	.LVL18:
+ 547:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 548:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj->IO.BusType == IIS2MDC_I2C_BUS) /* I2C */
+ 245              		.loc 1 548 3 view .LVU65
+ 246              		.loc 1 548 6 is_stmt 0 view .LVU66
+ 247 0002 8468     		ldr	r4, [r0, #8]
+ 248 0004 2CB9     		cbnz	r4, .L12
+ 549:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 550:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     /* Enable Multi-byte write */
+ 551:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return pObj->IO.WriteReg(pObj->IO.Address, (Reg | 0x80U), pData, Length);
+ 249              		.loc 1 551 5 is_stmt 1 view .LVU67
+ 250              		.loc 1 551 20 is_stmt 0 view .LVU68
+ 251 0006 0469     		ldr	r4, [r0, #16]
+ 252              		.loc 1 551 12 view .LVU69
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 15
+
+
+ 253 0008 41F08001 		orr	r1, r1, #128
+ 254              	.LVL19:
+ 255              		.loc 1 551 12 view .LVU70
+ 256 000c 007B     		ldrb	r0, [r0, #12]	@ zero_extendqisi2
+ 257              	.LVL20:
+ 258              		.loc 1 551 12 view .LVU71
+ 259 000e A047     		blx	r4
+ 260              	.LVL21:
+ 261              	.L11:
+ 552:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 553:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   else   /* SPI 3-Wires */
+ 554:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 555:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     /* Enable Multi-byte write */
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     return pObj->IO.WriteReg(pObj->IO.Address, (Reg | 0x40U), pData, Length);
+ 557:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 558:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 262              		.loc 1 558 1 view .LVU72
+ 263 0010 10BD     		pop	{r4, pc}
+ 264              	.LVL22:
+ 265              	.L12:
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 266              		.loc 1 556 5 is_stmt 1 view .LVU73
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 267              		.loc 1 556 20 is_stmt 0 view .LVU74
+ 268 0012 0469     		ldr	r4, [r0, #16]
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 269              		.loc 1 556 12 view .LVU75
+ 270 0014 41F04001 		orr	r1, r1, #64
+ 271              	.LVL23:
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 272              		.loc 1 556 12 view .LVU76
+ 273 0018 007B     		ldrb	r0, [r0, #12]	@ zero_extendqisi2
+ 274              	.LVL24:
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 275              		.loc 1 556 12 view .LVU77
+ 276 001a A047     		blx	r4
+ 277              	.LVL25:
+ 556:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 278              		.loc 1 556 12 view .LVU78
+ 279 001c F8E7     		b	.L11
+ 280              		.cfi_endproc
+ 281              	.LFE19:
+ 283              		.section	.text.IIS2MDC_MAG_Enable,"ax",%progbits
+ 284              		.align	1
+ 285              		.global	IIS2MDC_MAG_Enable
+ 286              		.syntax unified
+ 287              		.thumb
+ 288              		.thumb_func
+ 290              	IIS2MDC_MAG_Enable:
+ 291              	.LVL26:
+ 292              	.LFB5:
+ 234:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Check if the component is already enabled */
+ 293              		.loc 1 234 1 is_stmt 1 view -0
+ 294              		.cfi_startproc
+ 295              		@ args = 0, pretend = 0, frame = 0
+ 296              		@ frame_needed = 0, uses_anonymous_args = 0
+ 236:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 16
+
+
+ 297              		.loc 1 236 3 view .LVU80
+ 236:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 298              		.loc 1 236 11 is_stmt 0 view .LVU81
+ 299 0000 90F83130 		ldrb	r3, [r0, #49]	@ zero_extendqisi2
+ 236:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 300              		.loc 1 236 6 view .LVU82
+ 301 0004 012B     		cmp	r3, #1
+ 302 0006 0AD0     		beq	.L17
+ 234:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Check if the component is already enabled */
+ 303              		.loc 1 234 1 view .LVU83
+ 304 0008 10B5     		push	{r4, lr}
+ 305              		.cfi_def_cfa_offset 8
+ 306              		.cfi_offset 4, -8
+ 307              		.cfi_offset 14, -4
+ 308 000a 0446     		mov	r4, r0
+ 242:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 309              		.loc 1 242 3 is_stmt 1 view .LVU84
+ 242:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 310              		.loc 1 242 7 is_stmt 0 view .LVU85
+ 311 000c 0021     		movs	r1, #0
+ 312 000e 2030     		adds	r0, r0, #32
+ 313              	.LVL27:
+ 242:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 314              		.loc 1 242 7 view .LVU86
+ 315 0010 FFF7FEFF 		bl	iis2mdc_operating_mode_set
+ 316              	.LVL28:
+ 242:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 317              		.loc 1 242 6 view .LVU87
+ 318 0014 28B9     		cbnz	r0, .L18
+ 247:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 319              		.loc 1 247 3 is_stmt 1 view .LVU88
+ 247:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 320              		.loc 1 247 24 is_stmt 0 view .LVU89
+ 321 0016 0123     		movs	r3, #1
+ 322 0018 84F83130 		strb	r3, [r4, #49]
+ 249:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 323              		.loc 1 249 3 is_stmt 1 view .LVU90
+ 324              	.L15:
+ 250:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 325              		.loc 1 250 1 is_stmt 0 view .LVU91
+ 326 001c 10BD     		pop	{r4, pc}
+ 327              	.LVL29:
+ 328              	.L17:
+ 329              		.cfi_def_cfa_offset 0
+ 330              		.cfi_restore 4
+ 331              		.cfi_restore 14
+ 238:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 332              		.loc 1 238 12 view .LVU92
+ 333 001e 0020     		movs	r0, #0
+ 334              	.LVL30:
+ 250:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 335              		.loc 1 250 1 view .LVU93
+ 336 0020 7047     		bx	lr
+ 337              	.LVL31:
+ 338              	.L18:
+ 339              		.cfi_def_cfa_offset 8
+ 340              		.cfi_offset 4, -8
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 17
+
+
+ 341              		.cfi_offset 14, -4
+ 244:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 342              		.loc 1 244 12 view .LVU94
+ 343 0022 4FF0FF30 		mov	r0, #-1
+ 344 0026 F9E7     		b	.L15
+ 345              		.cfi_endproc
+ 346              	.LFE5:
+ 348              		.section	.text.IIS2MDC_MAG_Disable,"ax",%progbits
+ 349              		.align	1
+ 350              		.global	IIS2MDC_MAG_Disable
+ 351              		.syntax unified
+ 352              		.thumb
+ 353              		.thumb_func
+ 355              	IIS2MDC_MAG_Disable:
+ 356              	.LVL32:
+ 357              	.LFB6:
+ 258:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Check if the component is already disabled */
+ 358              		.loc 1 258 1 is_stmt 1 view -0
+ 359              		.cfi_startproc
+ 360              		@ args = 0, pretend = 0, frame = 0
+ 361              		@ frame_needed = 0, uses_anonymous_args = 0
+ 260:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 362              		.loc 1 260 3 view .LVU96
+ 260:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 363              		.loc 1 260 11 is_stmt 0 view .LVU97
+ 364 0000 90F83130 		ldrb	r3, [r0, #49]	@ zero_extendqisi2
+ 260:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 365              		.loc 1 260 6 view .LVU98
+ 366 0004 0BB9     		cbnz	r3, .L31
+ 262:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 367              		.loc 1 262 12 view .LVU99
+ 368 0006 0020     		movs	r0, #0
+ 369              	.LVL33:
+ 274:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 370              		.loc 1 274 1 view .LVU100
+ 371 0008 7047     		bx	lr
+ 372              	.LVL34:
+ 373              	.L31:
+ 258:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Check if the component is already disabled */
+ 374              		.loc 1 258 1 view .LVU101
+ 375 000a 10B5     		push	{r4, lr}
+ 376              		.cfi_def_cfa_offset 8
+ 377              		.cfi_offset 4, -8
+ 378              		.cfi_offset 14, -4
+ 379 000c 0446     		mov	r4, r0
+ 266:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 380              		.loc 1 266 3 is_stmt 1 view .LVU102
+ 266:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 381              		.loc 1 266 7 is_stmt 0 view .LVU103
+ 382 000e 0221     		movs	r1, #2
+ 383 0010 2030     		adds	r0, r0, #32
+ 384              	.LVL35:
+ 266:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 385              		.loc 1 266 7 view .LVU104
+ 386 0012 FFF7FEFF 		bl	iis2mdc_operating_mode_set
+ 387              	.LVL36:
+ 266:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 18
+
+
+ 388              		.loc 1 266 6 view .LVU105
+ 389 0016 10B9     		cbnz	r0, .L26
+ 271:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 390              		.loc 1 271 3 is_stmt 1 view .LVU106
+ 271:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 391              		.loc 1 271 24 is_stmt 0 view .LVU107
+ 392 0018 84F83100 		strb	r0, [r4, #49]
+ 273:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 393              		.loc 1 273 3 is_stmt 1 view .LVU108
+ 394              	.L23:
+ 274:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 395              		.loc 1 274 1 is_stmt 0 view .LVU109
+ 396 001c 10BD     		pop	{r4, pc}
+ 397              	.LVL37:
+ 398              	.L26:
+ 268:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 399              		.loc 1 268 12 view .LVU110
+ 400 001e 4FF0FF30 		mov	r0, #-1
+ 401 0022 FBE7     		b	.L23
+ 402              		.cfi_endproc
+ 403              	.LFE6:
+ 405              		.section	.text.IIS2MDC_DeInit,"ax",%progbits
+ 406              		.align	1
+ 407              		.global	IIS2MDC_DeInit
+ 408              		.syntax unified
+ 409              		.thumb
+ 410              		.thumb_func
+ 412              	IIS2MDC_DeInit:
+ 413              	.LVL38:
+ 414              	.LFB2:
+ 176:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Disable the component */
+ 415              		.loc 1 176 1 is_stmt 1 view -0
+ 416              		.cfi_startproc
+ 417              		@ args = 0, pretend = 0, frame = 0
+ 418              		@ frame_needed = 0, uses_anonymous_args = 0
+ 176:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Disable the component */
+ 419              		.loc 1 176 1 is_stmt 0 view .LVU112
+ 420 0000 10B5     		push	{r4, lr}
+ 421              		.cfi_def_cfa_offset 8
+ 422              		.cfi_offset 4, -8
+ 423              		.cfi_offset 14, -4
+ 424 0002 0446     		mov	r4, r0
+ 178:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 425              		.loc 1 178 3 is_stmt 1 view .LVU113
+ 178:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 426              		.loc 1 178 7 is_stmt 0 view .LVU114
+ 427 0004 FFF7FEFF 		bl	IIS2MDC_MAG_Disable
+ 428              	.LVL39:
+ 178:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 429              		.loc 1 178 6 view .LVU115
+ 430 0008 10B9     		cbnz	r0, .L34
+ 183:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 431              		.loc 1 183 3 is_stmt 1 view .LVU116
+ 183:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 432              		.loc 1 183 24 is_stmt 0 view .LVU117
+ 433 000a 84F83000 		strb	r0, [r4, #48]
+ 185:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 19
+
+
+ 434              		.loc 1 185 3 is_stmt 1 view .LVU118
+ 435              	.L32:
+ 186:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 436              		.loc 1 186 1 is_stmt 0 view .LVU119
+ 437 000e 10BD     		pop	{r4, pc}
+ 438              	.LVL40:
+ 439              	.L34:
+ 180:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 440              		.loc 1 180 12 view .LVU120
+ 441 0010 4FF0FF30 		mov	r0, #-1
+ 442 0014 FBE7     		b	.L32
+ 443              		.cfi_endproc
+ 444              	.LFE2:
+ 446              		.section	.text.IIS2MDC_MAG_SetOutputDataRate,"ax",%progbits
+ 447              		.align	1
+ 448              		.global	IIS2MDC_MAG_SetOutputDataRate
+ 449              		.syntax unified
+ 450              		.thumb
+ 451              		.thumb_func
+ 453              	IIS2MDC_MAG_SetOutputDataRate:
+ 454              	.LVL41:
+ 455              	.LFB9:
+ 340:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_odr_t new_odr;
+ 456              		.loc 1 340 1 is_stmt 1 view -0
+ 457              		.cfi_startproc
+ 458              		@ args = 0, pretend = 0, frame = 0
+ 459              		@ frame_needed = 0, uses_anonymous_args = 0
+ 340:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_odr_t new_odr;
+ 460              		.loc 1 340 1 is_stmt 0 view .LVU122
+ 461 0000 08B5     		push	{r3, lr}
+ 462              		.cfi_def_cfa_offset 8
+ 463              		.cfi_offset 3, -8
+ 464              		.cfi_offset 14, -4
+ 341:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 465              		.loc 1 341 3 is_stmt 1 view .LVU123
+ 343:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 20.000f) ? IIS2MDC_ODR_20Hz
+ 466              		.loc 1 343 3 view .LVU124
+ 344:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 50.000f) ? IIS2MDC_ODR_50Hz
+ 467              		.loc 1 344 13 is_stmt 0 view .LVU125
+ 468 0002 F2EE047A 		vmov.f32	s15, #1.0e+1
+ 469 0006 B4EEE70A 		vcmpe.f32	s0, s15
+ 470 000a F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 471 000e 0FD9     		bls	.L40
+ 344:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 50.000f) ? IIS2MDC_ODR_50Hz
+ 472              		.loc 1 344 13 discriminator 2 view .LVU126
+ 473 0010 F3EE047A 		vmov.f32	s15, #2.0e+1
+ 474 0014 B4EEE70A 		vcmpe.f32	s0, s15
+ 475 0018 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 476 001c 0ED9     		bls	.L41
+ 344:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 50.000f) ? IIS2MDC_ODR_50Hz
+ 477              		.loc 1 344 13 discriminator 4 view .LVU127
+ 478 001e DFED0B7A 		vldr.32	s15, .L48
+ 479 0022 B4EEE70A 		vcmpe.f32	s0, s15
+ 480 0026 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+ 481 002a 09D8     		bhi	.L45
+ 344:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 50.000f) ? IIS2MDC_ODR_50Hz
+ 482              		.loc 1 344 13 view .LVU128
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 20
+
+
+ 483 002c 0221     		movs	r1, #2
+ 484 002e 00E0     		b	.L37
+ 485              	.L40:
+ 486 0030 0021     		movs	r1, #0
+ 487              	.L37:
+ 488              	.LVL42:
+ 348:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 489              		.loc 1 348 3 is_stmt 1 view .LVU129
+ 348:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 490              		.loc 1 348 7 is_stmt 0 view .LVU130
+ 491 0032 2030     		adds	r0, r0, #32
+ 492              	.LVL43:
+ 348:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 493              		.loc 1 348 7 view .LVU131
+ 494 0034 FFF7FEFF 		bl	iis2mdc_data_rate_set
+ 495              	.LVL44:
+ 348:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 496              		.loc 1 348 6 view .LVU132
+ 497 0038 20B9     		cbnz	r0, .L47
+ 498              	.L36:
+ 354:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 499              		.loc 1 354 1 view .LVU133
+ 500 003a 08BD     		pop	{r3, pc}
+ 501              	.LVL45:
+ 502              	.L41:
+ 344:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****             : (Odr <= 50.000f) ? IIS2MDC_ODR_50Hz
+ 503              		.loc 1 344 13 view .LVU134
+ 504 003c 0121     		movs	r1, #1
+ 505 003e F8E7     		b	.L37
+ 506              	.L45:
+ 507 0040 0321     		movs	r1, #3
+ 508 0042 F6E7     		b	.L37
+ 509              	.LVL46:
+ 510              	.L47:
+ 350:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 511              		.loc 1 350 12 view .LVU135
+ 512 0044 4FF0FF30 		mov	r0, #-1
+ 513 0048 F7E7     		b	.L36
+ 514              	.L49:
+ 515 004a 00BF     		.align	2
+ 516              	.L48:
+ 517 004c 00004842 		.word	1112014848
+ 518              		.cfi_endproc
+ 519              	.LFE9:
+ 521              		.section	.text.IIS2MDC_Init,"ax",%progbits
+ 522              		.align	1
+ 523              		.global	IIS2MDC_Init
+ 524              		.syntax unified
+ 525              		.thumb
+ 526              		.thumb_func
+ 528              	IIS2MDC_Init:
+ 529              	.LVL47:
+ 530              	.LFB1:
+ 140:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Enable BDU */
+ 531              		.loc 1 140 1 is_stmt 1 view -0
+ 532              		.cfi_startproc
+ 533              		@ args = 0, pretend = 0, frame = 0
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 21
+
+
+ 534              		@ frame_needed = 0, uses_anonymous_args = 0
+ 140:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   /* Enable BDU */
+ 535              		.loc 1 140 1 is_stmt 0 view .LVU137
+ 536 0000 38B5     		push	{r3, r4, r5, lr}
+ 537              		.cfi_def_cfa_offset 16
+ 538              		.cfi_offset 3, -16
+ 539              		.cfi_offset 4, -12
+ 540              		.cfi_offset 5, -8
+ 541              		.cfi_offset 14, -4
+ 542 0002 0446     		mov	r4, r0
+ 142:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 543              		.loc 1 142 3 is_stmt 1 view .LVU138
+ 142:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 544              		.loc 1 142 37 is_stmt 0 view .LVU139
+ 545 0004 00F12005 		add	r5, r0, #32
+ 142:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 546              		.loc 1 142 7 view .LVU140
+ 547 0008 0121     		movs	r1, #1
+ 548 000a 2846     		mov	r0, r5
+ 549              	.LVL48:
+ 142:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 550              		.loc 1 142 7 view .LVU141
+ 551 000c FFF7FEFF 		bl	iis2mdc_block_data_update_set
+ 552              	.LVL49:
+ 142:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 553              		.loc 1 142 6 view .LVU142
+ 554 0010 90B9     		cbnz	r0, .L52
+ 148:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 555              		.loc 1 148 3 is_stmt 1 view .LVU143
+ 148:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 556              		.loc 1 148 7 is_stmt 0 view .LVU144
+ 557 0012 0221     		movs	r1, #2
+ 558 0014 2846     		mov	r0, r5
+ 559 0016 FFF7FEFF 		bl	iis2mdc_operating_mode_set
+ 560              	.LVL50:
+ 148:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 561              		.loc 1 148 6 view .LVU145
+ 562 001a 80B9     		cbnz	r0, .L53
+ 154:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 563              		.loc 1 154 3 is_stmt 1 view .LVU146
+ 154:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 564              		.loc 1 154 7 is_stmt 0 view .LVU147
+ 565 001c 0321     		movs	r1, #3
+ 566 001e 2846     		mov	r0, r5
+ 567 0020 FFF7FEFF 		bl	iis2mdc_data_rate_set
+ 568              	.LVL51:
+ 154:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 569              		.loc 1 154 6 view .LVU148
+ 570 0024 70B9     		cbnz	r0, .L54
+ 160:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 571              		.loc 1 160 3 is_stmt 1 view .LVU149
+ 160:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 572              		.loc 1 160 7 is_stmt 0 view .LVU150
+ 573 0026 0021     		movs	r1, #0
+ 574 0028 2846     		mov	r0, r5
+ 575 002a FFF7FEFF 		bl	iis2mdc_self_test_set
+ 576              	.LVL52:
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 22
+
+
+ 160:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 577              		.loc 1 160 6 view .LVU151
+ 578 002e 60B9     		cbnz	r0, .L55
+ 165:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 579              		.loc 1 165 3 is_stmt 1 view .LVU152
+ 165:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 580              		.loc 1 165 24 is_stmt 0 view .LVU153
+ 581 0030 0123     		movs	r3, #1
+ 582 0032 84F83030 		strb	r3, [r4, #48]
+ 167:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 583              		.loc 1 167 3 is_stmt 1 view .LVU154
+ 584              	.L50:
+ 168:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 585              		.loc 1 168 1 is_stmt 0 view .LVU155
+ 586 0036 38BD     		pop	{r3, r4, r5, pc}
+ 587              	.LVL53:
+ 588              	.L52:
+ 144:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 589              		.loc 1 144 12 view .LVU156
+ 590 0038 4FF0FF30 		mov	r0, #-1
+ 591 003c FBE7     		b	.L50
+ 592              	.L53:
+ 150:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 593              		.loc 1 150 12 view .LVU157
+ 594 003e 4FF0FF30 		mov	r0, #-1
+ 595 0042 F8E7     		b	.L50
+ 596              	.L54:
+ 156:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 597              		.loc 1 156 12 view .LVU158
+ 598 0044 4FF0FF30 		mov	r0, #-1
+ 599 0048 F5E7     		b	.L50
+ 600              	.L55:
+ 162:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 601              		.loc 1 162 12 view .LVU159
+ 602 004a 4FF0FF30 		mov	r0, #-1
+ 603 004e F2E7     		b	.L50
+ 604              		.cfi_endproc
+ 605              	.LFE1:
+ 607              		.section	.text.IIS2MDC_ReadID,"ax",%progbits
+ 608              		.align	1
+ 609              		.global	IIS2MDC_ReadID
+ 610              		.syntax unified
+ 611              		.thumb
+ 612              		.thumb_func
+ 614              	IIS2MDC_ReadID:
+ 615              	.LVL54:
+ 616              	.LFB3:
+ 195:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_device_id_get(&(pObj->Ctx), Id) != IIS2MDC_OK)
+ 617              		.loc 1 195 1 is_stmt 1 view -0
+ 618              		.cfi_startproc
+ 619              		@ args = 0, pretend = 0, frame = 0
+ 620              		@ frame_needed = 0, uses_anonymous_args = 0
+ 195:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_device_id_get(&(pObj->Ctx), Id) != IIS2MDC_OK)
+ 621              		.loc 1 195 1 is_stmt 0 view .LVU161
+ 622 0000 08B5     		push	{r3, lr}
+ 623              		.cfi_def_cfa_offset 8
+ 624              		.cfi_offset 3, -8
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 23
+
+
+ 625              		.cfi_offset 14, -4
+ 196:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 626              		.loc 1 196 3 is_stmt 1 view .LVU162
+ 196:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 627              		.loc 1 196 7 is_stmt 0 view .LVU163
+ 628 0002 2030     		adds	r0, r0, #32
+ 629              	.LVL55:
+ 196:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 630              		.loc 1 196 7 view .LVU164
+ 631 0004 FFF7FEFF 		bl	iis2mdc_device_id_get
+ 632              	.LVL56:
+ 196:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 633              		.loc 1 196 6 view .LVU165
+ 634 0008 00B9     		cbnz	r0, .L61
+ 635              	.L57:
+ 202:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 636              		.loc 1 202 1 view .LVU166
+ 637 000a 08BD     		pop	{r3, pc}
+ 638              	.L61:
+ 198:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 639              		.loc 1 198 12 view .LVU167
+ 640 000c 4FF0FF30 		mov	r0, #-1
+ 641 0010 FBE7     		b	.L57
+ 642              		.cfi_endproc
+ 643              	.LFE3:
+ 645              		.section	.text.IIS2MDC_MAG_GetOutputDataRate,"ax",%progbits
+ 646              		.align	1
+ 647              		.global	IIS2MDC_MAG_GetOutputDataRate
+ 648              		.syntax unified
+ 649              		.thumb
+ 650              		.thumb_func
+ 652              	IIS2MDC_MAG_GetOutputDataRate:
+ 653              	.LVL57:
+ 654              	.LFB8:
+ 297:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   int32_t ret = IIS2MDC_OK;
+ 655              		.loc 1 297 1 is_stmt 1 view -0
+ 656              		.cfi_startproc
+ 657              		@ args = 0, pretend = 0, frame = 8
+ 658              		@ frame_needed = 0, uses_anonymous_args = 0
+ 297:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   int32_t ret = IIS2MDC_OK;
+ 659              		.loc 1 297 1 is_stmt 0 view .LVU169
+ 660 0000 10B5     		push	{r4, lr}
+ 661              		.cfi_def_cfa_offset 8
+ 662              		.cfi_offset 4, -8
+ 663              		.cfi_offset 14, -4
+ 664 0002 82B0     		sub	sp, sp, #8
+ 665              		.cfi_def_cfa_offset 16
+ 666 0004 0C46     		mov	r4, r1
+ 298:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_odr_t odr_low_level;
+ 667              		.loc 1 298 3 is_stmt 1 view .LVU170
+ 668              	.LVL58:
+ 299:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 669              		.loc 1 299 3 view .LVU171
+ 302:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 670              		.loc 1 302 3 view .LVU172
+ 302:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 671              		.loc 1 302 7 is_stmt 0 view .LVU173
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 24
+
+
+ 672 0006 0DF10701 		add	r1, sp, #7
+ 673              	.LVL59:
+ 302:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 674              		.loc 1 302 7 view .LVU174
+ 675 000a 2030     		adds	r0, r0, #32
+ 676              	.LVL60:
+ 302:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 677              		.loc 1 302 7 view .LVU175
+ 678 000c FFF7FEFF 		bl	iis2mdc_data_rate_get
+ 679              	.LVL61:
+ 302:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 680              		.loc 1 302 6 view .LVU176
+ 681 0010 A0B9     		cbnz	r0, .L69
+ 307:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 682              		.loc 1 307 3 is_stmt 1 view .LVU177
+ 683 0012 9DF80730 		ldrb	r3, [sp, #7]	@ zero_extendqisi2
+ 684 0016 032B     		cmp	r3, #3
+ 685 0018 13D8     		bhi	.L70
+ 686 001a DFE803F0 		tbb	[pc, r3]
+ 687              	.L65:
+ 688 001e 02       		.byte	(.L68-.L65)/2
+ 689 001f 06       		.byte	(.L67-.L65)/2
+ 690 0020 09       		.byte	(.L66-.L65)/2
+ 691 0021 0C       		.byte	(.L64-.L65)/2
+ 692              		.p2align 1
+ 693              	.L68:
+ 310:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 694              		.loc 1 310 7 view .LVU178
+ 310:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 695              		.loc 1 310 12 is_stmt 0 view .LVU179
+ 696 0022 094B     		ldr	r3, .L72
+ 697 0024 2360     		str	r3, [r4]	@ float
+ 311:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 698              		.loc 1 311 7 is_stmt 1 view .LVU180
+ 699              	.LVL62:
+ 700              	.L62:
+ 331:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 701              		.loc 1 331 1 is_stmt 0 view .LVU181
+ 702 0026 02B0     		add	sp, sp, #8
+ 703              		.cfi_remember_state
+ 704              		.cfi_def_cfa_offset 8
+ 705              		@ sp needed
+ 706 0028 10BD     		pop	{r4, pc}
+ 707              	.LVL63:
+ 708              	.L67:
+ 709              		.cfi_restore_state
+ 314:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 710              		.loc 1 314 7 is_stmt 1 view .LVU182
+ 314:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 711              		.loc 1 314 12 is_stmt 0 view .LVU183
+ 712 002a 084B     		ldr	r3, .L72+4
+ 713 002c 2360     		str	r3, [r4]	@ float
+ 315:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 714              		.loc 1 315 7 is_stmt 1 view .LVU184
+ 715 002e FAE7     		b	.L62
+ 716              	.L66:
+ 318:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 25
+
+
+ 717              		.loc 1 318 7 view .LVU185
+ 318:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 718              		.loc 1 318 12 is_stmt 0 view .LVU186
+ 719 0030 074B     		ldr	r3, .L72+8
+ 720 0032 2360     		str	r3, [r4]	@ float
+ 319:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 721              		.loc 1 319 7 is_stmt 1 view .LVU187
+ 722 0034 F7E7     		b	.L62
+ 723              	.L64:
+ 322:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 724              		.loc 1 322 7 view .LVU188
+ 322:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       break;
+ 725              		.loc 1 322 12 is_stmt 0 view .LVU189
+ 726 0036 074B     		ldr	r3, .L72+12
+ 727 0038 2360     		str	r3, [r4]	@ float
+ 323:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 728              		.loc 1 323 7 is_stmt 1 view .LVU190
+ 729 003a F4E7     		b	.L62
+ 730              	.L69:
+ 304:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 731              		.loc 1 304 12 is_stmt 0 view .LVU191
+ 732 003c 4FF0FF30 		mov	r0, #-1
+ 733 0040 F1E7     		b	.L62
+ 734              	.L70:
+ 307:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 735              		.loc 1 307 3 view .LVU192
+ 736 0042 4FF0FF30 		mov	r0, #-1
+ 737              	.LVL64:
+ 307:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 738              		.loc 1 307 3 view .LVU193
+ 739 0046 EEE7     		b	.L62
+ 740              	.L73:
+ 741              		.align	2
+ 742              	.L72:
+ 743 0048 00002041 		.word	1092616192
+ 744 004c 0000A041 		.word	1101004800
+ 745 0050 00004842 		.word	1112014848
+ 746 0054 0000C842 		.word	1120403456
+ 747              		.cfi_endproc
+ 748              	.LFE8:
+ 750              		.section	.text.IIS2MDC_MAG_GetAxesRaw,"ax",%progbits
+ 751              		.align	1
+ 752              		.global	IIS2MDC_MAG_GetAxesRaw
+ 753              		.syntax unified
+ 754              		.thumb
+ 755              		.thumb_func
+ 757              	IIS2MDC_MAG_GetAxesRaw:
+ 758              	.LVL65:
+ 759              	.LFB12:
+ 391:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_axis3bit16_t data_raw;
+ 760              		.loc 1 391 1 is_stmt 1 view -0
+ 761              		.cfi_startproc
+ 762              		@ args = 0, pretend = 0, frame = 8
+ 763              		@ frame_needed = 0, uses_anonymous_args = 0
+ 391:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_axis3bit16_t data_raw;
+ 764              		.loc 1 391 1 is_stmt 0 view .LVU195
+ 765 0000 10B5     		push	{r4, lr}
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 26
+
+
+ 766              		.cfi_def_cfa_offset 8
+ 767              		.cfi_offset 4, -8
+ 768              		.cfi_offset 14, -4
+ 769 0002 82B0     		sub	sp, sp, #8
+ 770              		.cfi_def_cfa_offset 16
+ 771 0004 0C46     		mov	r4, r1
+ 392:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 772              		.loc 1 392 3 is_stmt 1 view .LVU196
+ 395:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 773              		.loc 1 395 3 view .LVU197
+ 395:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 774              		.loc 1 395 7 is_stmt 0 view .LVU198
+ 775 0006 6946     		mov	r1, sp
+ 776              	.LVL66:
+ 395:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 777              		.loc 1 395 7 view .LVU199
+ 778 0008 2030     		adds	r0, r0, #32
+ 779              	.LVL67:
+ 395:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 780              		.loc 1 395 7 view .LVU200
+ 781 000a FFF7FEFF 		bl	iis2mdc_magnetic_raw_get
+ 782              	.LVL68:
+ 395:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 783              		.loc 1 395 6 view .LVU201
+ 784 000e 50B9     		cbnz	r0, .L76
+ 401:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->y = data_raw.i16bit[1];
+ 785              		.loc 1 401 3 is_stmt 1 view .LVU202
+ 401:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->y = data_raw.i16bit[1];
+ 786              		.loc 1 401 29 is_stmt 0 view .LVU203
+ 787 0010 BDF90030 		ldrsh	r3, [sp]
+ 401:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->y = data_raw.i16bit[1];
+ 788              		.loc 1 401 12 view .LVU204
+ 789 0014 2380     		strh	r3, [r4]	@ movhi
+ 402:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->z = data_raw.i16bit[2];
+ 790              		.loc 1 402 3 is_stmt 1 view .LVU205
+ 402:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->z = data_raw.i16bit[2];
+ 791              		.loc 1 402 29 is_stmt 0 view .LVU206
+ 792 0016 BDF90230 		ldrsh	r3, [sp, #2]
+ 402:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   Value->z = data_raw.i16bit[2];
+ 793              		.loc 1 402 12 view .LVU207
+ 794 001a 6380     		strh	r3, [r4, #2]	@ movhi
+ 403:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 795              		.loc 1 403 3 is_stmt 1 view .LVU208
+ 403:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 796              		.loc 1 403 29 is_stmt 0 view .LVU209
+ 797 001c BDF90430 		ldrsh	r3, [sp, #4]
+ 403:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 798              		.loc 1 403 12 view .LVU210
+ 799 0020 A380     		strh	r3, [r4, #4]	@ movhi
+ 405:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 800              		.loc 1 405 3 is_stmt 1 view .LVU211
+ 801              	.L74:
+ 406:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 802              		.loc 1 406 1 is_stmt 0 view .LVU212
+ 803 0022 02B0     		add	sp, sp, #8
+ 804              		.cfi_remember_state
+ 805              		.cfi_def_cfa_offset 8
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 27
+
+
+ 806              		@ sp needed
+ 807 0024 10BD     		pop	{r4, pc}
+ 808              	.LVL69:
+ 809              	.L76:
+ 810              		.cfi_restore_state
+ 397:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 811              		.loc 1 397 12 view .LVU213
+ 812 0026 4FF0FF30 		mov	r0, #-1
+ 813 002a FAE7     		b	.L74
+ 814              		.cfi_endproc
+ 815              	.LFE12:
+ 817              		.section	.text.IIS2MDC_MAG_GetAxes,"ax",%progbits
+ 818              		.align	1
+ 819              		.global	IIS2MDC_MAG_GetAxes
+ 820              		.syntax unified
+ 821              		.thumb
+ 822              		.thumb_func
+ 824              	IIS2MDC_MAG_GetAxes:
+ 825              	.LVL70:
+ 826              	.LFB13:
+ 415:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_axis3bit16_t data_raw;
+ 827              		.loc 1 415 1 is_stmt 1 view -0
+ 828              		.cfi_startproc
+ 829              		@ args = 0, pretend = 0, frame = 16
+ 830              		@ frame_needed = 0, uses_anonymous_args = 0
+ 415:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   iis2mdc_axis3bit16_t data_raw;
+ 831              		.loc 1 415 1 is_stmt 0 view .LVU215
+ 832 0000 70B5     		push	{r4, r5, r6, lr}
+ 833              		.cfi_def_cfa_offset 16
+ 834              		.cfi_offset 4, -16
+ 835              		.cfi_offset 5, -12
+ 836              		.cfi_offset 6, -8
+ 837              		.cfi_offset 14, -4
+ 838 0002 84B0     		sub	sp, sp, #16
+ 839              		.cfi_def_cfa_offset 32
+ 840 0004 0546     		mov	r5, r0
+ 841 0006 0C46     		mov	r4, r1
+ 416:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   float_t sensitivity = 0.0f;
+ 842              		.loc 1 416 3 is_stmt 1 view .LVU216
+ 417:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 843              		.loc 1 417 3 view .LVU217
+ 417:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 844              		.loc 1 417 11 is_stmt 0 view .LVU218
+ 845 0008 0023     		movs	r3, #0
+ 846 000a 0193     		str	r3, [sp, #4]	@ float
+ 420:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 847              		.loc 1 420 3 is_stmt 1 view .LVU219
+ 420:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 848              		.loc 1 420 7 is_stmt 0 view .LVU220
+ 849 000c 02A9     		add	r1, sp, #8
+ 850              	.LVL71:
+ 420:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 851              		.loc 1 420 7 view .LVU221
+ 852 000e 2030     		adds	r0, r0, #32
+ 853              	.LVL72:
+ 420:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 854              		.loc 1 420 7 view .LVU222
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 28
+
+
+ 855 0010 FFF7FEFF 		bl	iis2mdc_magnetic_raw_get
+ 856              	.LVL73:
+ 420:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 857              		.loc 1 420 6 view .LVU223
+ 858 0014 68BB     		cbnz	r0, .L80
+ 859 0016 0646     		mov	r6, r0
+ 426:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 860              		.loc 1 426 3 is_stmt 1 view .LVU224
+ 426:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 861              		.loc 1 426 9 is_stmt 0 view .LVU225
+ 862 0018 01A9     		add	r1, sp, #4
+ 863 001a 2846     		mov	r0, r5
+ 864 001c FFF7FEFF 		bl	IIS2MDC_MAG_GetSensitivity
+ 865              	.LVL74:
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 866              		.loc 1 429 3 is_stmt 1 view .LVU226
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 867              		.loc 1 429 66 is_stmt 0 view .LVU227
+ 868 0020 BDF90830 		ldrsh	r3, [sp, #8]
+ 869 0024 07EE103A 		vmov	s14, r3	@ int
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 870              		.loc 1 429 42 view .LVU228
+ 871 0028 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 872              		.loc 1 429 32 view .LVU229
+ 873 002c DDED017A 		vldr.32	s15, [sp, #4]
+ 874 0030 27EE277A 		vmul.f32	s14, s14, s15
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 875              		.loc 1 429 22 view .LVU230
+ 876 0034 BDEEC77A 		vcvt.s32.f32	s14, s14
+ 429:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->y = (int32_t)((float_t)((float_t)data_raw.i16bit[1] * sensitivity));
+ 877              		.loc 1 429 20 view .LVU231
+ 878 0038 84ED007A 		vstr.32	s14, [r4]	@ int
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 879              		.loc 1 430 3 is_stmt 1 view .LVU232
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 880              		.loc 1 430 66 is_stmt 0 view .LVU233
+ 881 003c BDF90A30 		ldrsh	r3, [sp, #10]
+ 882 0040 07EE103A 		vmov	s14, r3	@ int
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 883              		.loc 1 430 42 view .LVU234
+ 884 0044 B8EEC77A 		vcvt.f32.s32	s14, s14
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 885              		.loc 1 430 32 view .LVU235
+ 886 0048 27EE277A 		vmul.f32	s14, s14, s15
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 887              		.loc 1 430 22 view .LVU236
+ 888 004c BDEEC77A 		vcvt.s32.f32	s14, s14
+ 430:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   MagneticField->z = (int32_t)((float_t)((float_t)data_raw.i16bit[2] * sensitivity));
+ 889              		.loc 1 430 20 view .LVU237
+ 890 0050 84ED017A 		vstr.32	s14, [r4, #4]	@ int
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 891              		.loc 1 431 3 is_stmt 1 view .LVU238
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 892              		.loc 1 431 66 is_stmt 0 view .LVU239
+ 893 0054 BDF90C30 		ldrsh	r3, [sp, #12]
+ 894 0058 07EE103A 		vmov	s14, r3	@ int
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 29
+
+
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 895              		.loc 1 431 42 view .LVU240
+ 896 005c B8EEC77A 		vcvt.f32.s32	s14, s14
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 897              		.loc 1 431 32 view .LVU241
+ 898 0060 67EE877A 		vmul.f32	s15, s15, s14
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 899              		.loc 1 431 22 view .LVU242
+ 900 0064 FDEEE77A 		vcvt.s32.f32	s15, s15
+ 431:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 901              		.loc 1 431 20 view .LVU243
+ 902 0068 C4ED027A 		vstr.32	s15, [r4, #8]	@ int
+ 433:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 903              		.loc 1 433 3 is_stmt 1 view .LVU244
+ 904              	.L78:
+ 434:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 905              		.loc 1 434 1 is_stmt 0 view .LVU245
+ 906 006c 3046     		mov	r0, r6
+ 907 006e 04B0     		add	sp, sp, #16
+ 908              		.cfi_remember_state
+ 909              		.cfi_def_cfa_offset 16
+ 910              		@ sp needed
+ 911 0070 70BD     		pop	{r4, r5, r6, pc}
+ 912              	.LVL75:
+ 913              	.L80:
+ 914              		.cfi_restore_state
+ 422:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 915              		.loc 1 422 12 view .LVU246
+ 916 0072 4FF0FF36 		mov	r6, #-1
+ 917 0076 F9E7     		b	.L78
+ 918              		.cfi_endproc
+ 919              	.LFE13:
+ 921              		.section	.text.IIS2MDC_RegisterBusIO,"ax",%progbits
+ 922              		.align	1
+ 923              		.global	IIS2MDC_RegisterBusIO
+ 924              		.syntax unified
+ 925              		.thumb
+ 926              		.thumb_func
+ 928              	IIS2MDC_RegisterBusIO:
+ 929              	.LVL76:
+ 930              	.LFB0:
+  84:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   int32_t ret = IIS2MDC_OK;
+ 931              		.loc 1 84 1 is_stmt 1 view -0
+ 932              		.cfi_startproc
+ 933              		@ args = 0, pretend = 0, frame = 0
+ 934              		@ frame_needed = 0, uses_anonymous_args = 0
+  85:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 935              		.loc 1 85 3 view .LVU248
+  87:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 936              		.loc 1 87 3 view .LVU249
+  87:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 937              		.loc 1 87 6 is_stmt 0 view .LVU250
+ 938 0000 0028     		cmp	r0, #0
+ 939 0002 29D0     		beq	.L84
+  84:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   int32_t ret = IIS2MDC_OK;
+ 940              		.loc 1 84 1 view .LVU251
+ 941 0004 10B5     		push	{r4, lr}
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 30
+
+
+ 942              		.cfi_def_cfa_offset 8
+ 943              		.cfi_offset 4, -8
+ 944              		.cfi_offset 14, -4
+ 945 0006 0446     		mov	r4, r0
+  93:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.DeInit    = pIO->DeInit;
+ 946              		.loc 1 93 5 is_stmt 1 view .LVU252
+  93:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.DeInit    = pIO->DeInit;
+ 947              		.loc 1 93 29 is_stmt 0 view .LVU253
+ 948 0008 0B68     		ldr	r3, [r1]
+  93:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.DeInit    = pIO->DeInit;
+ 949              		.loc 1 93 24 view .LVU254
+ 950 000a 0360     		str	r3, [r0]
+  94:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.BusType   = pIO->BusType;
+ 951              		.loc 1 94 5 is_stmt 1 view .LVU255
+  94:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.BusType   = pIO->BusType;
+ 952              		.loc 1 94 29 is_stmt 0 view .LVU256
+ 953 000c 4A68     		ldr	r2, [r1, #4]
+  94:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.BusType   = pIO->BusType;
+ 954              		.loc 1 94 24 view .LVU257
+ 955 000e 4260     		str	r2, [r0, #4]
+  95:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.Address   = pIO->Address;
+ 956              		.loc 1 95 5 is_stmt 1 view .LVU258
+  95:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.Address   = pIO->Address;
+ 957              		.loc 1 95 29 is_stmt 0 view .LVU259
+ 958 0010 8A68     		ldr	r2, [r1, #8]
+  95:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.Address   = pIO->Address;
+ 959              		.loc 1 95 24 view .LVU260
+ 960 0012 8260     		str	r2, [r0, #8]
+  96:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.WriteReg  = pIO->WriteReg;
+ 961              		.loc 1 96 5 is_stmt 1 view .LVU261
+  96:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.WriteReg  = pIO->WriteReg;
+ 962              		.loc 1 96 29 is_stmt 0 view .LVU262
+ 963 0014 0A7B     		ldrb	r2, [r1, #12]	@ zero_extendqisi2
+  96:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.WriteReg  = pIO->WriteReg;
+ 964              		.loc 1 96 24 view .LVU263
+ 965 0016 0273     		strb	r2, [r0, #12]
+  97:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.ReadReg   = pIO->ReadReg;
+ 966              		.loc 1 97 5 is_stmt 1 view .LVU264
+  97:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.ReadReg   = pIO->ReadReg;
+ 967              		.loc 1 97 29 is_stmt 0 view .LVU265
+ 968 0018 0A69     		ldr	r2, [r1, #16]
+  97:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.ReadReg   = pIO->ReadReg;
+ 969              		.loc 1 97 24 view .LVU266
+ 970 001a 0261     		str	r2, [r0, #16]
+  98:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.GetTick   = pIO->GetTick;
+ 971              		.loc 1 98 5 is_stmt 1 view .LVU267
+  98:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.GetTick   = pIO->GetTick;
+ 972              		.loc 1 98 29 is_stmt 0 view .LVU268
+ 973 001c 4A69     		ldr	r2, [r1, #20]
+  98:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->IO.GetTick   = pIO->GetTick;
+ 974              		.loc 1 98 24 view .LVU269
+ 975 001e 4261     		str	r2, [r0, #20]
+  99:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 976              		.loc 1 99 5 is_stmt 1 view .LVU270
+  99:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 977              		.loc 1 99 29 is_stmt 0 view .LVU271
+ 978 0020 8A69     		ldr	r2, [r1, #24]
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 31
+
+
+  99:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 979              		.loc 1 99 24 view .LVU272
+ 980 0022 8261     		str	r2, [r0, #24]
+ 101:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.write_reg = WriteMagRegWrap;
+ 981              		.loc 1 101 5 is_stmt 1 view .LVU273
+ 101:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.write_reg = WriteMagRegWrap;
+ 982              		.loc 1 101 25 is_stmt 0 view .LVU274
+ 983 0024 114A     		ldr	r2, .L93
+ 984 0026 4262     		str	r2, [r0, #36]
+ 102:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.mdelay    = pIO->Delay;
+ 985              		.loc 1 102 5 is_stmt 1 view .LVU275
+ 102:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.mdelay    = pIO->Delay;
+ 986              		.loc 1 102 25 is_stmt 0 view .LVU276
+ 987 0028 114A     		ldr	r2, .L93+4
+ 988 002a 0262     		str	r2, [r0, #32]
+ 103:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.handle    = pObj;
+ 989              		.loc 1 103 5 is_stmt 1 view .LVU277
+ 103:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.handle    = pObj;
+ 990              		.loc 1 103 30 is_stmt 0 view .LVU278
+ 991 002c CA69     		ldr	r2, [r1, #28]
+ 103:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     pObj->Ctx.handle    = pObj;
+ 992              		.loc 1 103 25 view .LVU279
+ 993 002e 8262     		str	r2, [r0, #40]
+ 104:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 994              		.loc 1 104 5 is_stmt 1 view .LVU280
+ 104:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 995              		.loc 1 104 25 is_stmt 0 view .LVU281
+ 996 0030 C062     		str	r0, [r0, #44]
+ 106:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 997              		.loc 1 106 5 is_stmt 1 view .LVU282
+ 106:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 998              		.loc 1 106 8 is_stmt 0 view .LVU283
+ 999 0032 A3B1     		cbz	r3, .L85
+ 110:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 1000              		.loc 1 110 10 is_stmt 1 view .LVU284
+ 110:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 1001              		.loc 1 110 14 is_stmt 0 view .LVU285
+ 1002 0034 9847     		blx	r3
+ 1003              	.LVL77:
+ 110:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     {
+ 1004              		.loc 1 110 13 view .LVU286
+ 1005 0036 A8B9     		cbnz	r0, .L86
+ 116:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       {
+ 1006              		.loc 1 116 7 is_stmt 1 view .LVU287
+ 116:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       {
+ 1007              		.loc 1 116 19 is_stmt 0 view .LVU288
+ 1008 0038 A368     		ldr	r3, [r4, #8]
+ 116:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****       {
+ 1009              		.loc 1 116 10 view .LVU289
+ 1010 003a 13B1     		cbz	r3, .L82
+ 119:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         {
+ 1011              		.loc 1 119 9 is_stmt 1 view .LVU290
+ 119:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         {
+ 1012              		.loc 1 119 17 is_stmt 0 view .LVU291
+ 1013 003c 94F83030 		ldrb	r3, [r4, #48]	@ zero_extendqisi2
+ 119:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****         {
+ 1014              		.loc 1 119 12 view .LVU292
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 32
+
+
+ 1015 0040 03B1     		cbz	r3, .L92
+ 1016              	.LVL78:
+ 1017              	.L82:
+ 132:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1018              		.loc 1 132 1 view .LVU293
+ 1019 0042 10BD     		pop	{r4, pc}
+ 1020              	.LVL79:
+ 1021              	.L92:
+ 122:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           {
+ 1022              		.loc 1 122 11 is_stmt 1 view .LVU294
+ 122:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           {
+ 1023              		.loc 1 122 15 is_stmt 0 view .LVU295
+ 1024 0044 0121     		movs	r1, #1
+ 1025 0046 04F12000 		add	r0, r4, #32
+ 1026 004a FFF7FEFF 		bl	iis2mdc_i2c_interface_set
+ 1027              	.LVL80:
+ 122:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           {
+ 1028              		.loc 1 122 14 view .LVU296
+ 1029 004e 0028     		cmp	r0, #0
+ 1030 0050 F7D0     		beq	.L82
+ 124:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****           }
+ 1031              		.loc 1 124 17 view .LVU297
+ 1032 0052 4FF0FF30 		mov	r0, #-1
+ 1033              	.LVL81:
+ 131:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 1034              		.loc 1 131 3 is_stmt 1 view .LVU298
+ 131:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 1035              		.loc 1 131 10 is_stmt 0 view .LVU299
+ 1036 0056 F4E7     		b	.L82
+ 1037              	.LVL82:
+ 1038              	.L84:
+ 1039              		.cfi_def_cfa_offset 0
+ 1040              		.cfi_restore 4
+ 1041              		.cfi_restore 14
+  89:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 1042              		.loc 1 89 9 view .LVU300
+ 1043 0058 4FF0FF30 		mov	r0, #-1
+ 1044              	.LVL83:
+ 132:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1045              		.loc 1 132 1 view .LVU301
+ 1046 005c 7047     		bx	lr
+ 1047              	.LVL84:
+ 1048              	.L85:
+ 1049              		.cfi_def_cfa_offset 8
+ 1050              		.cfi_offset 4, -8
+ 1051              		.cfi_offset 14, -4
+ 108:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     }
+ 1052              		.loc 1 108 11 view .LVU302
+ 1053 005e 4FF0FF30 		mov	r0, #-1
+ 1054              	.LVL85:
+ 108:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     }
+ 1055              		.loc 1 108 11 view .LVU303
+ 1056 0062 EEE7     		b	.L82
+ 1057              	.LVL86:
+ 1058              	.L86:
+ 112:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****     }
+ 1059              		.loc 1 112 11 view .LVU304
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 33
+
+
+ 1060 0064 4FF0FF30 		mov	r0, #-1
+ 1061 0068 EBE7     		b	.L82
+ 1062              	.L94:
+ 1063 006a 00BF     		.align	2
+ 1064              	.L93:
+ 1065 006c 00000000 		.word	ReadMagRegWrap
+ 1066 0070 00000000 		.word	WriteMagRegWrap
+ 1067              		.cfi_endproc
+ 1068              	.LFE0:
+ 1070              		.section	.text.IIS2MDC_Read_Reg,"ax",%progbits
+ 1071              		.align	1
+ 1072              		.global	IIS2MDC_Read_Reg
+ 1073              		.syntax unified
+ 1074              		.thumb
+ 1075              		.thumb_func
+ 1077              	IIS2MDC_Read_Reg:
+ 1078              	.LVL87:
+ 1079              	.LFB14:
+ 444:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_read_reg(&(pObj->Ctx), Reg, Data, 1) != IIS2MDC_OK)
+ 1080              		.loc 1 444 1 is_stmt 1 view -0
+ 1081              		.cfi_startproc
+ 1082              		@ args = 0, pretend = 0, frame = 0
+ 1083              		@ frame_needed = 0, uses_anonymous_args = 0
+ 444:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_read_reg(&(pObj->Ctx), Reg, Data, 1) != IIS2MDC_OK)
+ 1084              		.loc 1 444 1 is_stmt 0 view .LVU306
+ 1085 0000 08B5     		push	{r3, lr}
+ 1086              		.cfi_def_cfa_offset 8
+ 1087              		.cfi_offset 3, -8
+ 1088              		.cfi_offset 14, -4
+ 445:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1089              		.loc 1 445 3 is_stmt 1 view .LVU307
+ 445:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1090              		.loc 1 445 7 is_stmt 0 view .LVU308
+ 1091 0002 0123     		movs	r3, #1
+ 1092 0004 2030     		adds	r0, r0, #32
+ 1093              	.LVL88:
+ 445:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1094              		.loc 1 445 7 view .LVU309
+ 1095 0006 FFF7FEFF 		bl	iis2mdc_read_reg
+ 1096              	.LVL89:
+ 445:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1097              		.loc 1 445 6 view .LVU310
+ 1098 000a 00B9     		cbnz	r0, .L99
+ 1099              	.L95:
+ 451:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1100              		.loc 1 451 1 view .LVU311
+ 1101 000c 08BD     		pop	{r3, pc}
+ 1102              	.L99:
+ 447:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 1103              		.loc 1 447 12 view .LVU312
+ 1104 000e 4FF0FF30 		mov	r0, #-1
+ 1105 0012 FBE7     		b	.L95
+ 1106              		.cfi_endproc
+ 1107              	.LFE14:
+ 1109              		.section	.text.IIS2MDC_Write_Reg,"ax",%progbits
+ 1110              		.align	1
+ 1111              		.global	IIS2MDC_Write_Reg
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 34
+
+
+ 1112              		.syntax unified
+ 1113              		.thumb
+ 1114              		.thumb_func
+ 1116              	IIS2MDC_Write_Reg:
+ 1117              	.LVL90:
+ 1118              	.LFB15:
+ 461:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_write_reg(&(pObj->Ctx), Reg, &Data, 1) != IIS2MDC_OK)
+ 1119              		.loc 1 461 1 is_stmt 1 view -0
+ 1120              		.cfi_startproc
+ 1121              		@ args = 0, pretend = 0, frame = 8
+ 1122              		@ frame_needed = 0, uses_anonymous_args = 0
+ 461:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_write_reg(&(pObj->Ctx), Reg, &Data, 1) != IIS2MDC_OK)
+ 1123              		.loc 1 461 1 is_stmt 0 view .LVU314
+ 1124 0000 00B5     		push	{lr}
+ 1125              		.cfi_def_cfa_offset 4
+ 1126              		.cfi_offset 14, -4
+ 1127 0002 83B0     		sub	sp, sp, #12
+ 1128              		.cfi_def_cfa_offset 16
+ 1129 0004 8DF80720 		strb	r2, [sp, #7]
+ 462:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1130              		.loc 1 462 3 is_stmt 1 view .LVU315
+ 462:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1131              		.loc 1 462 7 is_stmt 0 view .LVU316
+ 1132 0008 0123     		movs	r3, #1
+ 1133 000a 0DF10702 		add	r2, sp, #7
+ 1134              	.LVL91:
+ 462:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1135              		.loc 1 462 7 view .LVU317
+ 1136 000e 2030     		adds	r0, r0, #32
+ 1137              	.LVL92:
+ 462:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1138              		.loc 1 462 7 view .LVU318
+ 1139 0010 FFF7FEFF 		bl	iis2mdc_write_reg
+ 1140              	.LVL93:
+ 462:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1141              		.loc 1 462 6 view .LVU319
+ 1142 0014 10B9     		cbnz	r0, .L104
+ 1143              	.L100:
+ 468:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1144              		.loc 1 468 1 view .LVU320
+ 1145 0016 03B0     		add	sp, sp, #12
+ 1146              		.cfi_remember_state
+ 1147              		.cfi_def_cfa_offset 4
+ 1148              		@ sp needed
+ 1149 0018 5DF804FB 		ldr	pc, [sp], #4
+ 1150              	.L104:
+ 1151              		.cfi_restore_state
+ 464:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 1152              		.loc 1 464 12 view .LVU321
+ 1153 001c 4FF0FF30 		mov	r0, #-1
+ 1154 0020 F9E7     		b	.L100
+ 1155              		.cfi_endproc
+ 1156              	.LFE15:
+ 1158              		.section	.text.IIS2MDC_MAG_Get_DRDY_Status,"ax",%progbits
+ 1159              		.align	1
+ 1160              		.global	IIS2MDC_MAG_Get_DRDY_Status
+ 1161              		.syntax unified
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 35
+
+
+ 1162              		.thumb
+ 1163              		.thumb_func
+ 1165              	IIS2MDC_MAG_Get_DRDY_Status:
+ 1166              	.LVL94:
+ 1167              	.LFB16:
+ 477:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_mag_data_ready_get(&(pObj->Ctx), Status) != IIS2MDC_OK)
+ 1168              		.loc 1 477 1 is_stmt 1 view -0
+ 1169              		.cfi_startproc
+ 1170              		@ args = 0, pretend = 0, frame = 0
+ 1171              		@ frame_needed = 0, uses_anonymous_args = 0
+ 477:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (iis2mdc_mag_data_ready_get(&(pObj->Ctx), Status) != IIS2MDC_OK)
+ 1172              		.loc 1 477 1 is_stmt 0 view .LVU323
+ 1173 0000 08B5     		push	{r3, lr}
+ 1174              		.cfi_def_cfa_offset 8
+ 1175              		.cfi_offset 3, -8
+ 1176              		.cfi_offset 14, -4
+ 478:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1177              		.loc 1 478 3 is_stmt 1 view .LVU324
+ 478:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1178              		.loc 1 478 7 is_stmt 0 view .LVU325
+ 1179 0002 2030     		adds	r0, r0, #32
+ 1180              	.LVL95:
+ 478:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1181              		.loc 1 478 7 view .LVU326
+ 1182 0004 FFF7FEFF 		bl	iis2mdc_mag_data_ready_get
+ 1183              	.LVL96:
+ 478:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1184              		.loc 1 478 6 view .LVU327
+ 1185 0008 00B9     		cbnz	r0, .L109
+ 1186              	.L105:
+ 484:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1187              		.loc 1 484 1 view .LVU328
+ 1188 000a 08BD     		pop	{r3, pc}
+ 1189              	.L109:
+ 480:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 1190              		.loc 1 480 12 view .LVU329
+ 1191 000c 4FF0FF30 		mov	r0, #-1
+ 1192 0010 FBE7     		b	.L105
+ 1193              		.cfi_endproc
+ 1194              	.LFE16:
+ 1196              		.section	.text.IIS2MDC_MAG_Get_Init_Status,"ax",%progbits
+ 1197              		.align	1
+ 1198              		.global	IIS2MDC_MAG_Get_Init_Status
+ 1199              		.syntax unified
+ 1200              		.thumb
+ 1201              		.thumb_func
+ 1203              	IIS2MDC_MAG_Get_Init_Status:
+ 1204              	.LVL97:
+ 1205              	.LFB17:
+ 493:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   if (pObj == NULL)
+ 1206              		.loc 1 493 1 is_stmt 1 view -0
+ 1207              		.cfi_startproc
+ 1208              		@ args = 0, pretend = 0, frame = 0
+ 1209              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1210              		@ link register save eliminated.
+ 494:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1211              		.loc 1 494 3 view .LVU331
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 36
+
+
+ 494:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   {
+ 1212              		.loc 1 494 6 is_stmt 0 view .LVU332
+ 1213 0000 20B1     		cbz	r0, .L112
+ 499:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1214              		.loc 1 499 3 is_stmt 1 view .LVU333
+ 499:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1215              		.loc 1 499 17 is_stmt 0 view .LVU334
+ 1216 0002 90F83030 		ldrb	r3, [r0, #48]	@ zero_extendqisi2
+ 499:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1217              		.loc 1 499 11 view .LVU335
+ 1218 0006 0B70     		strb	r3, [r1]
+ 501:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 1219              		.loc 1 501 3 is_stmt 1 view .LVU336
+ 501:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 1220              		.loc 1 501 10 is_stmt 0 view .LVU337
+ 1221 0008 0020     		movs	r0, #0
+ 1222              	.LVL98:
+ 501:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** }
+ 1223              		.loc 1 501 10 view .LVU338
+ 1224 000a 7047     		bx	lr
+ 1225              	.LVL99:
+ 1226              	.L112:
+ 496:Drivers/BSP/Components/iis2mdc/iis2mdc.c ****   }
+ 1227              		.loc 1 496 12 view .LVU339
+ 1228 000c 4FF0FF30 		mov	r0, #-1
+ 1229              	.LVL100:
+ 502:Drivers/BSP/Components/iis2mdc/iis2mdc.c **** 
+ 1230              		.loc 1 502 1 view .LVU340
+ 1231 0010 7047     		bx	lr
+ 1232              		.cfi_endproc
+ 1233              	.LFE17:
+ 1235              		.global	IIS2MDC_MAG_Driver
+ 1236              		.section	.data.IIS2MDC_MAG_Driver,"aw"
+ 1237              		.align	2
+ 1240              	IIS2MDC_MAG_Driver:
+ 1241 0000 00000000 		.word	IIS2MDC_MAG_Enable
+ 1242 0004 00000000 		.word	IIS2MDC_MAG_Disable
+ 1243 0008 00000000 		.word	IIS2MDC_MAG_GetSensitivity
+ 1244 000c 00000000 		.word	IIS2MDC_MAG_GetOutputDataRate
+ 1245 0010 00000000 		.word	IIS2MDC_MAG_SetOutputDataRate
+ 1246 0014 00000000 		.word	IIS2MDC_MAG_GetFullScale
+ 1247 0018 00000000 		.word	IIS2MDC_MAG_SetFullScale
+ 1248 001c 00000000 		.word	IIS2MDC_MAG_GetAxes
+ 1249 0020 00000000 		.word	IIS2MDC_MAG_GetAxesRaw
+ 1250              		.global	IIS2MDC_COMMON_Driver
+ 1251              		.section	.data.IIS2MDC_COMMON_Driver,"aw"
+ 1252              		.align	2
+ 1255              	IIS2MDC_COMMON_Driver:
+ 1256 0000 00000000 		.word	IIS2MDC_Init
+ 1257 0004 00000000 		.word	IIS2MDC_DeInit
+ 1258 0008 00000000 		.word	IIS2MDC_ReadID
+ 1259 000c 00000000 		.word	IIS2MDC_GetCapabilities
+ 1260              		.text
+ 1261              	.Letext0:
+ 1262              		.file 2 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1263              		.file 3 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1264              		.file 4 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 37
+
+
+ 1265              		.file 5 "Drivers/BSP/Components/iis2mdc/iis2mdc_reg.h"
+ 1266              		.file 6 "Drivers/BSP/Components/iis2mdc/iis2mdc.h"
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 38
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 iis2mdc.c
+  C:\Temp\cc4zzlqk.s:21     .text.IIS2MDC_GetCapabilities:00000000 $t
+  C:\Temp\cc4zzlqk.s:27     .text.IIS2MDC_GetCapabilities:00000000 IIS2MDC_GetCapabilities
+  C:\Temp\cc4zzlqk.s:79     .text.IIS2MDC_GetCapabilities:00000020 $d
+  C:\Temp\cc4zzlqk.s:84     .text.IIS2MDC_MAG_GetSensitivity:00000000 $t
+  C:\Temp\cc4zzlqk.s:90     .text.IIS2MDC_MAG_GetSensitivity:00000000 IIS2MDC_MAG_GetSensitivity
+  C:\Temp\cc4zzlqk.s:113    .text.IIS2MDC_MAG_GetFullScale:00000000 $t
+  C:\Temp\cc4zzlqk.s:119    .text.IIS2MDC_MAG_GetFullScale:00000000 IIS2MDC_MAG_GetFullScale
+  C:\Temp\cc4zzlqk.s:142    .text.IIS2MDC_MAG_SetFullScale:00000000 $t
+  C:\Temp\cc4zzlqk.s:148    .text.IIS2MDC_MAG_SetFullScale:00000000 IIS2MDC_MAG_SetFullScale
+  C:\Temp\cc4zzlqk.s:168    .text.ReadMagRegWrap:00000000 $t
+  C:\Temp\cc4zzlqk.s:173    .text.ReadMagRegWrap:00000000 ReadMagRegWrap
+  C:\Temp\cc4zzlqk.s:226    .text.WriteMagRegWrap:00000000 $t
+  C:\Temp\cc4zzlqk.s:231    .text.WriteMagRegWrap:00000000 WriteMagRegWrap
+  C:\Temp\cc4zzlqk.s:284    .text.IIS2MDC_MAG_Enable:00000000 $t
+  C:\Temp\cc4zzlqk.s:290    .text.IIS2MDC_MAG_Enable:00000000 IIS2MDC_MAG_Enable
+  C:\Temp\cc4zzlqk.s:349    .text.IIS2MDC_MAG_Disable:00000000 $t
+  C:\Temp\cc4zzlqk.s:355    .text.IIS2MDC_MAG_Disable:00000000 IIS2MDC_MAG_Disable
+  C:\Temp\cc4zzlqk.s:406    .text.IIS2MDC_DeInit:00000000 $t
+  C:\Temp\cc4zzlqk.s:412    .text.IIS2MDC_DeInit:00000000 IIS2MDC_DeInit
+  C:\Temp\cc4zzlqk.s:447    .text.IIS2MDC_MAG_SetOutputDataRate:00000000 $t
+  C:\Temp\cc4zzlqk.s:453    .text.IIS2MDC_MAG_SetOutputDataRate:00000000 IIS2MDC_MAG_SetOutputDataRate
+  C:\Temp\cc4zzlqk.s:517    .text.IIS2MDC_MAG_SetOutputDataRate:0000004c $d
+  C:\Temp\cc4zzlqk.s:522    .text.IIS2MDC_Init:00000000 $t
+  C:\Temp\cc4zzlqk.s:528    .text.IIS2MDC_Init:00000000 IIS2MDC_Init
+  C:\Temp\cc4zzlqk.s:608    .text.IIS2MDC_ReadID:00000000 $t
+  C:\Temp\cc4zzlqk.s:614    .text.IIS2MDC_ReadID:00000000 IIS2MDC_ReadID
+  C:\Temp\cc4zzlqk.s:646    .text.IIS2MDC_MAG_GetOutputDataRate:00000000 $t
+  C:\Temp\cc4zzlqk.s:652    .text.IIS2MDC_MAG_GetOutputDataRate:00000000 IIS2MDC_MAG_GetOutputDataRate
+  C:\Temp\cc4zzlqk.s:688    .text.IIS2MDC_MAG_GetOutputDataRate:0000001e $d
+  C:\Temp\cc4zzlqk.s:692    .text.IIS2MDC_MAG_GetOutputDataRate:00000022 $t
+  C:\Temp\cc4zzlqk.s:743    .text.IIS2MDC_MAG_GetOutputDataRate:00000048 $d
+  C:\Temp\cc4zzlqk.s:751    .text.IIS2MDC_MAG_GetAxesRaw:00000000 $t
+  C:\Temp\cc4zzlqk.s:757    .text.IIS2MDC_MAG_GetAxesRaw:00000000 IIS2MDC_MAG_GetAxesRaw
+  C:\Temp\cc4zzlqk.s:818    .text.IIS2MDC_MAG_GetAxes:00000000 $t
+  C:\Temp\cc4zzlqk.s:824    .text.IIS2MDC_MAG_GetAxes:00000000 IIS2MDC_MAG_GetAxes
+  C:\Temp\cc4zzlqk.s:922    .text.IIS2MDC_RegisterBusIO:00000000 $t
+  C:\Temp\cc4zzlqk.s:928    .text.IIS2MDC_RegisterBusIO:00000000 IIS2MDC_RegisterBusIO
+  C:\Temp\cc4zzlqk.s:1065   .text.IIS2MDC_RegisterBusIO:0000006c $d
+  C:\Temp\cc4zzlqk.s:1071   .text.IIS2MDC_Read_Reg:00000000 $t
+  C:\Temp\cc4zzlqk.s:1077   .text.IIS2MDC_Read_Reg:00000000 IIS2MDC_Read_Reg
+  C:\Temp\cc4zzlqk.s:1110   .text.IIS2MDC_Write_Reg:00000000 $t
+  C:\Temp\cc4zzlqk.s:1116   .text.IIS2MDC_Write_Reg:00000000 IIS2MDC_Write_Reg
+  C:\Temp\cc4zzlqk.s:1159   .text.IIS2MDC_MAG_Get_DRDY_Status:00000000 $t
+  C:\Temp\cc4zzlqk.s:1165   .text.IIS2MDC_MAG_Get_DRDY_Status:00000000 IIS2MDC_MAG_Get_DRDY_Status
+  C:\Temp\cc4zzlqk.s:1197   .text.IIS2MDC_MAG_Get_Init_Status:00000000 $t
+  C:\Temp\cc4zzlqk.s:1203   .text.IIS2MDC_MAG_Get_Init_Status:00000000 IIS2MDC_MAG_Get_Init_Status
+  C:\Temp\cc4zzlqk.s:1240   .data.IIS2MDC_MAG_Driver:00000000 IIS2MDC_MAG_Driver
+  C:\Temp\cc4zzlqk.s:1237   .data.IIS2MDC_MAG_Driver:00000000 $d
+  C:\Temp\cc4zzlqk.s:1255   .data.IIS2MDC_COMMON_Driver:00000000 IIS2MDC_COMMON_Driver
+  C:\Temp\cc4zzlqk.s:1252   .data.IIS2MDC_COMMON_Driver:00000000 $d
+
+UNDEFINED SYMBOLS
+iis2mdc_operating_mode_set
+iis2mdc_data_rate_set
+iis2mdc_block_data_update_set
+ARM GAS  C:\Temp\cc4zzlqk.s 			page 39
+
+
+iis2mdc_self_test_set
+iis2mdc_device_id_get
+iis2mdc_data_rate_get
+iis2mdc_magnetic_raw_get
+iis2mdc_i2c_interface_set
+iis2mdc_read_reg
+iis2mdc_write_reg
+iis2mdc_mag_data_ready_get

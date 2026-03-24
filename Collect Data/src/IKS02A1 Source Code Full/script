@@ -1,0 +1,10 @@
+config load "C:\Users\JesseJabezArendse\Desktop\Amir_Patel_IMU\NucleoMX_IKS02A1\NucleoMX_IKS02A1.ioc"
+project toolchain STM32CubeIDE
+
+SetStructure Advanced
+
+project setCustomFWPath "C:\MATLAB\R2022a\stm_firmware\STM32Cube_FW_F4_V1.26.2"
+
+project generate 
+
+exit wait

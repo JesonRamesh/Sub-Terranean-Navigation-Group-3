@@ -1,0 +1,2007 @@
+ARM GAS  C:\Temp\ccHEgY66.s 			page 1
+
+
+   1              		.cpu cortex-m4
+   2              		.arch armv7e-m
+   3              		.fpu fpv4-sp-d16
+   4              		.eabi_attribute 27, 1
+   5              		.eabi_attribute 28, 1
+   6              		.eabi_attribute 20, 1
+   7              		.eabi_attribute 21, 1
+   8              		.eabi_attribute 23, 3
+   9              		.eabi_attribute 24, 1
+  10              		.eabi_attribute 25, 1
+  11              		.eabi_attribute 26, 1
+  12              		.eabi_attribute 30, 1
+  13              		.eabi_attribute 34, 1
+  14              		.eabi_attribute 18, 4
+  15              		.file	"app_mems.c"
+  16              		.text
+  17              	.Ltext0:
+  18              		.cfi_sections	.debug_frame
+  19              		.file 1 "MEMS/App/app_mems.c"
+  20              		.global	__aeabi_i2d
+  21              		.global	__aeabi_ddiv
+  22              		.global	__aeabi_f2d
+  23              		.global	__aeabi_dadd
+  24              		.global	__aeabi_d2f
+  25              		.global	__aeabi_dmul
+  26              		.global	__aeabi_d2iz
+  27              		.section	.text.floatToInt,"ax",%progbits
+  28              		.align	1
+  29              		.syntax unified
+  30              		.thumb
+  31              		.thumb_func
+  33              	floatToInt:
+  34              	.LVL0:
+  35              	.LFB142:
+   1:MEMS/App/app_mems.c **** /**
+   2:MEMS/App/app_mems.c ****   ******************************************************************************
+   3:MEMS/App/app_mems.c ****   * File Name          : app_mems.c
+   4:MEMS/App/app_mems.c ****   * Description        : This file provides code for the configuration
+   5:MEMS/App/app_mems.c ****   *                      of the STMicroelectronics.X-CUBE-MEMS1.10.0.0 instances.
+   6:MEMS/App/app_mems.c ****   ******************************************************************************
+   7:MEMS/App/app_mems.c ****   * @attention
+   8:MEMS/App/app_mems.c ****   *
+   9:MEMS/App/app_mems.c ****   * Copyright (c) 2024 STMicroelectronics.
+  10:MEMS/App/app_mems.c ****   * All rights reserved.
+  11:MEMS/App/app_mems.c ****   *
+  12:MEMS/App/app_mems.c ****   * This software is licensed under terms that can be found in the LICENSE file
+  13:MEMS/App/app_mems.c ****   * in the root directory of this software component.
+  14:MEMS/App/app_mems.c ****   * If no LICENSE file comes with this software, it is provided AS-IS.
+  15:MEMS/App/app_mems.c ****   *
+  16:MEMS/App/app_mems.c ****   ******************************************************************************
+  17:MEMS/App/app_mems.c ****   */
+  18:MEMS/App/app_mems.c **** 
+  19:MEMS/App/app_mems.c **** #ifdef __cplusplus
+  20:MEMS/App/app_mems.c **** extern "C" {
+  21:MEMS/App/app_mems.c **** #endif
+  22:MEMS/App/app_mems.c **** 
+  23:MEMS/App/app_mems.c **** /* Includes ------------------------------------------------------------------*/
+ARM GAS  C:\Temp\ccHEgY66.s 			page 2
+
+
+  24:MEMS/App/app_mems.c **** #include "app_mems.h"
+  25:MEMS/App/app_mems.c **** #include "main.h"
+  26:MEMS/App/app_mems.c **** #include <stdio.h>
+  27:MEMS/App/app_mems.c **** 
+  28:MEMS/App/app_mems.c **** #include "iks02a1_motion_sensors.h"
+  29:MEMS/App/app_mems.c **** #include "stm32f4xx_nucleo.h"
+  30:MEMS/App/app_mems.c **** #include "math.h"
+  31:MEMS/App/app_mems.c **** 
+  32:MEMS/App/app_mems.c **** /* Private typedef -----------------------------------------------------------*/
+  33:MEMS/App/app_mems.c **** typedef struct displayFloatToInt_s {
+  34:MEMS/App/app_mems.c ****   int8_t sign; /* 0 means positive, 1 means negative*/
+  35:MEMS/App/app_mems.c ****   uint32_t  out_int;
+  36:MEMS/App/app_mems.c ****   uint32_t  out_dec;
+  37:MEMS/App/app_mems.c **** } displayFloatToInt_t;
+  38:MEMS/App/app_mems.c **** 
+  39:MEMS/App/app_mems.c **** /* Private define ------------------------------------------------------------*/
+  40:MEMS/App/app_mems.c **** #define MAX_BUF_SIZE 256
+  41:MEMS/App/app_mems.c **** 
+  42:MEMS/App/app_mems.c **** /* Private variables ---------------------------------------------------------*/
+  43:MEMS/App/app_mems.c **** static volatile uint8_t PushButtonDetected = 0;
+  44:MEMS/App/app_mems.c **** static uint8_t verbose = 1;  /* Verbose output to UART terminal ON/OFF. */
+  45:MEMS/App/app_mems.c **** static IKS02A1_MOTION_SENSOR_Capabilities_t MotionCapabilities[IKS02A1_MOTION_INSTANCES_NBR];
+  46:MEMS/App/app_mems.c **** static char dataOut[MAX_BUF_SIZE];
+  47:MEMS/App/app_mems.c **** static int32_t PushButtonState = GPIO_PIN_RESET;
+  48:MEMS/App/app_mems.c **** 
+  49:MEMS/App/app_mems.c **** /* Private function prototypes -----------------------------------------------*/
+  50:MEMS/App/app_mems.c **** static void floatToInt(float in, displayFloatToInt_t *out_value, int32_t dec_prec);
+  51:MEMS/App/app_mems.c **** static void Accelero_Sensor_Handler(uint32_t Instance);
+  52:MEMS/App/app_mems.c **** static void Gyro_Sensor_Handler(uint32_t Instance);
+  53:MEMS/App/app_mems.c **** static void Magneto_Sensor_Handler(uint32_t Instance);
+  54:MEMS/App/app_mems.c **** static void MX_IKS02A1_DataLogTerminal_Init(void);
+  55:MEMS/App/app_mems.c **** static void MX_IKS02A1_DataLogTerminal_Process(void);
+  56:MEMS/App/app_mems.c **** 
+  57:MEMS/App/app_mems.c **** void MX_MEMS_Init(void)
+  58:MEMS/App/app_mems.c **** {
+  59:MEMS/App/app_mems.c ****   /* USER CODE BEGIN SV */
+  60:MEMS/App/app_mems.c **** 
+  61:MEMS/App/app_mems.c ****   /* USER CODE END SV */
+  62:MEMS/App/app_mems.c **** 
+  63:MEMS/App/app_mems.c ****   /* USER CODE BEGIN MEMS_Init_PreTreatment */
+  64:MEMS/App/app_mems.c **** 
+  65:MEMS/App/app_mems.c ****   /* USER CODE END MEMS_Init_PreTreatment */
+  66:MEMS/App/app_mems.c **** 
+  67:MEMS/App/app_mems.c ****   /* Initialize the peripherals and the MEMS components */
+  68:MEMS/App/app_mems.c **** 
+  69:MEMS/App/app_mems.c ****   MX_IKS02A1_DataLogTerminal_Init();
+  70:MEMS/App/app_mems.c **** 
+  71:MEMS/App/app_mems.c ****   /* USER CODE BEGIN MEMS_Init_PostTreatment */
+  72:MEMS/App/app_mems.c **** 
+  73:MEMS/App/app_mems.c ****   /* USER CODE END MEMS_Init_PostTreatment */
+  74:MEMS/App/app_mems.c **** }
+  75:MEMS/App/app_mems.c **** 
+  76:MEMS/App/app_mems.c **** /*
+  77:MEMS/App/app_mems.c ****  * LM background task
+  78:MEMS/App/app_mems.c ****  */
+  79:MEMS/App/app_mems.c **** void MX_MEMS_Process(void)
+  80:MEMS/App/app_mems.c **** {
+ARM GAS  C:\Temp\ccHEgY66.s 			page 3
+
+
+  81:MEMS/App/app_mems.c ****   /* USER CODE BEGIN MEMS_Process_PreTreatment */
+  82:MEMS/App/app_mems.c **** 
+  83:MEMS/App/app_mems.c ****   /* USER CODE END MEMS_Process_PreTreatment */
+  84:MEMS/App/app_mems.c **** 
+  85:MEMS/App/app_mems.c ****   MX_IKS02A1_DataLogTerminal_Process();
+  86:MEMS/App/app_mems.c **** 
+  87:MEMS/App/app_mems.c ****   /* USER CODE BEGIN MEMS_Process_PostTreatment */
+  88:MEMS/App/app_mems.c **** 
+  89:MEMS/App/app_mems.c ****   /* USER CODE END MEMS_Process_PostTreatment */
+  90:MEMS/App/app_mems.c **** }
+  91:MEMS/App/app_mems.c **** 
+  92:MEMS/App/app_mems.c **** /**
+  93:MEMS/App/app_mems.c ****   * @brief  Initialize the DataLogTerminal application
+  94:MEMS/App/app_mems.c ****   * @retval None
+  95:MEMS/App/app_mems.c ****   */
+  96:MEMS/App/app_mems.c **** void MX_IKS02A1_DataLogTerminal_Init(void)
+  97:MEMS/App/app_mems.c **** {
+  98:MEMS/App/app_mems.c ****   displayFloatToInt_t out_value_odr;
+  99:MEMS/App/app_mems.c ****   int i;
+ 100:MEMS/App/app_mems.c **** 
+ 101:MEMS/App/app_mems.c ****   /* Initialize LED */
+ 102:MEMS/App/app_mems.c ****   // BSP_LED_Init(LED2);
+ 103:MEMS/App/app_mems.c **** 
+ 104:MEMS/App/app_mems.c ****   /* Initialize button */
+ 105:MEMS/App/app_mems.c ****   BSP_PB_Init(BUTTON_KEY, BUTTON_MODE_EXTI);
+ 106:MEMS/App/app_mems.c **** 
+ 107:MEMS/App/app_mems.c ****   /* Check what is the Push Button State when the button is not pressed. It can change across famil
+ 108:MEMS/App/app_mems.c ****   PushButtonState = (BSP_PB_GetState(BUTTON_KEY)) ?  0 : 1;
+ 109:MEMS/App/app_mems.c **** 
+ 110:MEMS/App/app_mems.c ****   /* Initialize Virtual COM Port */
+ 111:MEMS/App/app_mems.c ****   // BSP_COM_Init(COM1);
+ 112:MEMS/App/app_mems.c **** 
+ 113:MEMS/App/app_mems.c ****   IKS02A1_MOTION_SENSOR_Init(IKS02A1_ISM330DHCX_0, MOTION_ACCELERO | MOTION_GYRO);
+ 114:MEMS/App/app_mems.c **** 
+ 115:MEMS/App/app_mems.c ****   IKS02A1_MOTION_SENSOR_Init(IKS02A1_IIS2DLPC_0, MOTION_ACCELERO);
+ 116:MEMS/App/app_mems.c **** 
+ 117:MEMS/App/app_mems.c ****   IKS02A1_MOTION_SENSOR_Init(IKS02A1_IIS2MDC_0, MOTION_MAGNETO);
+ 118:MEMS/App/app_mems.c **** 
+ 119:MEMS/App/app_mems.c ****   for(i = 0; i < IKS02A1_MOTION_INSTANCES_NBR; i++)
+ 120:MEMS/App/app_mems.c ****   {
+ 121:MEMS/App/app_mems.c ****     IKS02A1_MOTION_SENSOR_GetCapabilities(i, &MotionCapabilities[i]);
+ 122:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE,
+ 123:MEMS/App/app_mems.c ****              "\r\nMotion Sensor Instance %d capabilities: \r\n ACCELEROMETER: %d\r\n GYROSCOPE: %d\
+ 124:MEMS/App/app_mems.c ****              i, MotionCapabilities[i].Acc, MotionCapabilities[i].Gyro, MotionCapabilities[i].Magnet
+ 125:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 126:MEMS/App/app_mems.c ****     floatToInt(MotionCapabilities[i].AccMaxOdr, &out_value_odr, 3);
+ 127:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, " MAX ACC ODR: %d.%03d Hz, MAX ACC FS: %d\r\n", (int)out_value_
+ 128:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].AccMaxFS);
+ 129:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 130:MEMS/App/app_mems.c ****     floatToInt(MotionCapabilities[i].GyroMaxOdr, &out_value_odr, 3);
+ 131:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, " MAX GYRO ODR: %d.%03d Hz, MAX GYRO FS: %d\r\n", (int)out_valu
+ 132:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].GyroMaxFS);
+ 133:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 134:MEMS/App/app_mems.c ****     floatToInt(MotionCapabilities[i].MagMaxOdr, &out_value_odr, 3);
+ 135:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, " MAX MAG ODR: %d.%03d Hz, MAX MAG FS: %d\r\n", (int)out_value_
+ 136:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].MagMaxFS);
+ 137:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ARM GAS  C:\Temp\ccHEgY66.s 			page 4
+
+
+ 138:MEMS/App/app_mems.c ****   }
+ 139:MEMS/App/app_mems.c **** }
+ 140:MEMS/App/app_mems.c **** 
+ 141:MEMS/App/app_mems.c **** /**
+ 142:MEMS/App/app_mems.c ****   * @brief  BSP Push Button callback
+ 143:MEMS/App/app_mems.c ****   * @param  Button Specifies the pin connected EXTI line
+ 144:MEMS/App/app_mems.c ****   * @retval None.
+ 145:MEMS/App/app_mems.c ****   */
+ 146:MEMS/App/app_mems.c **** void BSP_PB_Callback(Button_TypeDef Button)
+ 147:MEMS/App/app_mems.c **** {
+ 148:MEMS/App/app_mems.c ****   PushButtonDetected = 1;
+ 149:MEMS/App/app_mems.c **** }
+ 150:MEMS/App/app_mems.c **** 
+ 151:MEMS/App/app_mems.c **** /**
+ 152:MEMS/App/app_mems.c ****   * @brief  Process of the DataLogTerminal application
+ 153:MEMS/App/app_mems.c ****   * @retval None
+ 154:MEMS/App/app_mems.c ****   */
+ 155:MEMS/App/app_mems.c **** void MX_IKS02A1_DataLogTerminal_Process(void)
+ 156:MEMS/App/app_mems.c **** {
+ 157:MEMS/App/app_mems.c ****   int i;
+ 158:MEMS/App/app_mems.c **** 
+ 159:MEMS/App/app_mems.c ****   if (PushButtonDetected != 0U)
+ 160:MEMS/App/app_mems.c ****   {
+ 161:MEMS/App/app_mems.c ****     /* Debouncing */
+ 162:MEMS/App/app_mems.c ****     HAL_Delay(50);
+ 163:MEMS/App/app_mems.c **** 
+ 164:MEMS/App/app_mems.c ****     /* Wait until the button is released */
+ 165:MEMS/App/app_mems.c ****     while ((BSP_PB_GetState( BUTTON_KEY ) == PushButtonState));
+ 166:MEMS/App/app_mems.c **** 
+ 167:MEMS/App/app_mems.c ****     /* Debouncing */
+ 168:MEMS/App/app_mems.c ****     HAL_Delay(50);
+ 169:MEMS/App/app_mems.c **** 
+ 170:MEMS/App/app_mems.c ****     /* Reset Interrupt flag */
+ 171:MEMS/App/app_mems.c ****     PushButtonDetected = 0;
+ 172:MEMS/App/app_mems.c **** 
+ 173:MEMS/App/app_mems.c ****     /* Do nothing */
+ 174:MEMS/App/app_mems.c ****   }
+ 175:MEMS/App/app_mems.c **** 
+ 176:MEMS/App/app_mems.c ****   for(i = 0; i < IKS02A1_MOTION_INSTANCES_NBR; i++)
+ 177:MEMS/App/app_mems.c ****   {
+ 178:MEMS/App/app_mems.c ****     if(MotionCapabilities[i].Acc)
+ 179:MEMS/App/app_mems.c ****     {
+ 180:MEMS/App/app_mems.c ****       Accelero_Sensor_Handler(i);
+ 181:MEMS/App/app_mems.c ****     }
+ 182:MEMS/App/app_mems.c ****     if(MotionCapabilities[i].Gyro)
+ 183:MEMS/App/app_mems.c ****     {
+ 184:MEMS/App/app_mems.c ****       Gyro_Sensor_Handler(i);
+ 185:MEMS/App/app_mems.c ****     }
+ 186:MEMS/App/app_mems.c ****     if(MotionCapabilities[i].Magneto)
+ 187:MEMS/App/app_mems.c ****     {
+ 188:MEMS/App/app_mems.c ****       Magneto_Sensor_Handler(i);
+ 189:MEMS/App/app_mems.c ****     }
+ 190:MEMS/App/app_mems.c ****   }
+ 191:MEMS/App/app_mems.c **** 
+ 192:MEMS/App/app_mems.c ****   HAL_Delay( 1000 );
+ 193:MEMS/App/app_mems.c **** }
+ 194:MEMS/App/app_mems.c **** 
+ARM GAS  C:\Temp\ccHEgY66.s 			page 5
+
+
+ 195:MEMS/App/app_mems.c **** /**
+ 196:MEMS/App/app_mems.c ****   * @brief  Splits a float into two integer values.
+ 197:MEMS/App/app_mems.c ****   * @param  in the float value as input
+ 198:MEMS/App/app_mems.c ****   * @param  out_value the pointer to the output integer structure
+ 199:MEMS/App/app_mems.c ****   * @param  dec_prec the decimal precision to be used
+ 200:MEMS/App/app_mems.c ****   * @retval None
+ 201:MEMS/App/app_mems.c ****   */
+ 202:MEMS/App/app_mems.c **** static void floatToInt(float in, displayFloatToInt_t *out_value, int32_t dec_prec)
+ 203:MEMS/App/app_mems.c **** {
+  36              		.loc 1 203 1 view -0
+  37              		.cfi_startproc
+  38              		@ args = 0, pretend = 0, frame = 0
+  39              		@ frame_needed = 0, uses_anonymous_args = 0
+  40              		.loc 1 203 1 is_stmt 0 view .LVU1
+  41 0000 D0B5     		push	{r4, r6, r7, lr}
+  42              		.cfi_def_cfa_offset 16
+  43              		.cfi_offset 4, -16
+  44              		.cfi_offset 6, -12
+  45              		.cfi_offset 7, -8
+  46              		.cfi_offset 14, -4
+  47 0002 2DED068B 		vpush.64	{d8, d9, d10}
+  48              		.cfi_def_cfa_offset 40
+  49              		.cfi_offset 80, -40
+  50              		.cfi_offset 81, -36
+  51              		.cfi_offset 82, -32
+  52              		.cfi_offset 83, -28
+  53              		.cfi_offset 84, -24
+  54              		.cfi_offset 85, -20
+  55 0006 B0EE408A 		vmov.f32	s16, s0
+  56 000a 0446     		mov	r4, r0
+  57 000c 0846     		mov	r0, r1
+  58              	.LVL1:
+ 204:MEMS/App/app_mems.c ****   if(in >= 0.0f)
+  59              		.loc 1 204 3 is_stmt 1 view .LVU2
+  60              		.loc 1 204 5 is_stmt 0 view .LVU3
+  61 000e B5EEC00A 		vcmpe.f32	s0, #0
+  62 0012 F1EE10FA 		vmrs	APSR_nzcv, FPSCR
+  63 0016 47DB     		blt	.L6
+ 205:MEMS/App/app_mems.c ****   {
+ 206:MEMS/App/app_mems.c ****     out_value->sign = 0;
+  64              		.loc 1 206 5 is_stmt 1 view .LVU4
+  65              		.loc 1 206 21 is_stmt 0 view .LVU5
+  66 0018 0023     		movs	r3, #0
+  67 001a 2370     		strb	r3, [r4]
+  68              	.LVL2:
+  69              	.L4:
+ 207:MEMS/App/app_mems.c ****   }else
+ 208:MEMS/App/app_mems.c ****   {
+ 209:MEMS/App/app_mems.c ****     out_value->sign = 1;
+ 210:MEMS/App/app_mems.c ****     in = -in;
+ 211:MEMS/App/app_mems.c ****   }
+ 212:MEMS/App/app_mems.c **** 
+ 213:MEMS/App/app_mems.c ****   in = in + (0.5f / pow(10, dec_prec));
+  70              		.loc 1 213 3 is_stmt 1 view .LVU6
+  71              		.loc 1 213 21 is_stmt 0 view .LVU7
+  72 001c FFF7FEFF 		bl	__aeabi_i2d
+  73              	.LVL3:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 6
+
+
+  74              		.loc 1 213 21 view .LVU8
+  75 0020 41EC190B 		vmov	d9, r0, r1
+  76 0024 9FED24AB 		vldr.64	d10, .L8
+  77 0028 B0EE491A 		vmov.f32	s2, s18
+  78 002c F0EE691A 		vmov.f32	s3, s19
+  79 0030 B0EE4A0A 		vmov.f32	s0, s20
+  80 0034 F0EE6A0A 		vmov.f32	s1, s21
+  81 0038 FFF7FEFF 		bl	pow
+  82              	.LVL4:
+  83 003c 53EC102B 		vmov	r2, r3, d0
+  84              		.loc 1 213 19 view .LVU9
+  85 0040 0020     		movs	r0, #0
+  86 0042 1F49     		ldr	r1, .L8+8
+  87 0044 FFF7FEFF 		bl	__aeabi_ddiv
+  88              	.LVL5:
+  89 0048 0646     		mov	r6, r0
+  90 004a 0F46     		mov	r7, r1
+  91              		.loc 1 213 11 view .LVU10
+  92 004c 18EE100A 		vmov	r0, s16
+  93 0050 FFF7FEFF 		bl	__aeabi_f2d
+  94              	.LVL6:
+  95 0054 3246     		mov	r2, r6
+  96 0056 3B46     		mov	r3, r7
+  97 0058 FFF7FEFF 		bl	__aeabi_dadd
+  98              	.LVL7:
+  99              		.loc 1 213 6 view .LVU11
+ 100 005c FFF7FEFF 		bl	__aeabi_d2f
+ 101              	.LVL8:
+ 102 0060 07EE900A 		vmov	s15, r0
+ 103              	.LVL9:
+ 214:MEMS/App/app_mems.c ****   out_value->out_int = (int32_t)in;
+ 104              		.loc 1 214 3 is_stmt 1 view .LVU12
+ 105              		.loc 1 214 24 is_stmt 0 view .LVU13
+ 106 0064 BDEEE77A 		vcvt.s32.f32	s14, s15
+ 107              		.loc 1 214 22 view .LVU14
+ 108 0068 84ED017A 		vstr.32	s14, [r4, #4]	@ int
+ 215:MEMS/App/app_mems.c ****   in = in - (float)(out_value->out_int);
+ 109              		.loc 1 215 3 is_stmt 1 view .LVU15
+ 110              		.loc 1 215 13 is_stmt 0 view .LVU16
+ 111 006c B8EE477A 		vcvt.f32.u32	s14, s14
+ 112              		.loc 1 215 6 view .LVU17
+ 113 0070 37EEC78A 		vsub.f32	s16, s15, s14
+ 114              	.LVL10:
+ 216:MEMS/App/app_mems.c ****   out_value->out_dec = (int32_t)trunc(in * pow(10, dec_prec));
+ 115              		.loc 1 216 3 is_stmt 1 view .LVU18
+ 116              		.loc 1 216 44 is_stmt 0 view .LVU19
+ 117 0074 B0EE491A 		vmov.f32	s2, s18
+ 118 0078 F0EE691A 		vmov.f32	s3, s19
+ 119 007c B0EE4A0A 		vmov.f32	s0, s20
+ 120 0080 F0EE6A0A 		vmov.f32	s1, s21
+ 121 0084 FFF7FEFF 		bl	pow
+ 122              	.LVL11:
+ 123 0088 57EC106B 		vmov	r6, r7, d0
+ 124              		.loc 1 216 42 view .LVU20
+ 125 008c 18EE100A 		vmov	r0, s16
+ 126 0090 FFF7FEFF 		bl	__aeabi_f2d
+ 127              	.LVL12:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 7
+
+
+ 128 0094 3246     		mov	r2, r6
+ 129 0096 3B46     		mov	r3, r7
+ 130 0098 FFF7FEFF 		bl	__aeabi_dmul
+ 131              	.LVL13:
+ 132              		.loc 1 216 24 view .LVU21
+ 133 009c FFF7FEFF 		bl	__aeabi_d2iz
+ 134              	.LVL14:
+ 135              		.loc 1 216 22 view .LVU22
+ 136 00a0 A060     		str	r0, [r4, #8]
+ 217:MEMS/App/app_mems.c **** }
+ 137              		.loc 1 217 1 view .LVU23
+ 138 00a2 BDEC068B 		vldm	sp!, {d8-d10}
+ 139              		.cfi_remember_state
+ 140              		.cfi_restore 84
+ 141              		.cfi_restore 85
+ 142              		.cfi_restore 82
+ 143              		.cfi_restore 83
+ 144              		.cfi_restore 80
+ 145              		.cfi_restore 81
+ 146              		.cfi_def_cfa_offset 16
+ 147              	.LVL15:
+ 148              		.loc 1 217 1 view .LVU24
+ 149 00a6 D0BD     		pop	{r4, r6, r7, pc}
+ 150              	.LVL16:
+ 151              	.L6:
+ 152              		.cfi_restore_state
+ 209:MEMS/App/app_mems.c ****     in = -in;
+ 153              		.loc 1 209 5 is_stmt 1 view .LVU25
+ 209:MEMS/App/app_mems.c ****     in = -in;
+ 154              		.loc 1 209 21 is_stmt 0 view .LVU26
+ 155 00a8 0123     		movs	r3, #1
+ 156 00aa 2370     		strb	r3, [r4]
+ 210:MEMS/App/app_mems.c ****   }
+ 157              		.loc 1 210 5 is_stmt 1 view .LVU27
+ 210:MEMS/App/app_mems.c ****   }
+ 158              		.loc 1 210 8 is_stmt 0 view .LVU28
+ 159 00ac B1EE408A 		vneg.f32	s16, s0
+ 160              	.LVL17:
+ 210:MEMS/App/app_mems.c ****   }
+ 161              		.loc 1 210 8 view .LVU29
+ 162 00b0 B4E7     		b	.L4
+ 163              	.L9:
+ 164 00b2 00BFAFF3 		.align	3
+ 164      0080
+ 165              	.L8:
+ 166 00b8 00000000 		.word	0
+ 167 00bc 00002440 		.word	1076101120
+ 168 00c0 0000E03F 		.word	1071644672
+ 169              		.cfi_endproc
+ 170              	.LFE142:
+ 172              		.section	.rodata.MX_IKS02A1_DataLogTerminal_Init.str1.4,"aMS",%progbits,1
+ 173              		.align	2
+ 174              	.LC0:
+ 175 0000 0D0A4D6F 		.ascii	"\015\012Motion Sensor Instance %d capabilities: \015"
+ 175      74696F6E 
+ 175      2053656E 
+ 175      736F7220 
+ARM GAS  C:\Temp\ccHEgY66.s 			page 8
+
+
+ 175      496E7374 
+ 176 002b 0A204143 		.ascii	"\012 ACCELEROMETER: %d\015\012 GYROSCOPE: %d\015\012"
+ 176      43454C45 
+ 176      524F4D45 
+ 176      5445523A 
+ 176      2025640D 
+ 177 0050 204D4147 		.ascii	" MAGNETOMETER: %d\015\012 LOW POWER: %d\015\012\000"
+ 177      4E45544F 
+ 177      4D455445 
+ 177      523A2025 
+ 177      640D0A20 
+ 178              		.align	2
+ 179              	.LC1:
+ 180 0074 257300   		.ascii	"%s\000"
+ 181 0077 00       		.align	2
+ 182              	.LC2:
+ 183 0078 204D4158 		.ascii	" MAX ACC ODR: %d.%03d Hz, MAX ACC FS: %d\015\012\000"
+ 183      20414343 
+ 183      204F4452 
+ 183      3A202564 
+ 183      2E253033 
+ 184 00a3 00       		.align	2
+ 185              	.LC3:
+ 186 00a4 204D4158 		.ascii	" MAX GYRO ODR: %d.%03d Hz, MAX GYRO FS: %d\015\012\000"
+ 186      20475952 
+ 186      4F204F44 
+ 186      523A2025 
+ 186      642E2530 
+ 187 00d1 000000   		.align	2
+ 188              	.LC4:
+ 189 00d4 204D4158 		.ascii	" MAX MAG ODR: %d.%03d Hz, MAX MAG FS: %d\015\012\000"
+ 189      204D4147 
+ 189      204F4452 
+ 189      3A202564 
+ 189      2E253033 
+ 190              		.section	.text.MX_IKS02A1_DataLogTerminal_Init,"ax",%progbits
+ 191              		.align	1
+ 192              		.syntax unified
+ 193              		.thumb
+ 194              		.thumb_func
+ 196              	MX_IKS02A1_DataLogTerminal_Init:
+ 197              	.LFB139:
+  97:MEMS/App/app_mems.c ****   displayFloatToInt_t out_value_odr;
+ 198              		.loc 1 97 1 is_stmt 1 view -0
+ 199              		.cfi_startproc
+ 200              		@ args = 0, pretend = 0, frame = 16
+ 201              		@ frame_needed = 0, uses_anonymous_args = 0
+ 202 0000 F0B5     		push	{r4, r5, r6, r7, lr}
+ 203              		.cfi_def_cfa_offset 20
+ 204              		.cfi_offset 4, -20
+ 205              		.cfi_offset 5, -16
+ 206              		.cfi_offset 6, -12
+ 207              		.cfi_offset 7, -8
+ 208              		.cfi_offset 14, -4
+ 209 0002 89B0     		sub	sp, sp, #36
+ 210              		.cfi_def_cfa_offset 56
+  98:MEMS/App/app_mems.c ****   int i;
+ARM GAS  C:\Temp\ccHEgY66.s 			page 9
+
+
+ 211              		.loc 1 98 3 view .LVU31
+  99:MEMS/App/app_mems.c **** 
+ 212              		.loc 1 99 3 view .LVU32
+ 105:MEMS/App/app_mems.c **** 
+ 213              		.loc 1 105 3 view .LVU33
+ 214 0004 0121     		movs	r1, #1
+ 215 0006 0020     		movs	r0, #0
+ 216 0008 FFF7FEFF 		bl	BSP_PB_Init
+ 217              	.LVL18:
+ 108:MEMS/App/app_mems.c **** 
+ 218              		.loc 1 108 3 view .LVU34
+ 108:MEMS/App/app_mems.c **** 
+ 219              		.loc 1 108 22 is_stmt 0 view .LVU35
+ 220 000c 0020     		movs	r0, #0
+ 221 000e FFF7FEFF 		bl	BSP_PB_GetState
+ 222              	.LVL19:
+ 108:MEMS/App/app_mems.c **** 
+ 223              		.loc 1 108 56 view .LVU36
+ 224 0012 B0FA80F0 		clz	r0, r0
+ 225 0016 4009     		lsrs	r0, r0, #5
+ 108:MEMS/App/app_mems.c **** 
+ 226              		.loc 1 108 19 view .LVU37
+ 227 0018 394B     		ldr	r3, .L14
+ 228 001a 1860     		str	r0, [r3]
+ 113:MEMS/App/app_mems.c **** 
+ 229              		.loc 1 113 3 is_stmt 1 view .LVU38
+ 230 001c 0321     		movs	r1, #3
+ 231 001e 0020     		movs	r0, #0
+ 232 0020 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_Init
+ 233              	.LVL20:
+ 115:MEMS/App/app_mems.c **** 
+ 234              		.loc 1 115 3 view .LVU39
+ 235 0024 0221     		movs	r1, #2
+ 236 0026 0120     		movs	r0, #1
+ 237 0028 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_Init
+ 238              	.LVL21:
+ 117:MEMS/App/app_mems.c **** 
+ 239              		.loc 1 117 3 view .LVU40
+ 240 002c 0421     		movs	r1, #4
+ 241 002e 0220     		movs	r0, #2
+ 242 0030 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_Init
+ 243              	.LVL22:
+ 119:MEMS/App/app_mems.c ****   {
+ 244              		.loc 1 119 3 view .LVU41
+ 119:MEMS/App/app_mems.c ****   {
+ 245              		.loc 1 119 9 is_stmt 0 view .LVU42
+ 246 0034 0026     		movs	r6, #0
+ 119:MEMS/App/app_mems.c ****   {
+ 247              		.loc 1 119 3 view .LVU43
+ 248 0036 5EE0     		b	.L11
+ 249              	.LVL23:
+ 250              	.L12:
+ 121:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE,
+ 251              		.loc 1 121 5 is_stmt 1 discriminator 3 view .LVU44
+ 252 0038 C6EBC604 		rsb	r4, r6, r6, lsl #3
+ 253 003c A700     		lsls	r7, r4, #2
+ 254 003e 314D     		ldr	r5, .L14+4
+ARM GAS  C:\Temp\ccHEgY66.s 			page 10
+
+
+ 255 0040 05EB8404 		add	r4, r5, r4, lsl #2
+ 256 0044 2146     		mov	r1, r4
+ 257 0046 3046     		mov	r0, r6
+ 258 0048 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetCapabilities
+ 259              	.LVL24:
+ 122:MEMS/App/app_mems.c ****              "\r\nMotion Sensor Instance %d capabilities: \r\n ACCELEROMETER: %d\r\n GYROSCOPE: %d\
+ 260              		.loc 1 122 5 discriminator 3 view .LVU45
+ 124:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 261              		.loc 1 124 38 is_stmt 0 discriminator 3 view .LVU46
+ 262 004c EB5D     		ldrb	r3, [r5, r7]	@ zero_extendqisi2
+ 124:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 263              		.loc 1 124 65 discriminator 3 view .LVU47
+ 264 004e 6278     		ldrb	r2, [r4, #1]	@ zero_extendqisi2
+ 124:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 265              		.loc 1 124 93 discriminator 3 view .LVU48
+ 266 0050 A178     		ldrb	r1, [r4, #2]	@ zero_extendqisi2
+ 124:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 267              		.loc 1 124 124 discriminator 3 view .LVU49
+ 268 0052 E078     		ldrb	r0, [r4, #3]	@ zero_extendqisi2
+ 122:MEMS/App/app_mems.c ****              "\r\nMotion Sensor Instance %d capabilities: \r\n ACCELEROMETER: %d\r\n GYROSCOPE: %d\
+ 269              		.loc 1 122 5 discriminator 3 view .LVU50
+ 270 0054 2C4D     		ldr	r5, .L14+8
+ 271 0056 0390     		str	r0, [sp, #12]
+ 272 0058 0291     		str	r1, [sp, #8]
+ 273 005a 0192     		str	r2, [sp, #4]
+ 274 005c 0093     		str	r3, [sp]
+ 275 005e 3346     		mov	r3, r6
+ 276 0060 2A4A     		ldr	r2, .L14+12
+ 277 0062 4FF48071 		mov	r1, #256
+ 278 0066 2846     		mov	r0, r5
+ 279 0068 FFF7FEFF 		bl	snprintf
+ 280              	.LVL25:
+ 125:MEMS/App/app_mems.c ****     floatToInt(MotionCapabilities[i].AccMaxOdr, &out_value_odr, 3);
+ 281              		.loc 1 125 5 is_stmt 1 discriminator 3 view .LVU51
+ 282 006c 284F     		ldr	r7, .L14+16
+ 283 006e 2946     		mov	r1, r5
+ 284 0070 3846     		mov	r0, r7
+ 285 0072 FFF7FEFF 		bl	printf
+ 286              	.LVL26:
+ 126:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, " MAX ACC ODR: %d.%03d Hz, MAX ACC FS: %d\r\n", (int)out_value_
+ 287              		.loc 1 126 5 discriminator 3 view .LVU52
+ 288 0076 0321     		movs	r1, #3
+ 289 0078 05A8     		add	r0, sp, #20
+ 290 007a 94ED050A 		vldr.32	s0, [r4, #20]
+ 291 007e FFF7FEFF 		bl	floatToInt
+ 292              	.LVL27:
+ 127:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].AccMaxFS);
+ 293              		.loc 1 127 5 discriminator 3 view .LVU53
+ 128:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 294              		.loc 1 128 68 is_stmt 0 discriminator 3 view .LVU54
+ 295 0082 A368     		ldr	r3, [r4, #8]
+ 127:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].AccMaxFS);
+ 296              		.loc 1 127 5 discriminator 3 view .LVU55
+ 297 0084 0193     		str	r3, [sp, #4]
+ 298 0086 079B     		ldr	r3, [sp, #28]
+ 299 0088 0093     		str	r3, [sp]
+ 300 008a 069B     		ldr	r3, [sp, #24]
+ARM GAS  C:\Temp\ccHEgY66.s 			page 11
+
+
+ 301 008c 214A     		ldr	r2, .L14+20
+ 302 008e 4FF48071 		mov	r1, #256
+ 303 0092 2846     		mov	r0, r5
+ 304 0094 FFF7FEFF 		bl	snprintf
+ 305              	.LVL28:
+ 129:MEMS/App/app_mems.c ****     floatToInt(MotionCapabilities[i].GyroMaxOdr, &out_value_odr, 3);
+ 306              		.loc 1 129 5 is_stmt 1 discriminator 3 view .LVU56
+ 307 0098 2946     		mov	r1, r5
+ 308 009a 3846     		mov	r0, r7
+ 309 009c FFF7FEFF 		bl	printf
+ 310              	.LVL29:
+ 130:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, " MAX GYRO ODR: %d.%03d Hz, MAX GYRO FS: %d\r\n", (int)out_valu
+ 311              		.loc 1 130 5 discriminator 3 view .LVU57
+ 312 00a0 0321     		movs	r1, #3
+ 313 00a2 05A8     		add	r0, sp, #20
+ 314 00a4 94ED040A 		vldr.32	s0, [r4, #16]
+ 315 00a8 FFF7FEFF 		bl	floatToInt
+ 316              	.LVL30:
+ 131:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].GyroMaxFS);
+ 317              		.loc 1 131 5 discriminator 3 view .LVU58
+ 132:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 318              		.loc 1 132 68 is_stmt 0 discriminator 3 view .LVU59
+ 319 00ac 6368     		ldr	r3, [r4, #4]
+ 131:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].GyroMaxFS);
+ 320              		.loc 1 131 5 discriminator 3 view .LVU60
+ 321 00ae 0193     		str	r3, [sp, #4]
+ 322 00b0 079B     		ldr	r3, [sp, #28]
+ 323 00b2 0093     		str	r3, [sp]
+ 324 00b4 069B     		ldr	r3, [sp, #24]
+ 325 00b6 184A     		ldr	r2, .L14+24
+ 326 00b8 4FF48071 		mov	r1, #256
+ 327 00bc 2846     		mov	r0, r5
+ 328 00be FFF7FEFF 		bl	snprintf
+ 329              	.LVL31:
+ 133:MEMS/App/app_mems.c ****     floatToInt(MotionCapabilities[i].MagMaxOdr, &out_value_odr, 3);
+ 330              		.loc 1 133 5 is_stmt 1 discriminator 3 view .LVU61
+ 331 00c2 2946     		mov	r1, r5
+ 332 00c4 3846     		mov	r0, r7
+ 333 00c6 FFF7FEFF 		bl	printf
+ 334              	.LVL32:
+ 134:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, " MAX MAG ODR: %d.%03d Hz, MAX MAG FS: %d\r\n", (int)out_value_
+ 335              		.loc 1 134 5 discriminator 3 view .LVU62
+ 336 00ca 0321     		movs	r1, #3
+ 337 00cc 05A8     		add	r0, sp, #20
+ 338 00ce 94ED060A 		vldr.32	s0, [r4, #24]
+ 339 00d2 FFF7FEFF 		bl	floatToInt
+ 340              	.LVL33:
+ 135:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].MagMaxFS);
+ 341              		.loc 1 135 5 discriminator 3 view .LVU63
+ 136:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 342              		.loc 1 136 68 is_stmt 0 discriminator 3 view .LVU64
+ 343 00d6 E368     		ldr	r3, [r4, #12]
+ 135:MEMS/App/app_mems.c ****              (int)out_value_odr.out_dec, (int)MotionCapabilities[i].MagMaxFS);
+ 344              		.loc 1 135 5 discriminator 3 view .LVU65
+ 345 00d8 0193     		str	r3, [sp, #4]
+ 346 00da 079B     		ldr	r3, [sp, #28]
+ 347 00dc 0093     		str	r3, [sp]
+ARM GAS  C:\Temp\ccHEgY66.s 			page 12
+
+
+ 348 00de 069B     		ldr	r3, [sp, #24]
+ 349 00e0 0E4A     		ldr	r2, .L14+28
+ 350 00e2 4FF48071 		mov	r1, #256
+ 351 00e6 2846     		mov	r0, r5
+ 352 00e8 FFF7FEFF 		bl	snprintf
+ 353              	.LVL34:
+ 137:MEMS/App/app_mems.c ****   }
+ 354              		.loc 1 137 5 is_stmt 1 discriminator 3 view .LVU66
+ 355 00ec 2946     		mov	r1, r5
+ 356 00ee 3846     		mov	r0, r7
+ 357 00f0 FFF7FEFF 		bl	printf
+ 358              	.LVL35:
+ 119:MEMS/App/app_mems.c ****   {
+ 359              		.loc 1 119 49 discriminator 3 view .LVU67
+ 360 00f4 0136     		adds	r6, r6, #1
+ 361              	.LVL36:
+ 362              	.L11:
+ 119:MEMS/App/app_mems.c ****   {
+ 363              		.loc 1 119 16 discriminator 1 view .LVU68
+ 364 00f6 022E     		cmp	r6, #2
+ 365 00f8 9EDD     		ble	.L12
+ 139:MEMS/App/app_mems.c **** 
+ 366              		.loc 1 139 1 is_stmt 0 view .LVU69
+ 367 00fa 09B0     		add	sp, sp, #36
+ 368              		.cfi_def_cfa_offset 20
+ 369              		@ sp needed
+ 370 00fc F0BD     		pop	{r4, r5, r6, r7, pc}
+ 371              	.LVL37:
+ 372              	.L15:
+ 139:MEMS/App/app_mems.c **** 
+ 373              		.loc 1 139 1 view .LVU70
+ 374 00fe 00BF     		.align	2
+ 375              	.L14:
+ 376 0100 00000000 		.word	PushButtonState
+ 377 0104 00000000 		.word	MotionCapabilities
+ 378 0108 00000000 		.word	dataOut
+ 379 010c 00000000 		.word	.LC0
+ 380 0110 74000000 		.word	.LC1
+ 381 0114 78000000 		.word	.LC2
+ 382 0118 A4000000 		.word	.LC3
+ 383 011c D4000000 		.word	.LC4
+ 384              		.cfi_endproc
+ 385              	.LFE139:
+ 387              		.section	.rodata.Accelero_Sensor_Handler.str1.4,"aMS",%progbits,1
+ 388              		.align	2
+ 389              	.LC5:
+ 390 0000 0D0A4143 		.ascii	"\015\012ACC[%d]: Error\015\012\000"
+ 390      435B2564 
+ 390      5D3A2045 
+ 390      72726F72 
+ 390      0D0A00
+ 391 0013 00       		.align	2
+ 392              	.LC6:
+ 393 0014 0D0A4143 		.ascii	"\015\012ACC_X[%d]: %d, ACC_Y[%d]: %d, ACC_Z[%d]: %d"
+ 393      435F585B 
+ 393      25645D3A 
+ 393      2025642C 
+ARM GAS  C:\Temp\ccHEgY66.s 			page 13
+
+
+ 393      20414343 
+ 394 0041 0D0A00   		.ascii	"\015\012\000"
+ 395              		.align	2
+ 396              	.LC7:
+ 397 0044 57484F41 		.ascii	"WHOAMI[%d]: Error\015\012\000"
+ 397      4D495B25 
+ 397      645D3A20 
+ 397      4572726F 
+ 397      720D0A00 
+ 398              		.align	2
+ 399              	.LC8:
+ 400 0058 57484F41 		.ascii	"WHOAMI[%d]: 0x%x\015\012\000"
+ 400      4D495B25 
+ 400      645D3A20 
+ 400      30782578 
+ 400      0D0A00
+ 401 006b 00       		.align	2
+ 402              	.LC9:
+ 403 006c 4F44525B 		.ascii	"ODR[%d]: ERROR\015\012\000"
+ 403      25645D3A 
+ 403      20455252 
+ 403      4F520D0A 
+ 403      00
+ 404 007d 000000   		.align	2
+ 405              	.LC10:
+ 406 0080 4F44525B 		.ascii	"ODR[%d]: %d.%03d Hz\015\012\000"
+ 406      25645D3A 
+ 406      2025642E 
+ 406      25303364 
+ 406      20487A0D 
+ 407 0096 0000     		.align	2
+ 408              	.LC11:
+ 409 0098 46535B25 		.ascii	"FS[%d]: ERROR\015\012\000"
+ 409      645D3A20 
+ 409      4552524F 
+ 409      520D0A00 
+ 410              		.align	2
+ 411              	.LC12:
+ 412 00a8 46535B25 		.ascii	"FS[%d]: %d g\015\012\000"
+ 412      645D3A20 
+ 412      25642067 
+ 412      0D0A00
+ 413              		.section	.text.Accelero_Sensor_Handler,"ax",%progbits
+ 414              		.align	1
+ 415              		.syntax unified
+ 416              		.thumb
+ 417              		.thumb_func
+ 419              	Accelero_Sensor_Handler:
+ 420              	.LVL38:
+ 421              	.LFB143:
+ 218:MEMS/App/app_mems.c **** 
+ 219:MEMS/App/app_mems.c **** /**
+ 220:MEMS/App/app_mems.c ****   * @brief  Handles the accelerometer axes data getting/sending
+ 221:MEMS/App/app_mems.c ****   * @param  Instance the device instance
+ 222:MEMS/App/app_mems.c ****   * @retval None
+ 223:MEMS/App/app_mems.c ****   */
+ 224:MEMS/App/app_mems.c **** static void Accelero_Sensor_Handler(uint32_t Instance)
+ARM GAS  C:\Temp\ccHEgY66.s 			page 14
+
+
+ 225:MEMS/App/app_mems.c **** {
+ 422              		.loc 1 225 1 is_stmt 1 view -0
+ 423              		.cfi_startproc
+ 424              		@ args = 0, pretend = 0, frame = 40
+ 425              		@ frame_needed = 0, uses_anonymous_args = 0
+ 426              		.loc 1 225 1 is_stmt 0 view .LVU72
+ 427 0000 10B5     		push	{r4, lr}
+ 428              		.cfi_def_cfa_offset 8
+ 429              		.cfi_offset 4, -8
+ 430              		.cfi_offset 14, -4
+ 431 0002 90B0     		sub	sp, sp, #64
+ 432              		.cfi_def_cfa_offset 72
+ 433 0004 0446     		mov	r4, r0
+ 226:MEMS/App/app_mems.c ****   float odr;
+ 434              		.loc 1 226 3 is_stmt 1 view .LVU73
+ 227:MEMS/App/app_mems.c ****   int32_t fullScale;
+ 435              		.loc 1 227 3 view .LVU74
+ 228:MEMS/App/app_mems.c ****   IKS02A1_MOTION_SENSOR_Axes_t acceleration;
+ 436              		.loc 1 228 3 view .LVU75
+ 229:MEMS/App/app_mems.c ****   displayFloatToInt_t out_value;
+ 437              		.loc 1 229 3 view .LVU76
+ 230:MEMS/App/app_mems.c ****   uint8_t whoami;
+ 438              		.loc 1 230 3 view .LVU77
+ 231:MEMS/App/app_mems.c **** 
+ 232:MEMS/App/app_mems.c ****   if (IKS02A1_MOTION_SENSOR_GetAxes(Instance, MOTION_ACCELERO, &acceleration))
+ 439              		.loc 1 232 3 view .LVU78
+ 440              		.loc 1 232 7 is_stmt 0 view .LVU79
+ 441 0006 0BAA     		add	r2, sp, #44
+ 442 0008 0221     		movs	r1, #2
+ 443 000a FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetAxes
+ 444              	.LVL39:
+ 445              		.loc 1 232 6 view .LVU80
+ 446 000e 0028     		cmp	r0, #0
+ 447 0010 42D0     		beq	.L17
+ 233:MEMS/App/app_mems.c ****   {
+ 234:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, "\r\nACC[%d]: Error\r\n", (int)Instance);
+ 448              		.loc 1 234 5 is_stmt 1 view .LVU81
+ 449 0012 2346     		mov	r3, r4
+ 450 0014 3C4A     		ldr	r2, .L26
+ 451 0016 4FF48071 		mov	r1, #256
+ 452 001a 3C48     		ldr	r0, .L26+4
+ 453 001c FFF7FEFF 		bl	snprintf
+ 454              	.LVL40:
+ 455              	.L18:
+ 235:MEMS/App/app_mems.c ****   }
+ 236:MEMS/App/app_mems.c ****   else
+ 237:MEMS/App/app_mems.c ****   {
+ 238:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, "\r\nACC_X[%d]: %d, ACC_Y[%d]: %d, ACC_Z[%d]: %d\r\n", (int)Ins
+ 239:MEMS/App/app_mems.c ****              (int)acceleration.x, (int)Instance, (int)acceleration.y, (int)Instance, (int)accelerat
+ 240:MEMS/App/app_mems.c ****   }
+ 241:MEMS/App/app_mems.c **** 
+ 242:MEMS/App/app_mems.c ****   printf("%s", dataOut);
+ 456              		.loc 1 242 3 view .LVU82
+ 457 0020 3A49     		ldr	r1, .L26+4
+ 458 0022 3B48     		ldr	r0, .L26+8
+ 459 0024 FFF7FEFF 		bl	printf
+ 460              	.LVL41:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 15
+
+
+ 243:MEMS/App/app_mems.c **** 
+ 244:MEMS/App/app_mems.c ****   if (verbose == 1)
+ 461              		.loc 1 244 3 view .LVU83
+ 245:MEMS/App/app_mems.c ****   {
+ 246:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_ReadID(Instance, &whoami))
+ 462              		.loc 1 246 5 view .LVU84
+ 463              		.loc 1 246 9 is_stmt 0 view .LVU85
+ 464 0028 0DF11F01 		add	r1, sp, #31
+ 465 002c 2046     		mov	r0, r4
+ 466 002e FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_ReadID
+ 467              	.LVL42:
+ 468              		.loc 1 246 8 view .LVU86
+ 469 0032 0028     		cmp	r0, #0
+ 470 0034 40D0     		beq	.L19
+ 247:MEMS/App/app_mems.c ****     {
+ 248:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "WHOAMI[%d]: Error\r\n", (int)Instance);
+ 471              		.loc 1 248 7 is_stmt 1 view .LVU87
+ 472 0036 2346     		mov	r3, r4
+ 473 0038 364A     		ldr	r2, .L26+12
+ 474 003a 4FF48071 		mov	r1, #256
+ 475 003e 3348     		ldr	r0, .L26+4
+ 476 0040 FFF7FEFF 		bl	snprintf
+ 477              	.LVL43:
+ 478              	.L20:
+ 249:MEMS/App/app_mems.c ****     }
+ 250:MEMS/App/app_mems.c ****     else
+ 251:MEMS/App/app_mems.c ****     {
+ 252:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "WHOAMI[%d]: 0x%x\r\n", (int)Instance, (int)whoami);
+ 253:MEMS/App/app_mems.c ****     }
+ 254:MEMS/App/app_mems.c **** 
+ 255:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 479              		.loc 1 255 5 view .LVU88
+ 480 0044 3149     		ldr	r1, .L26+4
+ 481 0046 3248     		ldr	r0, .L26+8
+ 482 0048 FFF7FEFF 		bl	printf
+ 483              	.LVL44:
+ 256:MEMS/App/app_mems.c **** 
+ 257:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_GetOutputDataRate(Instance, MOTION_ACCELERO, &odr))
+ 484              		.loc 1 257 5 view .LVU89
+ 485              		.loc 1 257 9 is_stmt 0 view .LVU90
+ 486 004c 0FAA     		add	r2, sp, #60
+ 487 004e 0221     		movs	r1, #2
+ 488 0050 2046     		mov	r0, r4
+ 489 0052 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetOutputDataRate
+ 490              	.LVL45:
+ 491              		.loc 1 257 8 view .LVU91
+ 492 0056 0028     		cmp	r0, #0
+ 493 0058 39D0     		beq	.L21
+ 258:MEMS/App/app_mems.c ****     {
+ 259:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: ERROR\r\n", (int)Instance);
+ 494              		.loc 1 259 7 is_stmt 1 view .LVU92
+ 495 005a 2346     		mov	r3, r4
+ 496 005c 2E4A     		ldr	r2, .L26+16
+ 497 005e 4FF48071 		mov	r1, #256
+ 498 0062 2A48     		ldr	r0, .L26+4
+ 499 0064 FFF7FEFF 		bl	snprintf
+ 500              	.LVL46:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 16
+
+
+ 501              	.L22:
+ 260:MEMS/App/app_mems.c ****     }
+ 261:MEMS/App/app_mems.c ****     else
+ 262:MEMS/App/app_mems.c ****     {
+ 263:MEMS/App/app_mems.c ****       floatToInt(odr, &out_value, 3);
+ 264:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: %d.%03d Hz\r\n", (int)Instance, (int)out_value.out_
+ 265:MEMS/App/app_mems.c ****                (int)out_value.out_dec);
+ 266:MEMS/App/app_mems.c ****     }
+ 267:MEMS/App/app_mems.c **** 
+ 268:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 502              		.loc 1 268 5 view .LVU93
+ 503 0068 2849     		ldr	r1, .L26+4
+ 504 006a 2948     		ldr	r0, .L26+8
+ 505 006c FFF7FEFF 		bl	printf
+ 506              	.LVL47:
+ 269:MEMS/App/app_mems.c **** 
+ 270:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_GetFullScale(Instance, MOTION_ACCELERO, &fullScale))
+ 507              		.loc 1 270 5 view .LVU94
+ 508              		.loc 1 270 9 is_stmt 0 view .LVU95
+ 509 0070 0EAA     		add	r2, sp, #56
+ 510 0072 0221     		movs	r1, #2
+ 511 0074 2046     		mov	r0, r4
+ 512 0076 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetFullScale
+ 513              	.LVL48:
+ 514              		.loc 1 270 8 view .LVU96
+ 515 007a 0028     		cmp	r0, #0
+ 516 007c 39D0     		beq	.L23
+ 271:MEMS/App/app_mems.c ****     {
+ 272:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "FS[%d]: ERROR\r\n", (int)Instance);
+ 517              		.loc 1 272 7 is_stmt 1 view .LVU97
+ 518 007e 2346     		mov	r3, r4
+ 519 0080 264A     		ldr	r2, .L26+20
+ 520 0082 4FF48071 		mov	r1, #256
+ 521 0086 2148     		ldr	r0, .L26+4
+ 522 0088 FFF7FEFF 		bl	snprintf
+ 523              	.LVL49:
+ 524              	.L24:
+ 273:MEMS/App/app_mems.c ****     }
+ 274:MEMS/App/app_mems.c ****     else
+ 275:MEMS/App/app_mems.c ****     {
+ 276:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "FS[%d]: %d g\r\n", (int)Instance, (int)fullScale);
+ 277:MEMS/App/app_mems.c ****     }
+ 278:MEMS/App/app_mems.c **** 
+ 279:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 525              		.loc 1 279 5 view .LVU98
+ 526 008c 1F49     		ldr	r1, .L26+4
+ 527 008e 2048     		ldr	r0, .L26+8
+ 528 0090 FFF7FEFF 		bl	printf
+ 529              	.LVL50:
+ 280:MEMS/App/app_mems.c ****   }
+ 281:MEMS/App/app_mems.c **** }
+ 530              		.loc 1 281 1 is_stmt 0 view .LVU99
+ 531 0094 10B0     		add	sp, sp, #64
+ 532              		.cfi_remember_state
+ 533              		.cfi_def_cfa_offset 8
+ 534              		@ sp needed
+ 535 0096 10BD     		pop	{r4, pc}
+ARM GAS  C:\Temp\ccHEgY66.s 			page 17
+
+
+ 536              	.LVL51:
+ 537              	.L17:
+ 538              		.cfi_restore_state
+ 238:MEMS/App/app_mems.c ****              (int)acceleration.x, (int)Instance, (int)acceleration.y, (int)Instance, (int)accelerat
+ 539              		.loc 1 238 5 is_stmt 1 view .LVU100
+ 540 0098 0D9B     		ldr	r3, [sp, #52]
+ 541 009a 0493     		str	r3, [sp, #16]
+ 542 009c 0394     		str	r4, [sp, #12]
+ 543 009e 0C9B     		ldr	r3, [sp, #48]
+ 544 00a0 0293     		str	r3, [sp, #8]
+ 545 00a2 0194     		str	r4, [sp, #4]
+ 546 00a4 0B9B     		ldr	r3, [sp, #44]
+ 547 00a6 0093     		str	r3, [sp]
+ 548 00a8 2346     		mov	r3, r4
+ 549 00aa 1D4A     		ldr	r2, .L26+24
+ 550 00ac 4FF48071 		mov	r1, #256
+ 551 00b0 1648     		ldr	r0, .L26+4
+ 552 00b2 FFF7FEFF 		bl	snprintf
+ 553              	.LVL52:
+ 554 00b6 B3E7     		b	.L18
+ 555              	.L19:
+ 252:MEMS/App/app_mems.c ****     }
+ 556              		.loc 1 252 7 view .LVU101
+ 557 00b8 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 558 00bc 0093     		str	r3, [sp]
+ 559 00be 2346     		mov	r3, r4
+ 560 00c0 184A     		ldr	r2, .L26+28
+ 561 00c2 4FF48071 		mov	r1, #256
+ 562 00c6 1148     		ldr	r0, .L26+4
+ 563 00c8 FFF7FEFF 		bl	snprintf
+ 564              	.LVL53:
+ 565 00cc BAE7     		b	.L20
+ 566              	.L21:
+ 263:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: %d.%03d Hz\r\n", (int)Instance, (int)out_value.out_
+ 567              		.loc 1 263 7 view .LVU102
+ 568 00ce 0321     		movs	r1, #3
+ 569 00d0 08A8     		add	r0, sp, #32
+ 570 00d2 9DED0F0A 		vldr.32	s0, [sp, #60]
+ 571 00d6 FFF7FEFF 		bl	floatToInt
+ 572              	.LVL54:
+ 264:MEMS/App/app_mems.c ****                (int)out_value.out_dec);
+ 573              		.loc 1 264 7 view .LVU103
+ 574 00da 0A9B     		ldr	r3, [sp, #40]
+ 575 00dc 0193     		str	r3, [sp, #4]
+ 576 00de 099B     		ldr	r3, [sp, #36]
+ 577 00e0 0093     		str	r3, [sp]
+ 578 00e2 2346     		mov	r3, r4
+ 579 00e4 104A     		ldr	r2, .L26+32
+ 580 00e6 4FF48071 		mov	r1, #256
+ 581 00ea 0848     		ldr	r0, .L26+4
+ 582 00ec FFF7FEFF 		bl	snprintf
+ 583              	.LVL55:
+ 584 00f0 BAE7     		b	.L22
+ 585              	.L23:
+ 276:MEMS/App/app_mems.c ****     }
+ 586              		.loc 1 276 7 view .LVU104
+ 587 00f2 0E9B     		ldr	r3, [sp, #56]
+ARM GAS  C:\Temp\ccHEgY66.s 			page 18
+
+
+ 588 00f4 0093     		str	r3, [sp]
+ 589 00f6 2346     		mov	r3, r4
+ 590 00f8 0C4A     		ldr	r2, .L26+36
+ 591 00fa 4FF48071 		mov	r1, #256
+ 592 00fe 0348     		ldr	r0, .L26+4
+ 593 0100 FFF7FEFF 		bl	snprintf
+ 594              	.LVL56:
+ 595 0104 C2E7     		b	.L24
+ 596              	.L27:
+ 597 0106 00BF     		.align	2
+ 598              	.L26:
+ 599 0108 00000000 		.word	.LC5
+ 600 010c 00000000 		.word	dataOut
+ 601 0110 74000000 		.word	.LC1
+ 602 0114 44000000 		.word	.LC7
+ 603 0118 6C000000 		.word	.LC9
+ 604 011c 98000000 		.word	.LC11
+ 605 0120 14000000 		.word	.LC6
+ 606 0124 58000000 		.word	.LC8
+ 607 0128 80000000 		.word	.LC10
+ 608 012c A8000000 		.word	.LC12
+ 609              		.cfi_endproc
+ 610              	.LFE143:
+ 612              		.section	.rodata.Gyro_Sensor_Handler.str1.4,"aMS",%progbits,1
+ 613              		.align	2
+ 614              	.LC13:
+ 615 0000 0D0A4759 		.ascii	"\015\012GYR[%d]: Error\015\012\000"
+ 615      525B2564 
+ 615      5D3A2045 
+ 615      72726F72 
+ 615      0D0A00
+ 616 0013 00       		.align	2
+ 617              	.LC14:
+ 618 0014 0D0A4759 		.ascii	"\015\012GYR_X[%d]: %d, GYR_Y[%d]: %d, GYR_Z[%d]: %d"
+ 618      525F585B 
+ 618      25645D3A 
+ 618      2025642C 
+ 618      20475952 
+ 619 0041 0D0A00   		.ascii	"\015\012\000"
+ 620              		.align	2
+ 621              	.LC15:
+ 622 0044 46535B25 		.ascii	"FS[%d]: %d dps\015\012\000"
+ 622      645D3A20 
+ 622      25642064 
+ 622      70730D0A 
+ 622      00
+ 623              		.section	.text.Gyro_Sensor_Handler,"ax",%progbits
+ 624              		.align	1
+ 625              		.syntax unified
+ 626              		.thumb
+ 627              		.thumb_func
+ 629              	Gyro_Sensor_Handler:
+ 630              	.LVL57:
+ 631              	.LFB144:
+ 282:MEMS/App/app_mems.c **** 
+ 283:MEMS/App/app_mems.c **** /**
+ 284:MEMS/App/app_mems.c ****   * @brief  Handles the gyroscope axes data getting/sending
+ARM GAS  C:\Temp\ccHEgY66.s 			page 19
+
+
+ 285:MEMS/App/app_mems.c ****   * @param  Instance the device instance
+ 286:MEMS/App/app_mems.c ****   * @retval None
+ 287:MEMS/App/app_mems.c ****   */
+ 288:MEMS/App/app_mems.c **** static void Gyro_Sensor_Handler(uint32_t Instance)
+ 289:MEMS/App/app_mems.c **** {
+ 632              		.loc 1 289 1 view -0
+ 633              		.cfi_startproc
+ 634              		@ args = 0, pretend = 0, frame = 40
+ 635              		@ frame_needed = 0, uses_anonymous_args = 0
+ 636              		.loc 1 289 1 is_stmt 0 view .LVU106
+ 637 0000 10B5     		push	{r4, lr}
+ 638              		.cfi_def_cfa_offset 8
+ 639              		.cfi_offset 4, -8
+ 640              		.cfi_offset 14, -4
+ 641 0002 90B0     		sub	sp, sp, #64
+ 642              		.cfi_def_cfa_offset 72
+ 643 0004 0446     		mov	r4, r0
+ 290:MEMS/App/app_mems.c ****   float odr;
+ 644              		.loc 1 290 3 is_stmt 1 view .LVU107
+ 291:MEMS/App/app_mems.c ****   int32_t fullScale;
+ 645              		.loc 1 291 3 view .LVU108
+ 292:MEMS/App/app_mems.c ****   IKS02A1_MOTION_SENSOR_Axes_t angular_velocity;
+ 646              		.loc 1 292 3 view .LVU109
+ 293:MEMS/App/app_mems.c ****   displayFloatToInt_t out_value;
+ 647              		.loc 1 293 3 view .LVU110
+ 294:MEMS/App/app_mems.c ****   uint8_t whoami;
+ 648              		.loc 1 294 3 view .LVU111
+ 295:MEMS/App/app_mems.c **** 
+ 296:MEMS/App/app_mems.c ****   if (IKS02A1_MOTION_SENSOR_GetAxes(Instance, MOTION_GYRO, &angular_velocity))
+ 649              		.loc 1 296 3 view .LVU112
+ 650              		.loc 1 296 7 is_stmt 0 view .LVU113
+ 651 0006 0BAA     		add	r2, sp, #44
+ 652 0008 0121     		movs	r1, #1
+ 653 000a FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetAxes
+ 654              	.LVL58:
+ 655              		.loc 1 296 6 view .LVU114
+ 656 000e 0028     		cmp	r0, #0
+ 657 0010 42D0     		beq	.L29
+ 297:MEMS/App/app_mems.c ****   {
+ 298:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, "\r\nGYR[%d]: Error\r\n", (int)Instance);
+ 658              		.loc 1 298 5 is_stmt 1 view .LVU115
+ 659 0012 2346     		mov	r3, r4
+ 660 0014 3C4A     		ldr	r2, .L38
+ 661 0016 4FF48071 		mov	r1, #256
+ 662 001a 3C48     		ldr	r0, .L38+4
+ 663 001c FFF7FEFF 		bl	snprintf
+ 664              	.LVL59:
+ 665              	.L30:
+ 299:MEMS/App/app_mems.c ****   }
+ 300:MEMS/App/app_mems.c ****   else
+ 301:MEMS/App/app_mems.c ****   {
+ 302:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, "\r\nGYR_X[%d]: %d, GYR_Y[%d]: %d, GYR_Z[%d]: %d\r\n", (int)Ins
+ 303:MEMS/App/app_mems.c ****              (int)angular_velocity.x, (int)Instance, (int)angular_velocity.y, (int)Instance, (int)a
+ 304:MEMS/App/app_mems.c ****   }
+ 305:MEMS/App/app_mems.c **** 
+ 306:MEMS/App/app_mems.c ****   printf("%s", dataOut);
+ 666              		.loc 1 306 3 view .LVU116
+ARM GAS  C:\Temp\ccHEgY66.s 			page 20
+
+
+ 667 0020 3A49     		ldr	r1, .L38+4
+ 668 0022 3B48     		ldr	r0, .L38+8
+ 669 0024 FFF7FEFF 		bl	printf
+ 670              	.LVL60:
+ 307:MEMS/App/app_mems.c **** 
+ 308:MEMS/App/app_mems.c ****   if (verbose == 1)
+ 671              		.loc 1 308 3 view .LVU117
+ 309:MEMS/App/app_mems.c ****   {
+ 310:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_ReadID(Instance, &whoami))
+ 672              		.loc 1 310 5 view .LVU118
+ 673              		.loc 1 310 9 is_stmt 0 view .LVU119
+ 674 0028 0DF11F01 		add	r1, sp, #31
+ 675 002c 2046     		mov	r0, r4
+ 676 002e FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_ReadID
+ 677              	.LVL61:
+ 678              		.loc 1 310 8 view .LVU120
+ 679 0032 0028     		cmp	r0, #0
+ 680 0034 40D0     		beq	.L31
+ 311:MEMS/App/app_mems.c ****     {
+ 312:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "WHOAMI[%d]: Error\r\n", (int)Instance);
+ 681              		.loc 1 312 7 is_stmt 1 view .LVU121
+ 682 0036 2346     		mov	r3, r4
+ 683 0038 364A     		ldr	r2, .L38+12
+ 684 003a 4FF48071 		mov	r1, #256
+ 685 003e 3348     		ldr	r0, .L38+4
+ 686 0040 FFF7FEFF 		bl	snprintf
+ 687              	.LVL62:
+ 688              	.L32:
+ 313:MEMS/App/app_mems.c ****     }
+ 314:MEMS/App/app_mems.c ****     else
+ 315:MEMS/App/app_mems.c ****     {
+ 316:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "WHOAMI[%d]: 0x%x\r\n", (int)Instance, (int)whoami);
+ 317:MEMS/App/app_mems.c ****     }
+ 318:MEMS/App/app_mems.c **** 
+ 319:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 689              		.loc 1 319 5 view .LVU122
+ 690 0044 3149     		ldr	r1, .L38+4
+ 691 0046 3248     		ldr	r0, .L38+8
+ 692 0048 FFF7FEFF 		bl	printf
+ 693              	.LVL63:
+ 320:MEMS/App/app_mems.c **** 
+ 321:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_GetOutputDataRate(Instance, MOTION_GYRO, &odr))
+ 694              		.loc 1 321 5 view .LVU123
+ 695              		.loc 1 321 9 is_stmt 0 view .LVU124
+ 696 004c 0FAA     		add	r2, sp, #60
+ 697 004e 0121     		movs	r1, #1
+ 698 0050 2046     		mov	r0, r4
+ 699 0052 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetOutputDataRate
+ 700              	.LVL64:
+ 701              		.loc 1 321 8 view .LVU125
+ 702 0056 0028     		cmp	r0, #0
+ 703 0058 39D0     		beq	.L33
+ 322:MEMS/App/app_mems.c ****     {
+ 323:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: ERROR\r\n", (int)Instance);
+ 704              		.loc 1 323 7 is_stmt 1 view .LVU126
+ 705 005a 2346     		mov	r3, r4
+ 706 005c 2E4A     		ldr	r2, .L38+16
+ARM GAS  C:\Temp\ccHEgY66.s 			page 21
+
+
+ 707 005e 4FF48071 		mov	r1, #256
+ 708 0062 2A48     		ldr	r0, .L38+4
+ 709 0064 FFF7FEFF 		bl	snprintf
+ 710              	.LVL65:
+ 711              	.L34:
+ 324:MEMS/App/app_mems.c ****     }
+ 325:MEMS/App/app_mems.c ****     else
+ 326:MEMS/App/app_mems.c ****     {
+ 327:MEMS/App/app_mems.c ****       floatToInt(odr, &out_value, 3);
+ 328:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: %d.%03d Hz\r\n", (int)Instance, (int)out_value.out_
+ 329:MEMS/App/app_mems.c ****                (int)out_value.out_dec);
+ 330:MEMS/App/app_mems.c ****     }
+ 331:MEMS/App/app_mems.c **** 
+ 332:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 712              		.loc 1 332 5 view .LVU127
+ 713 0068 2849     		ldr	r1, .L38+4
+ 714 006a 2948     		ldr	r0, .L38+8
+ 715 006c FFF7FEFF 		bl	printf
+ 716              	.LVL66:
+ 333:MEMS/App/app_mems.c **** 
+ 334:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_GetFullScale(Instance, MOTION_GYRO, &fullScale))
+ 717              		.loc 1 334 5 view .LVU128
+ 718              		.loc 1 334 9 is_stmt 0 view .LVU129
+ 719 0070 0EAA     		add	r2, sp, #56
+ 720 0072 0121     		movs	r1, #1
+ 721 0074 2046     		mov	r0, r4
+ 722 0076 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetFullScale
+ 723              	.LVL67:
+ 724              		.loc 1 334 8 view .LVU130
+ 725 007a 0028     		cmp	r0, #0
+ 726 007c 39D0     		beq	.L35
+ 335:MEMS/App/app_mems.c ****     {
+ 336:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "FS[%d]: ERROR\r\n", (int)Instance);
+ 727              		.loc 1 336 7 is_stmt 1 view .LVU131
+ 728 007e 2346     		mov	r3, r4
+ 729 0080 264A     		ldr	r2, .L38+20
+ 730 0082 4FF48071 		mov	r1, #256
+ 731 0086 2148     		ldr	r0, .L38+4
+ 732 0088 FFF7FEFF 		bl	snprintf
+ 733              	.LVL68:
+ 734              	.L36:
+ 337:MEMS/App/app_mems.c ****     }
+ 338:MEMS/App/app_mems.c ****     else
+ 339:MEMS/App/app_mems.c ****     {
+ 340:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "FS[%d]: %d dps\r\n", (int)Instance, (int)fullScale);
+ 341:MEMS/App/app_mems.c ****     }
+ 342:MEMS/App/app_mems.c **** 
+ 343:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 735              		.loc 1 343 5 view .LVU132
+ 736 008c 1F49     		ldr	r1, .L38+4
+ 737 008e 2048     		ldr	r0, .L38+8
+ 738 0090 FFF7FEFF 		bl	printf
+ 739              	.LVL69:
+ 344:MEMS/App/app_mems.c ****   }
+ 345:MEMS/App/app_mems.c **** }
+ 740              		.loc 1 345 1 is_stmt 0 view .LVU133
+ 741 0094 10B0     		add	sp, sp, #64
+ARM GAS  C:\Temp\ccHEgY66.s 			page 22
+
+
+ 742              		.cfi_remember_state
+ 743              		.cfi_def_cfa_offset 8
+ 744              		@ sp needed
+ 745 0096 10BD     		pop	{r4, pc}
+ 746              	.LVL70:
+ 747              	.L29:
+ 748              		.cfi_restore_state
+ 302:MEMS/App/app_mems.c ****              (int)angular_velocity.x, (int)Instance, (int)angular_velocity.y, (int)Instance, (int)a
+ 749              		.loc 1 302 5 is_stmt 1 view .LVU134
+ 750 0098 0D9B     		ldr	r3, [sp, #52]
+ 751 009a 0493     		str	r3, [sp, #16]
+ 752 009c 0394     		str	r4, [sp, #12]
+ 753 009e 0C9B     		ldr	r3, [sp, #48]
+ 754 00a0 0293     		str	r3, [sp, #8]
+ 755 00a2 0194     		str	r4, [sp, #4]
+ 756 00a4 0B9B     		ldr	r3, [sp, #44]
+ 757 00a6 0093     		str	r3, [sp]
+ 758 00a8 2346     		mov	r3, r4
+ 759 00aa 1D4A     		ldr	r2, .L38+24
+ 760 00ac 4FF48071 		mov	r1, #256
+ 761 00b0 1648     		ldr	r0, .L38+4
+ 762 00b2 FFF7FEFF 		bl	snprintf
+ 763              	.LVL71:
+ 764 00b6 B3E7     		b	.L30
+ 765              	.L31:
+ 316:MEMS/App/app_mems.c ****     }
+ 766              		.loc 1 316 7 view .LVU135
+ 767 00b8 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 768 00bc 0093     		str	r3, [sp]
+ 769 00be 2346     		mov	r3, r4
+ 770 00c0 184A     		ldr	r2, .L38+28
+ 771 00c2 4FF48071 		mov	r1, #256
+ 772 00c6 1148     		ldr	r0, .L38+4
+ 773 00c8 FFF7FEFF 		bl	snprintf
+ 774              	.LVL72:
+ 775 00cc BAE7     		b	.L32
+ 776              	.L33:
+ 327:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: %d.%03d Hz\r\n", (int)Instance, (int)out_value.out_
+ 777              		.loc 1 327 7 view .LVU136
+ 778 00ce 0321     		movs	r1, #3
+ 779 00d0 08A8     		add	r0, sp, #32
+ 780 00d2 9DED0F0A 		vldr.32	s0, [sp, #60]
+ 781 00d6 FFF7FEFF 		bl	floatToInt
+ 782              	.LVL73:
+ 328:MEMS/App/app_mems.c ****                (int)out_value.out_dec);
+ 783              		.loc 1 328 7 view .LVU137
+ 784 00da 0A9B     		ldr	r3, [sp, #40]
+ 785 00dc 0193     		str	r3, [sp, #4]
+ 786 00de 099B     		ldr	r3, [sp, #36]
+ 787 00e0 0093     		str	r3, [sp]
+ 788 00e2 2346     		mov	r3, r4
+ 789 00e4 104A     		ldr	r2, .L38+32
+ 790 00e6 4FF48071 		mov	r1, #256
+ 791 00ea 0848     		ldr	r0, .L38+4
+ 792 00ec FFF7FEFF 		bl	snprintf
+ 793              	.LVL74:
+ 794 00f0 BAE7     		b	.L34
+ARM GAS  C:\Temp\ccHEgY66.s 			page 23
+
+
+ 795              	.L35:
+ 340:MEMS/App/app_mems.c ****     }
+ 796              		.loc 1 340 7 view .LVU138
+ 797 00f2 0E9B     		ldr	r3, [sp, #56]
+ 798 00f4 0093     		str	r3, [sp]
+ 799 00f6 2346     		mov	r3, r4
+ 800 00f8 0C4A     		ldr	r2, .L38+36
+ 801 00fa 4FF48071 		mov	r1, #256
+ 802 00fe 0348     		ldr	r0, .L38+4
+ 803 0100 FFF7FEFF 		bl	snprintf
+ 804              	.LVL75:
+ 805 0104 C2E7     		b	.L36
+ 806              	.L39:
+ 807 0106 00BF     		.align	2
+ 808              	.L38:
+ 809 0108 00000000 		.word	.LC13
+ 810 010c 00000000 		.word	dataOut
+ 811 0110 74000000 		.word	.LC1
+ 812 0114 44000000 		.word	.LC7
+ 813 0118 6C000000 		.word	.LC9
+ 814 011c 98000000 		.word	.LC11
+ 815 0120 14000000 		.word	.LC14
+ 816 0124 58000000 		.word	.LC8
+ 817 0128 80000000 		.word	.LC10
+ 818 012c 44000000 		.word	.LC15
+ 819              		.cfi_endproc
+ 820              	.LFE144:
+ 822              		.section	.rodata.Magneto_Sensor_Handler.str1.4,"aMS",%progbits,1
+ 823              		.align	2
+ 824              	.LC16:
+ 825 0000 0D0A4D41 		.ascii	"\015\012MAG[%d]: Error\015\012\000"
+ 825      475B2564 
+ 825      5D3A2045 
+ 825      72726F72 
+ 825      0D0A00
+ 826 0013 00       		.align	2
+ 827              	.LC17:
+ 828 0014 0D0A4D41 		.ascii	"\015\012MAG_X[%d]: %d, MAG_Y[%d]: %d, MAG_Z[%d]: %d"
+ 828      475F585B 
+ 828      25645D3A 
+ 828      2025642C 
+ 828      204D4147 
+ 829 0041 0D0A00   		.ascii	"\015\012\000"
+ 830              		.align	2
+ 831              	.LC18:
+ 832 0044 46535B25 		.ascii	"FS[%d]: %d gauss\015\012\000"
+ 832      645D3A20 
+ 832      25642067 
+ 832      61757373 
+ 832      0D0A00
+ 833              		.section	.text.Magneto_Sensor_Handler,"ax",%progbits
+ 834              		.align	1
+ 835              		.syntax unified
+ 836              		.thumb
+ 837              		.thumb_func
+ 839              	Magneto_Sensor_Handler:
+ 840              	.LVL76:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 24
+
+
+ 841              	.LFB145:
+ 346:MEMS/App/app_mems.c **** 
+ 347:MEMS/App/app_mems.c **** /**
+ 348:MEMS/App/app_mems.c ****   * @brief  Handles the magneto axes data getting/sending
+ 349:MEMS/App/app_mems.c ****   * @param  Instance the device instance
+ 350:MEMS/App/app_mems.c ****   * @retval None
+ 351:MEMS/App/app_mems.c ****   */
+ 352:MEMS/App/app_mems.c **** static void Magneto_Sensor_Handler(uint32_t Instance)
+ 353:MEMS/App/app_mems.c **** {
+ 842              		.loc 1 353 1 view -0
+ 843              		.cfi_startproc
+ 844              		@ args = 0, pretend = 0, frame = 40
+ 845              		@ frame_needed = 0, uses_anonymous_args = 0
+ 846              		.loc 1 353 1 is_stmt 0 view .LVU140
+ 847 0000 10B5     		push	{r4, lr}
+ 848              		.cfi_def_cfa_offset 8
+ 849              		.cfi_offset 4, -8
+ 850              		.cfi_offset 14, -4
+ 851 0002 90B0     		sub	sp, sp, #64
+ 852              		.cfi_def_cfa_offset 72
+ 853 0004 0446     		mov	r4, r0
+ 354:MEMS/App/app_mems.c ****   float odr;
+ 854              		.loc 1 354 3 is_stmt 1 view .LVU141
+ 355:MEMS/App/app_mems.c ****   int32_t fullScale;
+ 855              		.loc 1 355 3 view .LVU142
+ 356:MEMS/App/app_mems.c ****   IKS02A1_MOTION_SENSOR_Axes_t magnetic_field;
+ 856              		.loc 1 356 3 view .LVU143
+ 357:MEMS/App/app_mems.c ****   displayFloatToInt_t out_value;
+ 857              		.loc 1 357 3 view .LVU144
+ 358:MEMS/App/app_mems.c ****   uint8_t whoami;
+ 858              		.loc 1 358 3 view .LVU145
+ 359:MEMS/App/app_mems.c **** 
+ 360:MEMS/App/app_mems.c ****   if (IKS02A1_MOTION_SENSOR_GetAxes(Instance, MOTION_MAGNETO, &magnetic_field))
+ 859              		.loc 1 360 3 view .LVU146
+ 860              		.loc 1 360 7 is_stmt 0 view .LVU147
+ 861 0006 0BAA     		add	r2, sp, #44
+ 862 0008 0421     		movs	r1, #4
+ 863 000a FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetAxes
+ 864              	.LVL77:
+ 865              		.loc 1 360 6 view .LVU148
+ 866 000e 0028     		cmp	r0, #0
+ 867 0010 42D0     		beq	.L41
+ 361:MEMS/App/app_mems.c ****   {
+ 362:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, "\r\nMAG[%d]: Error\r\n", (int)Instance);
+ 868              		.loc 1 362 5 is_stmt 1 view .LVU149
+ 869 0012 2346     		mov	r3, r4
+ 870 0014 3C4A     		ldr	r2, .L50
+ 871 0016 4FF48071 		mov	r1, #256
+ 872 001a 3C48     		ldr	r0, .L50+4
+ 873 001c FFF7FEFF 		bl	snprintf
+ 874              	.LVL78:
+ 875              	.L42:
+ 363:MEMS/App/app_mems.c ****   }
+ 364:MEMS/App/app_mems.c ****   else
+ 365:MEMS/App/app_mems.c ****   {
+ 366:MEMS/App/app_mems.c ****     snprintf(dataOut, MAX_BUF_SIZE, "\r\nMAG_X[%d]: %d, MAG_Y[%d]: %d, MAG_Z[%d]: %d\r\n", (int)Ins
+ 367:MEMS/App/app_mems.c ****              (int)magnetic_field.x, (int)Instance, (int)magnetic_field.y, (int)Instance, (int)magne
+ARM GAS  C:\Temp\ccHEgY66.s 			page 25
+
+
+ 368:MEMS/App/app_mems.c ****   }
+ 369:MEMS/App/app_mems.c **** 
+ 370:MEMS/App/app_mems.c ****   printf("%s", dataOut);
+ 876              		.loc 1 370 3 view .LVU150
+ 877 0020 3A49     		ldr	r1, .L50+4
+ 878 0022 3B48     		ldr	r0, .L50+8
+ 879 0024 FFF7FEFF 		bl	printf
+ 880              	.LVL79:
+ 371:MEMS/App/app_mems.c **** 
+ 372:MEMS/App/app_mems.c ****   if (verbose == 1)
+ 881              		.loc 1 372 3 view .LVU151
+ 373:MEMS/App/app_mems.c ****   {
+ 374:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_ReadID(Instance, &whoami))
+ 882              		.loc 1 374 5 view .LVU152
+ 883              		.loc 1 374 9 is_stmt 0 view .LVU153
+ 884 0028 0DF11F01 		add	r1, sp, #31
+ 885 002c 2046     		mov	r0, r4
+ 886 002e FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_ReadID
+ 887              	.LVL80:
+ 888              		.loc 1 374 8 view .LVU154
+ 889 0032 0028     		cmp	r0, #0
+ 890 0034 40D0     		beq	.L43
+ 375:MEMS/App/app_mems.c ****     {
+ 376:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "WHOAMI[%d]: Error\r\n", (int)Instance);
+ 891              		.loc 1 376 7 is_stmt 1 view .LVU155
+ 892 0036 2346     		mov	r3, r4
+ 893 0038 364A     		ldr	r2, .L50+12
+ 894 003a 4FF48071 		mov	r1, #256
+ 895 003e 3348     		ldr	r0, .L50+4
+ 896 0040 FFF7FEFF 		bl	snprintf
+ 897              	.LVL81:
+ 898              	.L44:
+ 377:MEMS/App/app_mems.c ****     }
+ 378:MEMS/App/app_mems.c ****     else
+ 379:MEMS/App/app_mems.c ****     {
+ 380:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "WHOAMI[%d]: 0x%x\r\n", (int)Instance, (int)whoami);
+ 381:MEMS/App/app_mems.c ****     }
+ 382:MEMS/App/app_mems.c **** 
+ 383:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 899              		.loc 1 383 5 view .LVU156
+ 900 0044 3149     		ldr	r1, .L50+4
+ 901 0046 3248     		ldr	r0, .L50+8
+ 902 0048 FFF7FEFF 		bl	printf
+ 903              	.LVL82:
+ 384:MEMS/App/app_mems.c **** 
+ 385:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_GetOutputDataRate(Instance, MOTION_MAGNETO, &odr))
+ 904              		.loc 1 385 5 view .LVU157
+ 905              		.loc 1 385 9 is_stmt 0 view .LVU158
+ 906 004c 0FAA     		add	r2, sp, #60
+ 907 004e 0421     		movs	r1, #4
+ 908 0050 2046     		mov	r0, r4
+ 909 0052 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetOutputDataRate
+ 910              	.LVL83:
+ 911              		.loc 1 385 8 view .LVU159
+ 912 0056 0028     		cmp	r0, #0
+ 913 0058 39D0     		beq	.L45
+ 386:MEMS/App/app_mems.c ****     {
+ARM GAS  C:\Temp\ccHEgY66.s 			page 26
+
+
+ 387:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: ERROR\r\n", (int)Instance);
+ 914              		.loc 1 387 7 is_stmt 1 view .LVU160
+ 915 005a 2346     		mov	r3, r4
+ 916 005c 2E4A     		ldr	r2, .L50+16
+ 917 005e 4FF48071 		mov	r1, #256
+ 918 0062 2A48     		ldr	r0, .L50+4
+ 919 0064 FFF7FEFF 		bl	snprintf
+ 920              	.LVL84:
+ 921              	.L46:
+ 388:MEMS/App/app_mems.c ****     }
+ 389:MEMS/App/app_mems.c ****     else
+ 390:MEMS/App/app_mems.c ****     {
+ 391:MEMS/App/app_mems.c ****       floatToInt(odr, &out_value, 3);
+ 392:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: %d.%03d Hz\r\n", (int)Instance, (int)out_value.out_
+ 393:MEMS/App/app_mems.c ****                (int)out_value.out_dec);
+ 394:MEMS/App/app_mems.c ****     }
+ 395:MEMS/App/app_mems.c **** 
+ 396:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 922              		.loc 1 396 5 view .LVU161
+ 923 0068 2849     		ldr	r1, .L50+4
+ 924 006a 2948     		ldr	r0, .L50+8
+ 925 006c FFF7FEFF 		bl	printf
+ 926              	.LVL85:
+ 397:MEMS/App/app_mems.c **** 
+ 398:MEMS/App/app_mems.c ****     if (IKS02A1_MOTION_SENSOR_GetFullScale(Instance, MOTION_MAGNETO, &fullScale))
+ 927              		.loc 1 398 5 view .LVU162
+ 928              		.loc 1 398 9 is_stmt 0 view .LVU163
+ 929 0070 0EAA     		add	r2, sp, #56
+ 930 0072 0421     		movs	r1, #4
+ 931 0074 2046     		mov	r0, r4
+ 932 0076 FFF7FEFF 		bl	IKS02A1_MOTION_SENSOR_GetFullScale
+ 933              	.LVL86:
+ 934              		.loc 1 398 8 view .LVU164
+ 935 007a 0028     		cmp	r0, #0
+ 936 007c 39D0     		beq	.L47
+ 399:MEMS/App/app_mems.c ****     {
+ 400:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "FS[%d]: ERROR\r\n", (int)Instance);
+ 937              		.loc 1 400 7 is_stmt 1 view .LVU165
+ 938 007e 2346     		mov	r3, r4
+ 939 0080 264A     		ldr	r2, .L50+20
+ 940 0082 4FF48071 		mov	r1, #256
+ 941 0086 2148     		ldr	r0, .L50+4
+ 942 0088 FFF7FEFF 		bl	snprintf
+ 943              	.LVL87:
+ 944              	.L48:
+ 401:MEMS/App/app_mems.c ****     }
+ 402:MEMS/App/app_mems.c ****     else
+ 403:MEMS/App/app_mems.c ****     {
+ 404:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "FS[%d]: %d gauss\r\n", (int)Instance, (int)fullScale);
+ 405:MEMS/App/app_mems.c ****     }
+ 406:MEMS/App/app_mems.c **** 
+ 407:MEMS/App/app_mems.c ****     printf("%s", dataOut);
+ 945              		.loc 1 407 5 view .LVU166
+ 946 008c 1F49     		ldr	r1, .L50+4
+ 947 008e 2048     		ldr	r0, .L50+8
+ 948 0090 FFF7FEFF 		bl	printf
+ 949              	.LVL88:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 27
+
+
+ 408:MEMS/App/app_mems.c ****   }
+ 409:MEMS/App/app_mems.c **** }
+ 950              		.loc 1 409 1 is_stmt 0 view .LVU167
+ 951 0094 10B0     		add	sp, sp, #64
+ 952              		.cfi_remember_state
+ 953              		.cfi_def_cfa_offset 8
+ 954              		@ sp needed
+ 955 0096 10BD     		pop	{r4, pc}
+ 956              	.LVL89:
+ 957              	.L41:
+ 958              		.cfi_restore_state
+ 366:MEMS/App/app_mems.c ****              (int)magnetic_field.x, (int)Instance, (int)magnetic_field.y, (int)Instance, (int)magne
+ 959              		.loc 1 366 5 is_stmt 1 view .LVU168
+ 960 0098 0D9B     		ldr	r3, [sp, #52]
+ 961 009a 0493     		str	r3, [sp, #16]
+ 962 009c 0394     		str	r4, [sp, #12]
+ 963 009e 0C9B     		ldr	r3, [sp, #48]
+ 964 00a0 0293     		str	r3, [sp, #8]
+ 965 00a2 0194     		str	r4, [sp, #4]
+ 966 00a4 0B9B     		ldr	r3, [sp, #44]
+ 967 00a6 0093     		str	r3, [sp]
+ 968 00a8 2346     		mov	r3, r4
+ 969 00aa 1D4A     		ldr	r2, .L50+24
+ 970 00ac 4FF48071 		mov	r1, #256
+ 971 00b0 1648     		ldr	r0, .L50+4
+ 972 00b2 FFF7FEFF 		bl	snprintf
+ 973              	.LVL90:
+ 974 00b6 B3E7     		b	.L42
+ 975              	.L43:
+ 380:MEMS/App/app_mems.c ****     }
+ 976              		.loc 1 380 7 view .LVU169
+ 977 00b8 9DF81F30 		ldrb	r3, [sp, #31]	@ zero_extendqisi2
+ 978 00bc 0093     		str	r3, [sp]
+ 979 00be 2346     		mov	r3, r4
+ 980 00c0 184A     		ldr	r2, .L50+28
+ 981 00c2 4FF48071 		mov	r1, #256
+ 982 00c6 1148     		ldr	r0, .L50+4
+ 983 00c8 FFF7FEFF 		bl	snprintf
+ 984              	.LVL91:
+ 985 00cc BAE7     		b	.L44
+ 986              	.L45:
+ 391:MEMS/App/app_mems.c ****       snprintf(dataOut, MAX_BUF_SIZE, "ODR[%d]: %d.%03d Hz\r\n", (int)Instance, (int)out_value.out_
+ 987              		.loc 1 391 7 view .LVU170
+ 988 00ce 0321     		movs	r1, #3
+ 989 00d0 08A8     		add	r0, sp, #32
+ 990 00d2 9DED0F0A 		vldr.32	s0, [sp, #60]
+ 991 00d6 FFF7FEFF 		bl	floatToInt
+ 992              	.LVL92:
+ 392:MEMS/App/app_mems.c ****                (int)out_value.out_dec);
+ 993              		.loc 1 392 7 view .LVU171
+ 994 00da 0A9B     		ldr	r3, [sp, #40]
+ 995 00dc 0193     		str	r3, [sp, #4]
+ 996 00de 099B     		ldr	r3, [sp, #36]
+ 997 00e0 0093     		str	r3, [sp]
+ 998 00e2 2346     		mov	r3, r4
+ 999 00e4 104A     		ldr	r2, .L50+32
+ 1000 00e6 4FF48071 		mov	r1, #256
+ARM GAS  C:\Temp\ccHEgY66.s 			page 28
+
+
+ 1001 00ea 0848     		ldr	r0, .L50+4
+ 1002 00ec FFF7FEFF 		bl	snprintf
+ 1003              	.LVL93:
+ 1004 00f0 BAE7     		b	.L46
+ 1005              	.L47:
+ 404:MEMS/App/app_mems.c ****     }
+ 1006              		.loc 1 404 7 view .LVU172
+ 1007 00f2 0E9B     		ldr	r3, [sp, #56]
+ 1008 00f4 0093     		str	r3, [sp]
+ 1009 00f6 2346     		mov	r3, r4
+ 1010 00f8 0C4A     		ldr	r2, .L50+36
+ 1011 00fa 4FF48071 		mov	r1, #256
+ 1012 00fe 0348     		ldr	r0, .L50+4
+ 1013 0100 FFF7FEFF 		bl	snprintf
+ 1014              	.LVL94:
+ 1015 0104 C2E7     		b	.L48
+ 1016              	.L51:
+ 1017 0106 00BF     		.align	2
+ 1018              	.L50:
+ 1019 0108 00000000 		.word	.LC16
+ 1020 010c 00000000 		.word	dataOut
+ 1021 0110 74000000 		.word	.LC1
+ 1022 0114 44000000 		.word	.LC7
+ 1023 0118 6C000000 		.word	.LC9
+ 1024 011c 98000000 		.word	.LC11
+ 1025 0120 14000000 		.word	.LC17
+ 1026 0124 58000000 		.word	.LC8
+ 1027 0128 80000000 		.word	.LC10
+ 1028 012c 44000000 		.word	.LC18
+ 1029              		.cfi_endproc
+ 1030              	.LFE145:
+ 1032              		.section	.text.MX_IKS02A1_DataLogTerminal_Process,"ax",%progbits
+ 1033              		.align	1
+ 1034              		.syntax unified
+ 1035              		.thumb
+ 1036              		.thumb_func
+ 1038              	MX_IKS02A1_DataLogTerminal_Process:
+ 1039              	.LFB141:
+ 156:MEMS/App/app_mems.c ****   int i;
+ 1040              		.loc 1 156 1 view -0
+ 1041              		.cfi_startproc
+ 1042              		@ args = 0, pretend = 0, frame = 0
+ 1043              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1044 0000 10B5     		push	{r4, lr}
+ 1045              		.cfi_def_cfa_offset 8
+ 1046              		.cfi_offset 4, -8
+ 1047              		.cfi_offset 14, -4
+ 157:MEMS/App/app_mems.c **** 
+ 1048              		.loc 1 157 3 view .LVU174
+ 159:MEMS/App/app_mems.c ****   {
+ 1049              		.loc 1 159 3 view .LVU175
+ 159:MEMS/App/app_mems.c ****   {
+ 1050              		.loc 1 159 26 is_stmt 0 view .LVU176
+ 1051 0002 204B     		ldr	r3, .L65
+ 1052 0004 1B78     		ldrb	r3, [r3]	@ zero_extendqisi2
+ 159:MEMS/App/app_mems.c ****   {
+ 1053              		.loc 1 159 6 view .LVU177
+ARM GAS  C:\Temp\ccHEgY66.s 			page 29
+
+
+ 1054 0006 0BB9     		cbnz	r3, .L61
+ 1055              	.L53:
+ 156:MEMS/App/app_mems.c ****   int i;
+ 1056              		.loc 1 156 1 discriminator 1 view .LVU178
+ 1057 0008 0024     		movs	r4, #0
+ 1058 000a 19E0     		b	.L55
+ 1059              	.L61:
+ 162:MEMS/App/app_mems.c **** 
+ 1060              		.loc 1 162 5 is_stmt 1 view .LVU179
+ 1061 000c 3220     		movs	r0, #50
+ 1062 000e FFF7FEFF 		bl	HAL_Delay
+ 1063              	.LVL95:
+ 165:MEMS/App/app_mems.c **** 
+ 1064              		.loc 1 165 5 view .LVU180
+ 1065              	.L54:
+ 165:MEMS/App/app_mems.c **** 
+ 1066              		.loc 1 165 43 discriminator 1 view .LVU181
+ 165:MEMS/App/app_mems.c **** 
+ 1067              		.loc 1 165 13 is_stmt 0 discriminator 1 view .LVU182
+ 1068 0012 0020     		movs	r0, #0
+ 1069 0014 FFF7FEFF 		bl	BSP_PB_GetState
+ 1070              	.LVL96:
+ 165:MEMS/App/app_mems.c **** 
+ 1071              		.loc 1 165 43 discriminator 1 view .LVU183
+ 1072 0018 1B4B     		ldr	r3, .L65+4
+ 1073 001a 1B68     		ldr	r3, [r3]
+ 1074 001c 9842     		cmp	r0, r3
+ 1075 001e F8D0     		beq	.L54
+ 168:MEMS/App/app_mems.c **** 
+ 1076              		.loc 1 168 5 is_stmt 1 view .LVU184
+ 1077 0020 3220     		movs	r0, #50
+ 1078 0022 FFF7FEFF 		bl	HAL_Delay
+ 1079              	.LVL97:
+ 171:MEMS/App/app_mems.c **** 
+ 1080              		.loc 1 171 5 view .LVU185
+ 171:MEMS/App/app_mems.c **** 
+ 1081              		.loc 1 171 24 is_stmt 0 view .LVU186
+ 1082 0026 174B     		ldr	r3, .L65
+ 1083 0028 0022     		movs	r2, #0
+ 1084 002a 1A70     		strb	r2, [r3]
+ 1085 002c ECE7     		b	.L53
+ 1086              	.LVL98:
+ 1087              	.L63:
+ 180:MEMS/App/app_mems.c ****     }
+ 1088              		.loc 1 180 7 is_stmt 1 view .LVU187
+ 1089 002e 2046     		mov	r0, r4
+ 1090 0030 FFF7FEFF 		bl	Accelero_Sensor_Handler
+ 1091              	.LVL99:
+ 1092 0034 0DE0     		b	.L56
+ 1093              	.L64:
+ 184:MEMS/App/app_mems.c ****     }
+ 1094              		.loc 1 184 7 view .LVU188
+ 1095 0036 2046     		mov	r0, r4
+ 1096 0038 FFF7FEFF 		bl	Gyro_Sensor_Handler
+ 1097              	.LVL100:
+ 1098 003c 11E0     		b	.L57
+ 1099              	.L58:
+ARM GAS  C:\Temp\ccHEgY66.s 			page 30
+
+
+ 176:MEMS/App/app_mems.c ****   {
+ 1100              		.loc 1 176 49 discriminator 2 view .LVU189
+ 1101 003e 0134     		adds	r4, r4, #1
+ 1102              	.LVL101:
+ 1103              	.L55:
+ 176:MEMS/App/app_mems.c ****   {
+ 1104              		.loc 1 176 16 discriminator 1 view .LVU190
+ 1105 0040 022C     		cmp	r4, #2
+ 1106 0042 1ADC     		bgt	.L62
+ 178:MEMS/App/app_mems.c ****     {
+ 1107              		.loc 1 178 5 view .LVU191
+ 178:MEMS/App/app_mems.c ****     {
+ 1108              		.loc 1 178 29 is_stmt 0 view .LVU192
+ 1109 0044 C4EBC403 		rsb	r3, r4, r4, lsl #3
+ 1110 0048 104A     		ldr	r2, .L65+8
+ 1111 004a 12F82330 		ldrb	r3, [r2, r3, lsl #2]	@ zero_extendqisi2
+ 178:MEMS/App/app_mems.c ****     {
+ 1112              		.loc 1 178 7 view .LVU193
+ 1113 004e 002B     		cmp	r3, #0
+ 1114 0050 EDD1     		bne	.L63
+ 1115              	.L56:
+ 182:MEMS/App/app_mems.c ****     {
+ 1116              		.loc 1 182 5 is_stmt 1 view .LVU194
+ 182:MEMS/App/app_mems.c ****     {
+ 1117              		.loc 1 182 29 is_stmt 0 view .LVU195
+ 1118 0052 C4EBC402 		rsb	r2, r4, r4, lsl #3
+ 1119 0056 0D4B     		ldr	r3, .L65+8
+ 1120 0058 03EB8203 		add	r3, r3, r2, lsl #2
+ 1121 005c 5B78     		ldrb	r3, [r3, #1]	@ zero_extendqisi2
+ 182:MEMS/App/app_mems.c ****     {
+ 1122              		.loc 1 182 7 view .LVU196
+ 1123 005e 002B     		cmp	r3, #0
+ 1124 0060 E9D1     		bne	.L64
+ 1125              	.L57:
+ 186:MEMS/App/app_mems.c ****     {
+ 1126              		.loc 1 186 5 is_stmt 1 view .LVU197
+ 186:MEMS/App/app_mems.c ****     {
+ 1127              		.loc 1 186 29 is_stmt 0 view .LVU198
+ 1128 0062 C4EBC402 		rsb	r2, r4, r4, lsl #3
+ 1129 0066 094B     		ldr	r3, .L65+8
+ 1130 0068 03EB8203 		add	r3, r3, r2, lsl #2
+ 1131 006c 9B78     		ldrb	r3, [r3, #2]	@ zero_extendqisi2
+ 186:MEMS/App/app_mems.c ****     {
+ 1132              		.loc 1 186 7 view .LVU199
+ 1133 006e 002B     		cmp	r3, #0
+ 1134 0070 E5D0     		beq	.L58
+ 188:MEMS/App/app_mems.c ****     }
+ 1135              		.loc 1 188 7 is_stmt 1 view .LVU200
+ 1136 0072 2046     		mov	r0, r4
+ 1137 0074 FFF7FEFF 		bl	Magneto_Sensor_Handler
+ 1138              	.LVL102:
+ 1139 0078 E1E7     		b	.L58
+ 1140              	.L62:
+ 192:MEMS/App/app_mems.c **** }
+ 1141              		.loc 1 192 3 view .LVU201
+ 1142 007a 4FF47A70 		mov	r0, #1000
+ 1143 007e FFF7FEFF 		bl	HAL_Delay
+ARM GAS  C:\Temp\ccHEgY66.s 			page 31
+
+
+ 1144              	.LVL103:
+ 193:MEMS/App/app_mems.c **** 
+ 1145              		.loc 1 193 1 is_stmt 0 view .LVU202
+ 1146 0082 10BD     		pop	{r4, pc}
+ 1147              	.LVL104:
+ 1148              	.L66:
+ 193:MEMS/App/app_mems.c **** 
+ 1149              		.loc 1 193 1 view .LVU203
+ 1150              		.align	2
+ 1151              	.L65:
+ 1152 0084 00000000 		.word	PushButtonDetected
+ 1153 0088 00000000 		.word	PushButtonState
+ 1154 008c 00000000 		.word	MotionCapabilities
+ 1155              		.cfi_endproc
+ 1156              	.LFE141:
+ 1158              		.section	.text.MX_MEMS_Init,"ax",%progbits
+ 1159              		.align	1
+ 1160              		.global	MX_MEMS_Init
+ 1161              		.syntax unified
+ 1162              		.thumb
+ 1163              		.thumb_func
+ 1165              	MX_MEMS_Init:
+ 1166              	.LFB137:
+  58:MEMS/App/app_mems.c ****   /* USER CODE BEGIN SV */
+ 1167              		.loc 1 58 1 is_stmt 1 view -0
+ 1168              		.cfi_startproc
+ 1169              		@ args = 0, pretend = 0, frame = 0
+ 1170              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1171 0000 08B5     		push	{r3, lr}
+ 1172              		.cfi_def_cfa_offset 8
+ 1173              		.cfi_offset 3, -8
+ 1174              		.cfi_offset 14, -4
+  69:MEMS/App/app_mems.c **** 
+ 1175              		.loc 1 69 3 view .LVU205
+ 1176 0002 FFF7FEFF 		bl	MX_IKS02A1_DataLogTerminal_Init
+ 1177              	.LVL105:
+  74:MEMS/App/app_mems.c **** 
+ 1178              		.loc 1 74 1 is_stmt 0 view .LVU206
+ 1179 0006 08BD     		pop	{r3, pc}
+ 1180              		.cfi_endproc
+ 1181              	.LFE137:
+ 1183              		.section	.text.MX_MEMS_Process,"ax",%progbits
+ 1184              		.align	1
+ 1185              		.global	MX_MEMS_Process
+ 1186              		.syntax unified
+ 1187              		.thumb
+ 1188              		.thumb_func
+ 1190              	MX_MEMS_Process:
+ 1191              	.LFB138:
+  80:MEMS/App/app_mems.c ****   /* USER CODE BEGIN MEMS_Process_PreTreatment */
+ 1192              		.loc 1 80 1 is_stmt 1 view -0
+ 1193              		.cfi_startproc
+ 1194              		@ args = 0, pretend = 0, frame = 0
+ 1195              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1196 0000 08B5     		push	{r3, lr}
+ 1197              		.cfi_def_cfa_offset 8
+ 1198              		.cfi_offset 3, -8
+ARM GAS  C:\Temp\ccHEgY66.s 			page 32
+
+
+ 1199              		.cfi_offset 14, -4
+  85:MEMS/App/app_mems.c **** 
+ 1200              		.loc 1 85 3 view .LVU208
+ 1201 0002 FFF7FEFF 		bl	MX_IKS02A1_DataLogTerminal_Process
+ 1202              	.LVL106:
+  90:MEMS/App/app_mems.c **** 
+ 1203              		.loc 1 90 1 is_stmt 0 view .LVU209
+ 1204 0006 08BD     		pop	{r3, pc}
+ 1205              		.cfi_endproc
+ 1206              	.LFE138:
+ 1208              		.section	.text.BSP_PB_Callback,"ax",%progbits
+ 1209              		.align	1
+ 1210              		.global	BSP_PB_Callback
+ 1211              		.syntax unified
+ 1212              		.thumb
+ 1213              		.thumb_func
+ 1215              	BSP_PB_Callback:
+ 1216              	.LVL107:
+ 1217              	.LFB140:
+ 147:MEMS/App/app_mems.c ****   PushButtonDetected = 1;
+ 1218              		.loc 1 147 1 is_stmt 1 view -0
+ 1219              		.cfi_startproc
+ 1220              		@ args = 0, pretend = 0, frame = 0
+ 1221              		@ frame_needed = 0, uses_anonymous_args = 0
+ 1222              		@ link register save eliminated.
+ 148:MEMS/App/app_mems.c **** }
+ 1223              		.loc 1 148 3 view .LVU211
+ 148:MEMS/App/app_mems.c **** }
+ 1224              		.loc 1 148 22 is_stmt 0 view .LVU212
+ 1225 0000 014B     		ldr	r3, .L72
+ 1226 0002 0122     		movs	r2, #1
+ 1227 0004 1A70     		strb	r2, [r3]
+ 149:MEMS/App/app_mems.c **** 
+ 1228              		.loc 1 149 1 view .LVU213
+ 1229 0006 7047     		bx	lr
+ 1230              	.L73:
+ 1231              		.align	2
+ 1232              	.L72:
+ 1233 0008 00000000 		.word	PushButtonDetected
+ 1234              		.cfi_endproc
+ 1235              	.LFE140:
+ 1237              		.section	.bss.PushButtonState,"aw",%nobits
+ 1238              		.align	2
+ 1241              	PushButtonState:
+ 1242 0000 00000000 		.space	4
+ 1243              		.section	.bss.dataOut,"aw",%nobits
+ 1244              		.align	2
+ 1247              	dataOut:
+ 1248 0000 00000000 		.space	256
+ 1248      00000000 
+ 1248      00000000 
+ 1248      00000000 
+ 1248      00000000 
+ 1249              		.section	.bss.MotionCapabilities,"aw",%nobits
+ 1250              		.align	2
+ 1253              	MotionCapabilities:
+ 1254 0000 00000000 		.space	84
+ARM GAS  C:\Temp\ccHEgY66.s 			page 33
+
+
+ 1254      00000000 
+ 1254      00000000 
+ 1254      00000000 
+ 1254      00000000 
+ 1255              		.section	.bss.PushButtonDetected,"aw",%nobits
+ 1258              	PushButtonDetected:
+ 1259 0000 00       		.space	1
+ 1260              		.text
+ 1261              	.Letext0:
+ 1262              		.file 2 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1263              		.file 3 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1264              		.file 4 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1265              		.file 5 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal_gpio.h"
+ 1266              		.file 6 "Drivers/BSP/STM32F4xx_Nucleo/stm32f4xx_nucleo.h"
+ 1267              		.file 7 "Drivers/BSP/IKS02A1/iks02a1_motion_sensors.h"
+ 1268              		.file 8 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for-
+ 1269              		.file 9 "Drivers/STM32F4xx_HAL_Driver/Inc/stm32f4xx_hal.h"
+ 1270              		.file 10 "c:\\users\\jessejabezarendse\\appdata\\roaming\\code\\user\\globalstorage\\bmd.stm32-for
+ARM GAS  C:\Temp\ccHEgY66.s 			page 34
+
+
+DEFINED SYMBOLS
+                            *ABS*:00000000 app_mems.c
+  C:\Temp\ccHEgY66.s:28     .text.floatToInt:00000000 $t
+  C:\Temp\ccHEgY66.s:33     .text.floatToInt:00000000 floatToInt
+  C:\Temp\ccHEgY66.s:166    .text.floatToInt:000000b8 $d
+  C:\Temp\ccHEgY66.s:173    .rodata.MX_IKS02A1_DataLogTerminal_Init.str1.4:00000000 $d
+  C:\Temp\ccHEgY66.s:191    .text.MX_IKS02A1_DataLogTerminal_Init:00000000 $t
+  C:\Temp\ccHEgY66.s:196    .text.MX_IKS02A1_DataLogTerminal_Init:00000000 MX_IKS02A1_DataLogTerminal_Init
+  C:\Temp\ccHEgY66.s:376    .text.MX_IKS02A1_DataLogTerminal_Init:00000100 $d
+  C:\Temp\ccHEgY66.s:1241   .bss.PushButtonState:00000000 PushButtonState
+  C:\Temp\ccHEgY66.s:1253   .bss.MotionCapabilities:00000000 MotionCapabilities
+  C:\Temp\ccHEgY66.s:1247   .bss.dataOut:00000000 dataOut
+  C:\Temp\ccHEgY66.s:388    .rodata.Accelero_Sensor_Handler.str1.4:00000000 $d
+  C:\Temp\ccHEgY66.s:414    .text.Accelero_Sensor_Handler:00000000 $t
+  C:\Temp\ccHEgY66.s:419    .text.Accelero_Sensor_Handler:00000000 Accelero_Sensor_Handler
+  C:\Temp\ccHEgY66.s:599    .text.Accelero_Sensor_Handler:00000108 $d
+  C:\Temp\ccHEgY66.s:613    .rodata.Gyro_Sensor_Handler.str1.4:00000000 $d
+  C:\Temp\ccHEgY66.s:624    .text.Gyro_Sensor_Handler:00000000 $t
+  C:\Temp\ccHEgY66.s:629    .text.Gyro_Sensor_Handler:00000000 Gyro_Sensor_Handler
+  C:\Temp\ccHEgY66.s:809    .text.Gyro_Sensor_Handler:00000108 $d
+  C:\Temp\ccHEgY66.s:823    .rodata.Magneto_Sensor_Handler.str1.4:00000000 $d
+  C:\Temp\ccHEgY66.s:834    .text.Magneto_Sensor_Handler:00000000 $t
+  C:\Temp\ccHEgY66.s:839    .text.Magneto_Sensor_Handler:00000000 Magneto_Sensor_Handler
+  C:\Temp\ccHEgY66.s:1019   .text.Magneto_Sensor_Handler:00000108 $d
+  C:\Temp\ccHEgY66.s:1033   .text.MX_IKS02A1_DataLogTerminal_Process:00000000 $t
+  C:\Temp\ccHEgY66.s:1038   .text.MX_IKS02A1_DataLogTerminal_Process:00000000 MX_IKS02A1_DataLogTerminal_Process
+  C:\Temp\ccHEgY66.s:1152   .text.MX_IKS02A1_DataLogTerminal_Process:00000084 $d
+  C:\Temp\ccHEgY66.s:1258   .bss.PushButtonDetected:00000000 PushButtonDetected
+  C:\Temp\ccHEgY66.s:1159   .text.MX_MEMS_Init:00000000 $t
+  C:\Temp\ccHEgY66.s:1165   .text.MX_MEMS_Init:00000000 MX_MEMS_Init
+  C:\Temp\ccHEgY66.s:1184   .text.MX_MEMS_Process:00000000 $t
+  C:\Temp\ccHEgY66.s:1190   .text.MX_MEMS_Process:00000000 MX_MEMS_Process
+  C:\Temp\ccHEgY66.s:1209   .text.BSP_PB_Callback:00000000 $t
+  C:\Temp\ccHEgY66.s:1215   .text.BSP_PB_Callback:00000000 BSP_PB_Callback
+  C:\Temp\ccHEgY66.s:1233   .text.BSP_PB_Callback:00000008 $d
+  C:\Temp\ccHEgY66.s:1238   .bss.PushButtonState:00000000 $d
+  C:\Temp\ccHEgY66.s:1244   .bss.dataOut:00000000 $d
+  C:\Temp\ccHEgY66.s:1250   .bss.MotionCapabilities:00000000 $d
+  C:\Temp\ccHEgY66.s:1259   .bss.PushButtonDetected:00000000 $d
+
+UNDEFINED SYMBOLS
+__aeabi_i2d
+__aeabi_ddiv
+__aeabi_f2d
+__aeabi_dadd
+__aeabi_d2f
+__aeabi_dmul
+__aeabi_d2iz
+pow
+BSP_PB_Init
+BSP_PB_GetState
+IKS02A1_MOTION_SENSOR_Init
+IKS02A1_MOTION_SENSOR_GetCapabilities
+snprintf
+printf
+IKS02A1_MOTION_SENSOR_GetAxes
+IKS02A1_MOTION_SENSOR_ReadID
+ARM GAS  C:\Temp\ccHEgY66.s 			page 35
+
+
+IKS02A1_MOTION_SENSOR_GetOutputDataRate
+IKS02A1_MOTION_SENSOR_GetFullScale
+HAL_Delay
