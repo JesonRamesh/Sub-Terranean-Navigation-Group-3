@@ -5,8 +5,19 @@ clear; clc; close all;
 %load('Training Data/task1_3.mat');
 load('Training Data/task2_3 1.mat');
 
+acc = squeeze(out.Sensor_ACCEL.signals.values)';
+gyro = squeeze(out.Sensor_GYRO.signals.values)';
+mag = squeeze(out.Sensor_MAG.signals.values)';
+
+ToF1 = squeeze(out.Sensor_ToF1.signals.values)';
+ToF2 = squeeze(out.Sensor_ToF2.signals.values)';
+ToF3 = squeeze(out.Sensor_ToF3.signals.values)';
+
+Temp = squeeze(out.Sensor_Temp.signals.values)';
+LP_acc = squeeze(out.Sensor_LP_ACCEL.signals.values)';
+
 %% 2. Run EKF
-[X_Est, P_Est] = myEKF(out);
+[X_Est, P_Est] = myEKF(acc, gyro, mag, ToF1, ToF2, ToF3, Temp, LP_acc);
 
 %% 3. Build time-aligned GT
 imu_time_vec = out.Sensor_GYRO.time;
