@@ -24,7 +24,7 @@ persistent ab_xmax ab_xmin ab_ymax ab_ymin
 
 % Mag anomaly detection
 persistent theta_gyro_ref gyro_ref_bias mag_disable_until
-persistent mag_innov_buf mag_innov_count
+persistent mag_innov_buf mag_innov_count mag_norm_ref
 persistent gyro_mag_diverge_count prev_innovation_mag mag_innov_growing_count
 
 % ToF rate tracking
@@ -207,6 +207,12 @@ if ~startup_done
                 mag_global_offset = wrapToPi_fn(mag_global_offset + pi);
             end
 
+            mag_y_cal_stat = (startup_mag(stat_range, 2) - mag_hard_iron(1)) * mag_soft_iron(1);
+            mag_z_cal_stat = (startup_mag(stat_range, 3) - mag_hard_iron(2)) * mag_soft_iron(2);
+
+            % Compute the expected squared norm of the magnetic field
+            mag_norm_ref = mean(mag_y_cal_stat.^2 + mag_z_cal_stat.^2);
+
             % % Magnetometer global offset — median over stationary window
             % mag_y_cal_buf = (startup_mag(stat_range,2) - mag_hard_iron(1)) .* mag_soft_iron(1);
             % mag_z_cal_buf = (startup_mag(stat_range,3) - mag_hard_iron(2)) .* mag_soft_iron(2);
@@ -310,6 +316,8 @@ P_pred = F * P * F' + Q_k;
 X      = X_pred;
 P      = P_pred;
 
+P(3,3) = min(P(3,3), 0.05);
+
 %% Gyro reference update
 %theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - gyro_ref_bias) * dt);
 theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - X(6)) * dt);
@@ -317,16 +325,25 @@ theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - X(6)) * dt);
 %% Magnetometer update with anomaly detection
 mag_y_cal = (mag_y - mag_hard_iron(1)) * mag_soft_iron(1);
 mag_z_cal = (mag_z - mag_hard_iron(2)) * mag_soft_iron(2);
-z_mag     = wrapToPi_fn(atan2(mag_z_cal, mag_y_cal) + mag_global_offset);
 
+current_norm2 = mag_y_cal^2 + mag_z_cal^2;
+norm_error_ratio = abs(current_norm2 - mag_norm_ref) / mag_norm_ref;
+
+% If the field strength changes by more than 20%, it's guaranteed garbage.
+% Keep refreshing the lockout until the field normalizes.
+if norm_error_ratio > 0.20 
+    mag_disable_until = call_count + 100; % 0.5 second rolling lockout
+end
+
+z_mag = wrapToPi_fn(atan2(mag_z_cal, mag_y_cal) + mag_global_offset);
 innovation_mag = wrapToPi_fn(z_mag - X(3));
 
 % Criterion 1: innovation buffer
-mag_innov_count        = mag_innov_count + 1;
-buf_idx                = mod(mag_innov_count - 1, 20) + 1;
+mag_innov_count = mag_innov_count + 1;
+buf_idx = mod(mag_innov_count - 1, 20) + 1;
 mag_innov_buf(buf_idx) = innovation_mag;
 if mag_innov_count >= 20
-    ib_mean   = sum(mag_innov_buf) / 20;
+    ib_mean = sum(mag_innov_buf) / 20;
     innov_var = sum((mag_innov_buf - ib_mean).^2) / 19;
     innov_rms = sqrt(sum(mag_innov_buf.^2) / 20);
     if innov_var > 0.04 || innov_rms > 0.15
@@ -338,7 +355,7 @@ end
 if abs(innovation_mag) > abs(prev_innovation_mag) + 0.02
     mag_innov_growing_count = mag_innov_growing_count + 1;
     if mag_innov_growing_count >= 5
-        mag_disable_until       = call_count + 400;
+        mag_disable_until = call_count + 400;
         mag_innov_growing_count = 0;
     end
 else
@@ -372,7 +389,16 @@ if call_count > mag_disable_until
     % else
     %     R_mag_k = 4.0;   % Normal trust after that
     % end
+    
+    % If just recovered from an anomaly, don't trust the mag blindly yet.
+    time_since_anomaly = call_count - mag_disable_until; 
+    
+    % Smoothly transition R_mag back to normal over 1 second (200 steps) after an anomaly clears.
     R_mag_k = 4.0;
+    if time_since_anomaly < 200
+        R_mag_k = 4.0 + 10.0 * (1 - time_since_anomaly/200); 
+    end
+
     H_mag = [0 0 1 0 0 0];
     S_mag = H_mag * P * H_mag' + R_mag_k;
     if innovation_mag^2 / S_mag < gamma_threshold
