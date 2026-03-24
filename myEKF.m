@@ -38,6 +38,8 @@ persistent startup_mag startup_done startup_buf_count
 
 persistent zupt_accel_fwd_buf zupt_accel_lat_buf zupt_gyro_buf zupt_buf_count
 
+persistent post_turn_steps
+
 %% Constants
 dt              = 0.005;
 alpha_tof1      = -pi/2;
@@ -103,6 +105,8 @@ if isempty(initialized)
     % State and covariance — will be reset after startup
     X = [0; -0.93; theta0; 0; 0; gyro_bias];
     P = diag([0.1, 0.1, 0.1, 2.0, 2.0, 0.25]);
+
+    post_turn_steps = 0;
 
     initialized = true;
 end
@@ -190,6 +194,28 @@ if ~startup_done
             z_mag0            = atan2(mag_z_cal0, mag_y_cal0);
             mag_global_offset = wrapToPi_fn(theta0 - z_mag0);
 
+            % Check for 180-degree polarity flip at startup
+            % Use gyro integration over first stat_range to verify mag direction
+            % If mag disagreement with gyro exceeds 90 degrees after offset,
+            % the field is polarity-flipped — add pi to correct
+            gyro_mean_stat = mean(startup_gyro(stat_range, 1));
+            theta_stat_end = theta0 + gyro_mean_stat * length(stat_range) * dt;
+            mag_y_check = (startup_mag(stat_range(end),2) - mag_hard_iron(1)) * mag_soft_iron(1);
+            mag_z_check = (startup_mag(stat_range(end),3) - mag_hard_iron(2)) * mag_soft_iron(2);
+            z_mag_check = wrapToPi_fn(atan2(mag_z_check, mag_y_check) + mag_global_offset);
+            if abs(wrapToPi_fn(z_mag_check - theta_stat_end)) > pi/2
+                mag_global_offset = wrapToPi_fn(mag_global_offset + pi);
+            end
+
+            % % Magnetometer global offset — median over stationary window
+            % mag_y_cal_buf = (startup_mag(stat_range,2) - mag_hard_iron(1)) .* mag_soft_iron(1);
+            % mag_z_cal_buf = (startup_mag(stat_range,3) - mag_hard_iron(2)) .* mag_soft_iron(2);
+            % z_mag_buf = atan2(mag_z_cal_buf, mag_y_cal_buf);
+            % 
+            % % Circular mean (robust to angle wrapping)
+            % z_mag_median = atan2(sum(sin(z_mag_buf)), sum(cos(z_mag_buf)));
+            % mag_global_offset = wrapToPi_fn(theta0 - z_mag_median);
+
             % Initialise filter state with estimated x0, y0
             X = [x0; y0; theta0; 0; 0; gyro_bias];
             P = diag([0.1, 0.1, 0.1, 2.0, 2.0, 0.25]);
@@ -202,7 +228,7 @@ if ~startup_done
     end
 
     % During startup, return zero estimates
-    X_Est = [0, -0.93, pi/2, 0, 0];
+    X_Est = [0; -0.93; pi/2; 0; 0; 0; 0; 0];   % 1x8
     P_Est = zeros(5, 5);
     return;
 end
@@ -225,6 +251,7 @@ mag_z = mag(3);
 %% Prediction step
 omega   = gx - X(6);
 Q_base  = diag([1e-4, 1e-4, 1.1e-3, 0.5, 0.5, 1.5e-5]) * dt;
+%Q_base = diag([5e-4, 5e-4, 1.1e-3, 0.5, 0.5, 1.5e-5]) * dt;
 
 ax_body = max(-2.0, min(2.0, ax_body_raw - accel_bias_fwd));
 ay_body = max(-2.0, min(2.0, ay_body_raw - accel_bias_lat));
@@ -232,7 +259,21 @@ ay_body = max(-2.0, min(2.0, ay_body_raw - accel_bias_lat));
 ax_world = ax_body * cos(X(3)) - ay_body * sin(X(3));
 ay_world = ax_body * sin(X(3)) + ay_body * cos(X(3));
 
-vel_damp  = 1.0 - 0.5 * dt;
+%vel_damp = 1.0 - 2.0 * dt;
+% Detect turn: high omega indicates active rotation
+if abs(omega) > 0.3
+    post_turn_steps = 200;  % flag for 1s after turn ends
+elseif post_turn_steps > 0
+    post_turn_steps = post_turn_steps - 1;
+end
+
+% Aggressive damping only immediately after turns
+% During straight motion: light damping to preserve forward velocity
+if post_turn_steps > 0
+    vel_damp = 1.0 - 2.0 * dt;   % aggressive: kill bad post-turn velocities
+else
+    vel_damp = 1.0 - 0.5 * dt;   % gentle: preserve valid straight-leg velocity
+end
 
 X_pred    = zeros(6, 1);
 X_pred(1) = X(1) + X(4) * dt;
@@ -270,7 +311,8 @@ X      = X_pred;
 P      = P_pred;
 
 %% Gyro reference update
-theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - gyro_ref_bias) * dt);
+%theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - gyro_ref_bias) * dt);
+theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - X(6)) * dt);
 
 %% Magnetometer update with anomaly detection
 mag_y_cal = (mag_y - mag_hard_iron(1)) * mag_soft_iron(1);
@@ -288,7 +330,7 @@ if mag_innov_count >= 20
     innov_var = sum((mag_innov_buf - ib_mean).^2) / 19;
     innov_rms = sqrt(sum(mag_innov_buf.^2) / 20);
     if innov_var > 0.04 || innov_rms > 0.15
-        mag_disable_until = call_count + 400;
+        mag_disable_until = call_count + 2000;
     end
 end
 
@@ -305,17 +347,22 @@ end
 prev_innovation_mag = innovation_mag;
 
 % Criterion 3: sustained divergence from gyro reference
+% gyro_mag_diff = abs(wrapToPi_fn(z_mag - X(3)));
 gyro_mag_diff = abs(wrapToPi_fn(z_mag - theta_gyro_ref));
 max_expected  = 0.008 * current_time + 0.12;
 if gyro_mag_diff > max_expected
     gyro_mag_diverge_count = gyro_mag_diverge_count + 1;
-    if gyro_mag_diverge_count >= 50
-        mag_disable_until      = call_count + 400;
+    if gyro_mag_diverge_count >= 30
+        mag_disable_until      = call_count + 2000;
         gyro_mag_diverge_count = 0;
     end
 else
-    gyro_mag_diverge_count = max(0, gyro_mag_diverge_count - 1);
+    % Only decrement if well within tolerance (hysteresis)
+    if gyro_mag_diff < max_expected * 0.5
+        gyro_mag_diverge_count = max(0, gyro_mag_diverge_count - 1);
+    end
 end
+%%
 
 % Apply mag update only when not disabled
 if call_count > mag_disable_until
@@ -466,6 +513,28 @@ if tof3_status == 0
     end
 end
 
+%% Position consistency check — detect and recover from large position error
+% If all three ToF sensors have large innovations simultaneously,
+% the position estimate is likely badly wrong — accept stronger corrections
+if tof1_status == 0 && tof2_status == 0 && tof3_status == 0
+    [h1,~] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof1);
+    [h2,~] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof2);
+    [h3,~] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof3);
+    inn1 = abs(tof1_dist - h1);
+    inn2 = abs(tof2_dist - h2);
+    inn3 = abs(tof3_dist - h3);
+    % All three sensors disagree by more than 0.3m — position is wrong
+    if inn1 > 0.3 && inn2 > 0.3 && inn3 > 0.3
+        % Increase position uncertainty to accept stronger corrections
+        P(1,1) = max(P(1,1), 0.5);
+        P(2,2) = max(P(2,2), 0.5);
+    end
+    % if inn1 > 0.2 && inn2 > 0.2 && inn3 > 0.2
+    %     P(1,1) = max(P(1,1), 1.0);
+    %     P(2,2) = max(P(2,2), 1.0);
+    % end
+end
+
 %% ZUPT
 % if call_count >= 40 && abs(omega) < 0.02 && ...
 %    abs(ax_body) < 0.03 && abs(ay_body) < 0.03 && ...
@@ -541,9 +610,22 @@ if zupt_buf_count >= 40
     end
 end
 
+%% Slow-motion gyro bias refinement
+% When nearly stationary (not a full stop but very slow),
+% use current gyro reading as a soft bias measurement.
+% Only fires when: slow speed AND low turn rate AND mag is reliable
+if speed < 0.08 && abs(omega) < 0.03 && call_count > mag_disable_until
+    H_b_soft    = [0 0 0 0 0 1];
+    innov_b_soft = gx - X(6);
+    S_b_soft    = P(6,6) + 0.002;
+    K_b_soft    = P * H_b_soft' / S_b_soft;
+    X           = X + K_b_soft * innov_b_soft;
+    P           = (eye(6) - K_b_soft * H_b_soft) * P;
+end
+
 %% Output current state estimate
-X_Est = X(1:5)';       % 1x5
-P_Est = P(1:5, 1:5);   % 5x5
+X_Est = [X(1:5); 0; 0; 0];    % 1x8 — padded to match model expectation
+P_Est = P(1:5, 1:5);           % 5x5
 
 end  % function myEKF
 
