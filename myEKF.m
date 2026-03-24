@@ -331,7 +331,7 @@ norm_error_ratio = abs(current_norm2 - mag_norm_ref) / mag_norm_ref;
 
 % If the field strength changes by more than 20%, it's guaranteed garbage.
 % Keep refreshing the lockout until the field normalizes.
-if norm_error_ratio > 0.20 
+if norm_error_ratio > 0.15
     mag_disable_until = call_count + 100; % 0.5 second rolling lockout
 end
 
@@ -347,7 +347,7 @@ if mag_innov_count >= 20
     innov_var = sum((mag_innov_buf - ib_mean).^2) / 19;
     innov_rms = sqrt(sum(mag_innov_buf.^2) / 20);
     if innov_var > 0.04 || innov_rms > 0.15
-        mag_disable_until = call_count + 2000;
+        mag_disable_until = call_count + 400;
     end
 end
 
@@ -370,7 +370,7 @@ max_expected  = 0.008 * current_time + 0.12;
 if gyro_mag_diff > max_expected
     gyro_mag_diverge_count = gyro_mag_diverge_count + 1;
     if gyro_mag_diverge_count >= 30
-        mag_disable_until      = call_count + 2000;
+        mag_disable_until      = call_count + 400;
         gyro_mag_diverge_count = 0;
     end
 else
@@ -379,7 +379,6 @@ else
         gyro_mag_diverge_count = max(0, gyro_mag_diverge_count - 1);
     end
 end
-%%
 
 % Apply mag update only when not disabled
 if call_count > mag_disable_until
