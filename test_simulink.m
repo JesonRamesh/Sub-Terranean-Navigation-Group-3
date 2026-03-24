@@ -100,15 +100,26 @@ for d = 1:8
     end
 
     imu_time = out.Sensor_GYRO.time;
-    gt_pos   = squeeze(out.GT_position.signals.values);
+    gt_pos = squeeze(out.GT_position.signals.values);
     if size(gt_pos,1)==3, gt_pos=gt_pos'; end
+
+    quat = squeeze(out.GT_rotation.signals.values);
+    if size(quat,1) == 4, quat = quat'; end
+    gt_rot_time = out.GT_rotation.time;
+
+    qw = quat(:,1); qx_q = quat(:,2);
+    qy_q = quat(:,3); qz_q = quat(:,4);
+    yaw_gt_raw = atan2(2*(qw.*qz_q + qx_q.*qy_q), 1 - 2*(qy_q.^2 + qz_q.^2));
+
+    GT_heading = interp1(gt_rot_time, yaw_gt_raw, imu_time, 'linear', 'extrap');
+
     GT_x = interp1(out.GT_position.time, gt_pos(:,1), imu_time,'linear','extrap');
     GT_y = interp1(out.GT_position.time, gt_pos(:,2), imu_time,'linear','extrap');
 
     rmse = sqrt(mean((X_all(:,1)-GT_x).^2 + (X_all(:,2)-GT_y).^2));
     results(d) = rmse;
     X_results{d} = X_all;
-    GT_results{d} = [GT_x, GT_y];
+    GT_results{d} = [GT_x, GT_y, GT_heading];
     time_results{d} = imu_time;
 
     fprintf('%s: %.4f m\n', datasets{d,2}, rmse);
@@ -123,50 +134,76 @@ fprintf('Task 2: D1=%.4f D2=%.4f D3=%.4f D4=%.4f  avg=%.4fm  [≤0.30m: %s]\n', 
     ternary(mean(results(5:8)) <= 0.30, 'PASS', 'FAIL'));
 
 %% Plot all 8 datasets
-figure('Name', 'Task 1 Trajectories', 'Position', [100 100 1400 700]);
+figure('Name', 'Task 1 Trajectories', 'Position', [100 100 1400 900]);
 for d = 1:4
-    subplot(2, 4, d);
     X_all = X_results{d};
     GT    = GT_results{d};
     t     = time_results{d};
+    
+    % --- Row 1: Trajectory ---
+    subplot(3, 4, d);
     ox = GT(1,1); oy = GT(1,2);
     plot(GT(:,1)-ox, GT(:,2)-oy, 'k-', 'LineWidth', 2); hold on;
     plot(X_all(:,1)-ox, X_all(:,2)-oy, 'b--', 'LineWidth', 1.5);
     grid on; axis equal;
     xlabel('X (m)'); ylabel('Y (m)');
-    title(sprintf('%s  RMSE=%.3fm', datasets{d,2}, results(d)));
+    title(sprintf('%s RMSE=%.3fm', datasets{d,2}, results(d)));
     legend('GT','EKF','Location','best');
 
-    subplot(2, 4, d+4);
+    % --- Row 2: Position Error ---
+    subplot(3, 4, d+4);
     pos_err = sqrt((X_all(:,1)-GT(:,1)).^2 + (X_all(:,2)-GT(:,2)).^2);
     plot(t, pos_err, 'r-', 'LineWidth', 1.5);
     xlabel('Time (s)'); ylabel('Error (m)');
-    title(sprintf('%s error over time', datasets{d,2}));
+    title(sprintf('%s Error', datasets{d,2}));
     grid on;
     yline(0.05, 'k--', 'Target');
+
+    % --- Row 3: Heading ---
+    subplot(3, 4, d+8);
+    % Added hold on so both lines exist for the legend
+    plot(t, rad2deg(GT(:,3)), 'k-', 'LineWidth', 1.5); hold on; 
+    plot(t, rad2deg(X_all(:,3)), 'b--', 'LineWidth', 1.5);
+    xlabel('Time (s)'); ylabel('Heading (deg)');
+    title(sprintf('%s Heading', datasets{d,2}));
+    legend("GT", "EKF", 'Location', 'best');
+    grid on;
 end
 
-figure('Name', 'Task 2 Trajectories', 'Position', [100 100 1400 700]);
+figure('Name', 'Task 2 Trajectories', 'Position', [100 100 1400 900]);
 for d = 5:8
-    subplot(2, 4, d-4);
     X_all = X_results{d};
     GT    = GT_results{d};
     t     = time_results{d};
+    idx = d-4; % Local index for subplots 1-4
+
+    % --- Row 1: Trajectory ---
+    subplot(3, 4, idx);
     ox = GT(1,1); oy = GT(1,2);
     plot(GT(:,1)-ox, GT(:,2)-oy, 'k-', 'LineWidth', 2); hold on;
     plot(X_all(:,1)-ox, X_all(:,2)-oy, 'b--', 'LineWidth', 1.5);
     grid on; axis equal;
     xlabel('X (m)'); ylabel('Y (m)');
-    title(sprintf('%s  RMSE=%.3fm', datasets{d,2}, results(d)));
+    title(sprintf('%s RMSE=%.3fm', datasets{d,2}, results(d)));
     legend('GT','EKF','Location','best');
 
-    subplot(2, 4, d);
+    % --- Row 2: Position Error ---
+    subplot(3, 4, idx+4);
     pos_err = sqrt((X_all(:,1)-GT(:,1)).^2 + (X_all(:,2)-GT(:,2)).^2);
     plot(t, pos_err, 'r-', 'LineWidth', 1.5);
     xlabel('Time (s)'); ylabel('Error (m)');
-    title(sprintf('%s error over time', datasets{d,2}));
+    title(sprintf('%s Error', datasets{d,2}));
     grid on;
     yline(0.30, 'k--', 'Target');
+    
+    % --- Row 3: Heading ---
+    subplot(3, 4, idx+8);
+    plot(t, rad2deg(GT(:,3)), 'k-', 'LineWidth', 1.5); hold on;
+    plot(t, rad2deg(X_all(:,3)), 'b--', 'LineWidth', 1.5);
+    xlabel('Time (s)'); ylabel('Heading (deg)');
+    title(sprintf('%s Heading', datasets{d,2}));
+    legend("GT", "EKF", 'Location', 'best');
+    grid on;
 end
 
 function s = ternary(c, a, b)
