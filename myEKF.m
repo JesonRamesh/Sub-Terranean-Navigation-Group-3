@@ -412,6 +412,12 @@ end
 % ToF 1
 if tof1_status == 0
     [h_x, H_tof] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof1);
+    % Strengthen heading-ToF coupling during fast turns with mag disabled.
+    % Heading drifts during fast turns without mag — wall bearings provide
+    % an indirect heading reference that reduces systematic position bias.
+    if call_count <= mag_disable_until
+        H_tof(3) = H_tof(3) * 10;
+    end
     S          = H_tof * P * H_tof' + R_tof;
     innovation = tof1_dist - h_x;
     if (innovation^2) / S < gamma_threshold
@@ -454,6 +460,9 @@ end
 % ToF 2
 if tof2_status == 0
     [h_x, H_tof] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof2);
+    if call_count <= mag_disable_until
+        H_tof(3) = H_tof(3) * 10;
+    end
     S          = H_tof * P * H_tof' + R_tof;
     innovation = tof2_dist - h_x;
     if (innovation^2) / S < gamma_threshold
@@ -496,6 +505,9 @@ end
 % ToF 3
 if tof3_status == 0
     [h_x, H_tof] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof3);
+    if call_count <= mag_disable_until
+        H_tof(3) = H_tof(3) * 10;
+    end
     S          = H_tof * P * H_tof' + R_tof;
     innovation = tof3_dist - h_x;
     if (innovation^2) / S < gamma_threshold
@@ -683,7 +695,7 @@ function [h_x, H_tof] = calc_tof(X, xmax, xmin, ymax, ymin, alpha)
     if wall_idx == 1 || wall_idx == 2
         H_tof(1) = -1 / cos(phi);
         if abs(tan(phi)) < 0.7 % Only trust if hitting wall nearly straight-on
-            H_tof(3) = h_x * tan(phi) * 0.05; 
+            H_tof(3) = h_x * tan(phi) * 0.05;
         end
     else
         H_tof(2) = -1 / sin(phi);
