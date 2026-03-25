@@ -569,6 +569,10 @@ if tof1_status == 0 && tof2_status == 0 && tof3_status == 0
     % end
 end
 
+%% Covariance decay after position recovery
+if P(1,1) > 0.1, P(1,1) = P(1,1) * 0.995; end
+if P(2,2) > 0.1, P(2,2) = P(2,2) * 0.995; end
+
 %% ZUPT
 % if call_count >= 40 && abs(omega) < 0.02 && ...
 %    abs(ax_body) < 0.03 && abs(ay_body) < 0.03 && ...
