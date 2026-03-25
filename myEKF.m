@@ -94,6 +94,7 @@ if isempty(initialized)
     gyro_mag_diverge_count  = 0;
     prev_innovation_mag     = 0;
     mag_innov_growing_count = 0;
+    mag_norm_ref            = 1.0; 
 
     prev_tof1_dist         = NaN;
     prev_tof1_genuine_time = NaN;

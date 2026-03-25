@@ -2192,3 +2192,49 @@ Task 1: D1=0.0383 D2=0.0414 D3=0.0361 D4=0.0397  avg=0.0389m  (was 0.0422m, -7.8
 Task 2: D1=0.0536 D2=0.0412 D3=0.0539 D4=0.0823  avg=0.0578m  (was 0.0630m, -8.3%)
 
 **Total attempts: 28 (including sub-variants)**
+
+---
+
+## Diagnostic Session (2026-03-25) — Root Cause Analysis
+
+### Diagnostic: Mag disable tracking in T2_D4
+Finding: `norm_error_ratio > 0.15` fires EVERY step from t=28s onwards, continuously refreshing a +100 lockout. This keeps the magnetometer disabled for the entire t=28-42s window. The magnetic field genuinely deviates >15% from the calibration reference during this period (confirmed by continuous firing). Criteria 1/2/3 would also disable mag independently if the norm_error check were removed.
+
+Key confirmed facts:
+- gmd_cnt (gyro_mag_diverge_count) oscillates 22→2→12 (never reaches 30 threshold) — criterion 3 does NOT fire
+- mag_innov_growing_count = 0 throughout — criterion 2 does NOT fire  
+- Only norm_error check and (secondarily) criterion 1 innov_var keep mag disabled
+- The bad ToF correction at t=34.4s: innovation=-0.44m, S=0.696, ratio=0.278 — passes gamma=6.0 easily
+- Root cause of +0.29m x-jump: 7° heading lag during fast turn + mag disabled = wrong ToF1 predicted distance
+
+### Claude Code Attempt 29: Norm-error soft gate (remove hard lockout, inflate R_mag)
+Change: Replaced `norm_error_ratio > 0.15 → +100 lockout` with adaptive R_mag inflation inside update block: `R_mag_k *= (1 + (ratio-0.15)/0.15 * 5)` when ratio > 0.15
+Result: T1 avg=0.0389m T2 avg=0.0579m (T2_D4=0.0823m)
+Decision: REVERTED
+Reason: Zero effect — criterion 1 (innov_var/rms) immediately fires +400 lockout when mag briefly comes online, same net result as original. Norm_error was just the first gating mechanism; removing it just transfers control to criterion 1.
+
+### Claude Code Attempt 30: Remove innov_rms from criterion 1
+Change: `innov_var > 0.04 || innov_rms > 0.15` → `innov_var > 0.04` only (also kept Attempt 29 norm-error soft gate)
+Result: T1 avg=0.0389m T2 avg=0.0592m (T2_D3=0.0597m, T2_D4=0.0823m)
+Decision: REVERTED
+Reason: T2_D3 degraded +5.8mm. The innov_rms check was correctly protecting T2_D3 from systematic bad mag readings; removing it let disturbances through. T2_D4 still unchanged — criterion 1 variance check was also firing.
+
+### Claude Code Attempt 31: R_tof *5 when post_turn AND mag_disabled
+Change: `R_tof_k = R_tof * 5.0` when `post_turn_steps > 0 && call_count <= mag_disable_until`; used R_tof_k in all three ToF distance update blocks
+Result: T1 avg=0.0389m T2 avg=0.0720m (T2_D1=0.0789m +25%, T2_D2=0.0657m +59%)
+Decision: REVERTED
+Reason: Catastrophic regression. The condition `post_turn AND mag_disabled` is true in ALL T2 datasets during significant portions of valid navigation. T2_D1 and T2_D2 lost critical ToF corrections when they needed them most.
+
+## Stop Condition Reached (2026-03-25)
+
+After 31 total attempts (28 previous + 3 this session), stopping due to >10 consecutive no-improvement/regression attempts. Reached fundamental limits of the current sensor configuration.
+
+**T2_D4 irreducible error analysis:**
+- Window 1 (t=5-10s, 45.5% of error): ToF dead zone at heading ~49° — all sensors measure x-dominated walls; y-position unobservable. Cannot fix without additional sensors or different arena geometry.
+- Window 2 (t=30-42s, 39.8% of error): Genuine magnetic field disturbance (>15% field norm deviation) disables magnetometer. 7° heading lag during fast turn causes ToF1 to predict wrong wall distance (-0.44m innovation, ratio=0.278). Passes all gates. Subsequent drift without position correction source. Cannot fix without a reliable heading reference or ability to detect heading-lag-induced bad ToF corrections.
+
+**Final RMSE (unchanged from session start):**
+Task 1: D1=0.0383 D2=0.0414 D3=0.0361 D4=0.0397  avg=0.0389m  [PASS ≤0.05m]
+Task 2: D1=0.0536 D2=0.0412 D3=0.0539 D4=0.0823  avg=0.0578m  [PASS ≤0.30m]
+
+All datasets within hard limits. No regressions from session start.
