@@ -1,239 +1,638 @@
-function [X_Est, P_Est, GT] = myEKF(out)
-    % Extended Kalman Filter
+function [X_Est, P_Est] = myEKF(acc, gyro, mag, ToF1, ToF2, ToF3, Temp, LP_acc)
+% EKF for Sub-Terranean Navigation — Simulink MATLAB Function Block
+% Called once per timestep (200Hz, dt=0.005s)
+% Inputs (per timestep):
+%   acc    : 3x1 accelerometer [ax; ay; az] m/s²
+%   gyro   : 3x1 gyroscope     [gx; gy; gz] rad/s  (gx = yaw axis)
+%   mag    : 3x1 magnetometer  [mx; my; mz] Tesla
+%   ToF1   : 4x1 [dist; ?; ?; status]  right-facing  (alpha=-pi/2)
+%   ToF2   : 4x1 [dist; ?; ?; status]  forward-facing (alpha=0)
+%   ToF3   : 4x1 [dist; ?; ?; status]  left-facing   (alpha=+pi/2)
+%   Temp   : unused (template placeholder)
+%   LP_acc : unused (template placeholder)
+% Outputs:
+%   X_Est  : 8x1 [x, y, theta, vx_world, vy_world, 0, 0, 0]
+%   P_Est  : 5x5 covariance (top-left block)
 
-    %% Data Extraction
-    imu_time = out.Sensor_GYRO.time;
-    gyro_data = squeeze(out.Sensor_GYRO.signals.values)';
-    accel_data = squeeze(out.Sensor_ACCEL.signals.values)';
+%% Persistent state — survives between Simulink timestep calls
+persistent X P initialized call_count
 
-    mag_time = out.Sensor_MAG.time;
-    mag_data = squeeze(out.Sensor_MAG.signals.values)';
+% Calibration (computed during startup)
+persistent gyro_bias accel_bias_fwd accel_bias_lat
+persistent x0 y0 mag_global_offset
+persistent ab_xmax ab_xmin ab_ymax ab_ymin
 
-    tof1_time = out.Sensor_ToF1.time;
-    tof1_data = squeeze(out.Sensor_ToF1.signals.values);
-    if size(tof1_data, 1) == 4, tof1_data = tof1_data'; end
+% Mag anomaly detection
+persistent theta_gyro_ref gyro_ref_bias mag_disable_until
+persistent mag_innov_buf mag_innov_count mag_norm_ref
+persistent gyro_mag_diverge_count prev_innovation_mag mag_innov_growing_count
 
-    tof2_time = out.Sensor_ToF2.time;
-    tof2_data = squeeze(out.Sensor_ToF2.signals.values);
-    if size(tof2_data, 1) == 4, tof2_data = tof2_data'; end
+% ToF rate tracking
+persistent prev_tof1_dist prev_tof1_genuine_time
+persistent prev_tof2_dist prev_tof2_genuine_time
+persistent prev_tof3_dist prev_tof3_genuine_time
 
-    tof3_time = out.Sensor_ToF3.time;
-    tof3_data = squeeze(out.Sensor_ToF3.signals.values);
-    if size(tof3_data, 1) == 4, tof3_data = tof3_data'; end
+% Startup accumulation buffers
+persistent startup_gyro startup_accel startup_tof1 startup_tof2 startup_tof3
+persistent startup_mag startup_done startup_buf_count
 
-    gt_time = out.GT_time.signals.values;
-    gt_time = gt_time - gt_time(1);
-    gt_pos = squeeze(out.GT_position.signals.values);
-    if size(gt_pos, 1) == 3, gt_pos = gt_pos'; end
-    GT = gt_pos;
+persistent zupt_accel_fwd_buf zupt_accel_lat_buf zupt_gyro_buf zupt_buf_count
 
-    num_steps = length(imu_time);
+persistent post_turn_steps
 
-    %% Calibration Constants
-    % --- PASTE YOUR VALUES FROM CALIBRATION.M HERE ---
-    gyro_bias_x = 0.00186;  % rad/s (Confirm this with your script)
-    accel_bias_x = 9.84855;     % <--- PASTE ACCEL X BIAS HERE
-    accel_bias_y = 0.07485;     % <--- PASTE ACCEL Y BIAS HERE
- 
-    % Magnetometer: horizontal axes are Y (axis 2) and Z (axis 3)
-    mag_hard_iron = [-3.705e-05,  4.415e-05];  % [Y, Z] hard iron offsets (T)
-    mag_soft_iron = [1.0958,      0.9196];      % [Y, Z] soft iron scale factors
+%% Constants
+dt              = 0.005;
+alpha_tof1      = -pi/2;
+alpha_tof2      =  0;
+alpha_tof3      =  pi/2;
+% mag_hard_iron is a 2x1 column vector — subtracted directly from [mag_y; mag_z]
+mag_hard_iron   = [-3.705e-05; 4.415e-05];
+% 2x2 affine soft-iron correction. Diagonal = independent axis scales from
+% calibration; off-diagonal = small cross-axis coupling term.
+mag_soft_matrix = [1.0958, 0.0120; 0.0120, 0.9196];
+theta0          = pi/2;
+R_tof           = 0.01;
+gamma_threshold = 6.0;
 
-    % Arena bounds 
-    arena_bounds = struct('x_max', 1.2, 'x_min', -1.2, 'y_max', 1.2, 'y_min', -2.16);
+%% First call: initialise all persistent variables
+if isempty(initialized)
+    call_count   = 0;
+    startup_done = false;
+    startup_buf_count = 0;
 
-    % ToF mounting angles relative to robot forward axis
-    alpha_tof1 = 0;       % Forward
-    alpha_tof2 = pi/2;    % Left
-    alpha_tof3 = -pi/2;   % Right
+    % Startup buffers — pre-allocate for up to 500 samples
+    startup_gyro  = zeros(500, 3);
+    startup_accel = zeros(500, 3);
+    startup_tof1  = zeros(500, 4);
+    startup_tof2  = zeros(500, 4);
+    startup_tof3  = zeros(500, 4);
+    startup_mag   = zeros(500, 3);
 
-    %% Filter Initialization
-    x0 = gt_pos(1, 1);
-    y0 = gt_pos(1, 2);
+    % Fallback calibration constants (used if startup fails)
+    gyro_bias      =  0.00186;
+    accel_bias_fwd = -0.396;
+    accel_bias_lat =  0.07485;
+    x0             =  0.0;
+    y0             = -0.93;
 
-    % Initial heading from GT quaternion
-    gt_rot = squeeze(out.GT_rotation.signals.values);
-    if size(gt_rot, 1) == 4, gt_rot = gt_rot'; end
-    qw = gt_rot(1,1); qx = gt_rot(1,2); qy = gt_rot(1,3); qz = gt_rot(1,4);
-    theta0 = atan2(2*(qw*qz + qx*qy), 1 - 2*(qy^2 + qz^2));
+    % ZUPT
+    zupt_accel_fwd_buf = zeros(40, 1);
+    zupt_accel_lat_buf = zeros(40, 1);
+    zupt_gyro_buf      = zeros(40, 1);
+    zupt_buf_count     = 0;
 
-    % Magnetometer global offset
-    mag_y0 = (mag_data(1, 2) - mag_hard_iron(1)) * mag_soft_iron(1);
-    mag_z0 = (mag_data(1, 3) - mag_hard_iron(2)) * mag_soft_iron(2);
-    z_mag0 = atan2(mag_z0, mag_y0);
-    mag_global_offset = wrapToPi(theta0 - z_mag0);
+    ab_xmax =  1.22; ab_xmin = -1.22;
+    ab_ymax =  1.22; ab_ymin = -1.22;
 
-    % State Vector: [x; y; theta; v_body_x; v_body_y]
-    X = [x0; y0; theta0; 0; 0];
-    P = diag([0.1, 0.1, 0.1, 2.0, 2.0]);
+    % These will be properly set after startup completes
+    mag_global_offset       = 0;
+    theta_gyro_ref          = theta0;
+    gyro_ref_bias           = gyro_bias;
+    mag_disable_until       = 0;
+    mag_innov_buf           = zeros(20, 1);
+    mag_innov_count         = 0;
+    gyro_mag_diverge_count  = 0;
+    prev_innovation_mag     = 0;
+    mag_innov_growing_count = 0;
+    % Safe fallback: prevents norm-check dividing by empty before startup
+    mag_norm_ref            = 1.0;
 
-    % Process Noise Matrix (Q)
-    % Tuned down pos/theta since they are deterministically integrated.
-    % Velocity variance is higher to trust the accelerometer data.
-    Q = diag([1e-4, 1e-4, 1e-4, 0.1, 0.1]);
+    prev_tof1_dist         = NaN;
+    prev_tof1_genuine_time = NaN;
+    prev_tof2_dist         = NaN;
+    prev_tof2_genuine_time = NaN;
+    prev_tof3_dist         = NaN;
+    prev_tof3_genuine_time = NaN;
 
-    R_mag = 0.1;
-    R_tof = 0.01;
+    % State and covariance — will be reset after startup
+    X = [0; -0.93; theta0; 0; 0; gyro_bias];
+    P = diag([0.1, 0.1, 0.1, 2.0, 2.0, 0.25]);
 
-    % Outlier Rejection Threshold (Reduced to block 'holes in the wall')
-    gamma_threshold = 3.84;
+    post_turn_steps = 0;
 
-    X_Est = zeros(num_steps, 5);
-    P_Est = zeros(5,5,num_steps);
+    initialized = true;
+end
 
-    prev_time = imu_time(1);
-    mag_idx = 1; tof1_idx = 1; tof2_idx = 1; tof3_idx = 1;
+call_count = call_count + 1;
+current_time = (call_count - 1) * dt;
 
-    %% Main EKF Loop
-    for k = 1:num_steps
-        current_time = imu_time(k);
-        dt = current_time - prev_time;
-        if dt <= 0, dt = 0.001; end
-        prev_time = current_time;
+%% Startup phase: accumulate samples, compute calibration
+if ~startup_done
+    startup_buf_count = startup_buf_count + 1;
+    n = min(startup_buf_count, 500);
+    startup_gyro(n, :)  = reshape(gyro,  1, 3);
+    startup_accel(n, :) = reshape(acc,   1, 3);
+    startup_mag(n, :)   = reshape(mag,   1, 3);
+    startup_tof1(n, :)  = reshape(ToF1,  1, 4);
+    startup_tof2(n, :)  = reshape(ToF2,  1, 4);
+    startup_tof3(n, :)  = reshape(ToF3,  1, 4);
 
-        % --- PREDICTION STEP (Now using real IMU data!) ---
-        omega = -(gyro_data(k, 1) - gyro_bias_x); 
-        ax = accel_data(k, 1) - accel_bias_x; 
-        ay = accel_data(k, 2) - accel_bias_y;
-
-        X_pred = zeros(5,1);
-        % Position update using body-frame velocities
-        X_pred(1) = X(1) + (X(4)*cos(X(3)) - X(5)*sin(X(3))) * dt;
-        X_pred(2) = X(2) + (X(4)*sin(X(3)) + X(5)*cos(X(3))) * dt;
-        % Heading update
-        X_pred(3) = wrapToPi(X(3) + omega * dt);
-        % Velocity update using body-frame accelerations
-        X_pred(4) = X(4) + ax * dt;
-        X_pred(5) = X(5) + ay * dt;
-
-        % Jacobian of state transition matrix (F)
-        F = eye(5);
-        F(1,3) = (-X(4)*sin(X(3)) - X(5)*cos(X(3))) * dt;
-        F(1,4) = cos(X(3)) * dt;
-        F(1,5) = -sin(X(3)) * dt;
-        F(2,3) = (X(4)*cos(X(3)) - X(5)*sin(X(3))) * dt;
-        F(2,4) = sin(X(3)) * dt;
-        F(2,5) = cos(X(3)) * dt;
-
-        P_pred = F * P * F' + Q;
-
-        X = X_pred;
-        P = P_pred;
-
-        % --- MEASUREMENT UPDATES ---
-
-        % Magnetometer Update
-        if mag_idx <= length(mag_time) && current_time >= mag_time(mag_idx)
-            mag_y_cal = (mag_data(mag_idx, 2) - mag_hard_iron(1)) * mag_soft_iron(1);
-            mag_z_cal = (mag_data(mag_idx, 3) - mag_hard_iron(2)) * mag_soft_iron(2);
-            z_mag = wrapToPi(atan2(mag_z_cal, mag_y_cal) + mag_global_offset);
-
-            H_mag = [0 0 1 0 0];
-            S_mag = H_mag * P * H_mag' + R_mag;
-            innovation_mag = wrapToPi(z_mag - X(3));
-
-            K_mag = P * H_mag' / S_mag;
-            X = X + K_mag * innovation_mag;
-            X(3) = wrapToPi(X(3));
-            IKH = eye(5) - K_mag * H_mag;
-            P = IKH * P * IKH' + K_mag * R_mag * K_mag'; 
-            mag_idx = mag_idx + 1;
+    % Try to find 100 consecutive stationary samples once we have enough
+    if startup_buf_count >= 100
+        stat_start   = 0;
+        consec_count = 0;
+        search_limit = min(startup_buf_count, 500);
+        for i = 1:search_limit
+            if abs(startup_gyro(i, 1)) < 0.01
+                consec_count = consec_count + 1;
+                if consec_count == 100
+                    stat_start = i - 99;
+                    break;
+                end
+            else
+                consec_count = 0;
+            end
         end
 
-        % ToF 1 Update
-        if tof1_idx <= length(tof1_time) && current_time >= tof1_time(tof1_idx)
-            if tof1_data(tof1_idx, 4) == 0 % If valid reading
-                raw_dist = tof1_data(tof1_idx, 1);
-                [h_x, H_tof] = calculate_expected_tof(X, arena_bounds, alpha_tof1);
-                S = H_tof * P * H_tof' + R_tof;
-                innovation = raw_dist - h_x;
-                
-                % Outlier Gating
-                if (innovation^2) / S < gamma_threshold
-                    K = P * H_tof' / S;
-                    X = X + K * innovation;
-                    X(3) = wrapToPi(X(3));
-                    IKH = eye(5) - K * H_tof;
-                    P = IKH * P * IKH' + K * R_tof * K';
+        if stat_start > 0
+            n_stat     = min(200, search_limit - stat_start + 1);
+            stat_range = stat_start : (stat_start + n_stat - 1);
+
+            % Per-run calibration
+            gyro_bias      = mean(startup_gyro(stat_range, 1));
+            accel_bias_fwd = mean(startup_accel(stat_range, 3));
+            accel_bias_lat = mean(startup_accel(stat_range, 2));
+
+            % Arena wall + x0/y0 estimation from ToF
+            tof1_in = startup_tof1(stat_range, 1);
+            tof2_in = startup_tof2(stat_range, 1);
+            tof3_in = startup_tof3(stat_range, 1);
+
+            gen1 = tof1_in([true; diff(tof1_in) ~= 0]);
+            gen2 = tof2_in([true; diff(tof2_in) ~= 0]);
+            gen3 = tof3_in([true; diff(tof3_in) ~= 0]);
+            gen1 = gen1(gen1 > 0);
+            gen2 = gen2(gen2 > 0);
+            gen3 = gen3(gen3 > 0);
+
+            if ~isempty(gen1) && ~isempty(gen2) && ~isempty(gen3)
+                s1 = sort(gen1); d_rgt = s1(max(1,floor(end/2)));
+                s2 = sort(gen2); d_fwd = s2(max(1,floor(end/2)));
+                s3 = sort(gen3); d_lft = s3(max(1,floor(end/2)));
+
+                if d_rgt > 0 && d_fwd > 0 && d_lft > 0 && ...
+                   ~isnan(d_rgt) && ~isnan(d_fwd) && ~isnan(d_lft)
+
+                    wall_y_max =  1.22;
+                    wall_x_max =  1.22;
+                    x0 = wall_x_max - d_rgt;
+                    y0 = wall_y_max - d_fwd;
+
+                    wall_x_min = x0 - d_lft;
+                    wall_y_min = -wall_y_max;
+
+                    ab_xmax = wall_x_max;
+                    ab_xmin = wall_x_min;
+                    ab_ymax = wall_y_max;
+                    ab_ymin = wall_y_min;
                 end
             end
-            tof1_idx = tof1_idx + 1;
-        end
 
-        % ToF 2 Update
-        if tof2_idx <= length(tof2_time) && current_time >= tof2_time(tof2_idx)
-            if tof2_data(tof2_idx, 4) == 0
-                raw_dist = tof2_data(tof2_idx, 1);
-                [h_x, H_tof] = calculate_expected_tof(X, arena_bounds, alpha_tof2);
-                S = H_tof * P * H_tof' + R_tof;
-                innovation = raw_dist - h_x;
-                
-                if (innovation^2) / S < gamma_threshold
-                    K = P * H_tof' / S;
-                    X = X + K * innovation;
-                    X(3) = wrapToPi(X(3));
-                    IKH = eye(5) - K * H_tof;
-                    P = IKH * P * IKH' + K * R_tof * K';
-                end
-            end
-            tof2_idx = tof2_idx + 1;
-        end
+            % Magnetometer global offset (full affine calibration)
+            % mag_hard_iron is 2x1, mag_raw0 is 2x1 — no transpose needed
+            mag_raw0          = [startup_mag(1,2); startup_mag(1,3)];
+            mag_cal0          = mag_soft_matrix * (mag_raw0 - mag_hard_iron);
+            z_mag0            = atan2(mag_cal0(2), mag_cal0(1));
+            mag_global_offset = wrapToPi_fn(theta0 - z_mag0);
 
-        % ToF 3 Update
-        if tof3_idx <= length(tof3_time) && current_time >= tof3_time(tof3_idx)
-            if tof3_data(tof3_idx, 4) == 0
-                raw_dist = tof3_data(tof3_idx, 1);
-                [h_x, H_tof] = calculate_expected_tof(X, arena_bounds, alpha_tof3);
-                S = H_tof * P * H_tof' + R_tof;
-                innovation = raw_dist - h_x;
-                
-                if (innovation^2) / S < gamma_threshold
-                    K = P * H_tof' / S;
-                    X = X + K * innovation;
-                    X(3) = wrapToPi(X(3));
-                    IKH = eye(5) - K * H_tof;
-                    P = IKH * P * IKH' + K * R_tof * K'; 
-                end
-            end
-            tof3_idx = tof3_idx + 1;
-        end
+            % Norm reference — calibrated field strength squared averaged over
+            % stationary window; used at runtime to detect EMI corruption
+            mag_stat_raw = startup_mag(stat_range, 2:3)';   % 2 x N
+            mag_stat_cal = mag_soft_matrix * ...
+                           (mag_stat_raw - repmat(mag_hard_iron, 1, size(mag_stat_raw, 2)));
+            mag_norm_ref = mean(mag_stat_cal(1,:).^2 + mag_stat_cal(2,:).^2);
 
-        X_Est(k, :) = X';
-        P_Est(:, :, k) = P;
+            % Initialise filter state with estimated x0, y0
+            X = [x0; y0; theta0; 0; 0; gyro_bias];
+            P = diag([0.1, 0.1, 0.1, 2.0, 2.0, 0.25]);
+
+            theta_gyro_ref = theta0;
+            gyro_ref_bias  = gyro_bias;
+
+            startup_done = true;
+        end
+    end
+
+    % During startup, return zero estimates
+    X_Est = [0; -0.93; pi/2; 0; 0; 0; 0; 0];   % 8x1
+    P_Est = zeros(5, 5);
+    return;
+end
+
+%% Extract current sensor values
+gx          = gyro(1);          % yaw axis gyro (rad/s)
+ax_body_raw = acc(3);           % forward accel (m/s²)
+ay_body_raw = acc(2);           % lateral accel (m/s²)
+
+tof1_dist   = ToF1(1);
+tof1_status = ToF1(4);
+tof2_dist   = ToF2(1);
+tof2_status = ToF2(4);
+tof3_dist   = ToF3(1);
+tof3_status = ToF3(4);
+
+mag_y = mag(2);
+mag_z = mag(3);
+
+%% Prediction step
+omega  = gx - X(6);
+% [x, y, theta, vx, vy, gyro_bias]
+Q_base = diag([1e-6, 1e-6, 2.5e-4, 0.05, 0.05, 1e-6]) * dt;
+
+ax_body = max(-2.0, min(2.0, ax_body_raw - accel_bias_fwd));
+ay_body = max(-2.0, min(2.0, ay_body_raw - accel_bias_lat));
+
+ax_world = ax_body * cos(X(3)) - ay_body * sin(X(3));
+ay_world = ax_body * sin(X(3)) + ay_body * cos(X(3));
+
+% Turn-adaptive velocity damping
+if abs(omega) > 0.3
+    post_turn_steps = 150;  % flag for 0.75s after turn ends
+elseif post_turn_steps > 0
+    post_turn_steps = post_turn_steps - 1;
+end
+
+if post_turn_steps > 0
+    vel_damp = 1.0 - 2.0 * dt;   % aggressive: kill bad post-turn velocities
+else
+    vel_damp = 1.0;               % no damping: preserve straight-leg velocity
+end
+
+X_pred    = zeros(6, 1);
+X_pred(1) = X(1) + X(4) * dt;
+X_pred(2) = X(2) + X(5) * dt;
+X_pred(3) = wrapToPi_fn(X(3) + omega * dt);
+X_pred(4) = X(4) * vel_damp + ax_world * dt;
+X_pred(5) = X(5) * vel_damp + ay_world * dt;
+X_pred(6) = X(6);
+
+F       = eye(6);
+F(1, 4) = dt;
+F(2, 5) = dt;
+F(3, 6) = -dt;
+F(4, 3) = (-ax_body * sin(X(3)) - ay_body * cos(X(3))) * dt;
+F(5, 3) = ( ax_body * cos(X(3)) - ay_body * sin(X(3))) * dt;
+F(4, 4) = vel_damp;
+F(5, 5) = vel_damp;
+
+% Adaptive Q
+Q_k = Q_base;
+% During turns, heading uncertainty is expected to grow
+if abs(omega) > 0.15
+    Q_k(3,3) = Q_k(3,3) * 5.0;
+end
+% When mag is disabled, freeze heading and velocity tighter
+if call_count <= mag_disable_until
+    Q_k(3,3) = Q_k(3,3) * 0.1;
+    Q_k(4,4) = Q_k(4,4) * 0.5;
+    Q_k(5,5) = Q_k(5,5) * 0.5;
+end
+speed = sqrt(X(4)^2 + X(5)^2);
+if speed > 0.05
+    Q_k(6,6) = Q_k(6,6) * (1.0 + 5.0 * speed);
+end
+
+P_pred = F * P * F' + Q_k;
+X      = X_pred;
+P      = P_pred;
+
+% Covariance caps — prevent runaway uncertainty
+P(1,1) = min(P(1,1), 0.2);   % x  (~45cm 1-sigma)
+P(2,2) = min(P(2,2), 0.2);   % y
+P(3,3) = min(P(3,3), 0.02);  % theta (~8 degrees 1-sigma)
+
+%% Gyro reference update
+theta_gyro_ref = wrapToPi_fn(theta_gyro_ref + (gx - X(6)) * dt);
+
+%% Magnetometer update with anomaly detection
+% FIX: mag_hard_iron is 2x1, mag_raw is 2x1 — subtract directly, no transpose
+mag_raw   = [mag_y; mag_z];
+mag_cal   = mag_soft_matrix * (mag_raw - mag_hard_iron);
+mag_y_cal = mag_cal(1);
+mag_z_cal = mag_cal(2);
+
+% Norm-based EMI check: if field strength deviates >15% from stationary
+% reference, the reading is corrupt — apply a rolling lockout
+current_norm2    = mag_y_cal^2 + mag_z_cal^2;
+norm_error_ratio = abs(current_norm2 - mag_norm_ref) / mag_norm_ref;
+if norm_error_ratio > 0.15
+    mag_disable_until = call_count + 100;  % 0.5s rolling lockout
+end
+
+z_mag          = wrapToPi_fn(atan2(mag_z_cal, mag_y_cal) + mag_global_offset);
+innovation_mag = wrapToPi_fn(z_mag - X(3));
+
+% Criterion 1: innovation buffer
+mag_innov_count        = mag_innov_count + 1;
+buf_idx                = mod(mag_innov_count - 1, 20) + 1;
+mag_innov_buf(buf_idx) = innovation_mag;
+if mag_innov_count >= 20
+    ib_mean   = sum(mag_innov_buf) / 20;
+    innov_var = sum((mag_innov_buf - ib_mean).^2) / 19;
+    innov_rms = sqrt(sum(mag_innov_buf.^2) / 20);
+    if innov_var > 0.04 || innov_rms > 0.15
+        mag_disable_until = call_count + 400;
     end
 end
 
-%% Helper Functions (Unchanged)
-function [h_x, H_tof] = calculate_expected_tof(X, bounds, alpha)
-    x = X(1); y = X(2); theta = X(3);
-    phi = wrapToPi(theta + alpha);
-    d_right = inf; d_left = inf; d_top = inf; d_bottom = inf;
+% Criterion 2: innovation growing for 5 consecutive steps
+if abs(innovation_mag) > abs(prev_innovation_mag) + 0.02
+    mag_innov_growing_count = mag_innov_growing_count + 1;
+    if mag_innov_growing_count >= 5
+        mag_disable_until       = call_count + 400;
+        mag_innov_growing_count = 0;
+    end
+else
+    mag_innov_growing_count = max(0, mag_innov_growing_count - 1);
+end
+prev_innovation_mag = innovation_mag;
 
-    if cos(phi) > 1e-6
-        d_right = (bounds.x_max - x) / cos(phi);
-    elseif cos(phi) < -1e-6
-        d_left = (bounds.x_min - x) / cos(phi);
+% Criterion 3: sustained divergence from gyro reference
+gyro_mag_diff = abs(wrapToPi_fn(z_mag - theta_gyro_ref));
+max_expected  = 0.008 * current_time + 0.12;
+if gyro_mag_diff > max_expected
+    gyro_mag_diverge_count = gyro_mag_diverge_count + 1;
+    if gyro_mag_diverge_count >= 30
+        mag_disable_until      = call_count + 400;
+        gyro_mag_diverge_count = 0;
+    end
+else
+    if gyro_mag_diff < max_expected * 0.5
+        gyro_mag_diverge_count = max(0, gyro_mag_diverge_count - 1);
+    end
+end
+
+% Apply mag update only when not disabled
+if call_count > mag_disable_until
+    % Smooth R_mag recovery: ramp from R=14 back to R=4 over 1s (200 steps)
+    time_since_anomaly = call_count - mag_disable_until;
+    if time_since_anomaly < 200
+        R_mag_k = 4.0 + 10.0 * (1.0 - time_since_anomaly / 200);
+    else
+        R_mag_k = 4.0;
     end
 
+    H_mag = [0 0 1 0 0 0];
+    S_mag = H_mag * P * H_mag' + R_mag_k;
+    if innovation_mag^2 / S_mag < gamma_threshold
+        K_mag = P * H_mag' / S_mag;
+        X     = X + K_mag * innovation_mag;
+        X(3)  = wrapToPi_fn(X(3));
+        IKH   = eye(6) - K_mag * H_mag;
+        P     = IKH * P * IKH' + K_mag * R_mag_k * K_mag';
+        gyro_ref_bias = 0.95 * gyro_ref_bias + 0.05 * X(6);
+    end
+end
+
+%% ToF distance + rate updates
+
+% ToF 1
+if tof1_status == 0
+    [h_x, H_tof] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof1);
+    S          = H_tof * P * H_tof' + R_tof;
+    innovation = tof1_dist - h_x;
+    if (innovation^2) / S < gamma_threshold
+        K    = P * H_tof' / S;
+        X    = X + K * innovation;
+        X(3) = wrapToPi_fn(X(3));
+        IKH  = eye(6) - K * H_tof;
+        P    = IKH * P * IKH' + K * R_tof * K';
+    end
+    tof1_is_new = isnan(prev_tof1_dist) || (tof1_dist ~= prev_tof1_dist);
+    if tof1_is_new && ~isnan(prev_tof1_dist) && call_count <= mag_disable_until
+        dt_gen = current_time - prev_tof1_genuine_time;
+        if dt_gen > 0.08
+            spd = sqrt(X(4)^2 + X(5)^2);
+            if spd > 0.05 && abs(omega) < 0.2
+                phi   = wrapToPi_fn(X(3) + alpha_tof1);
+                dro   = (tof1_dist - prev_tof1_dist) / dt_gen;
+                dre   = -(X(4)*cos(phi) + X(5)*sin(phi));
+                Hr    = zeros(1,6);
+                Hr(3) = X(4)*sin(phi) - X(5)*cos(phi);
+                Hr(4) = -cos(phi);
+                Hr(5) = -sin(phi);
+                Sr    = Hr * P * Hr' + 0.5;
+                ir    = dro - dre;
+                if ir^2 < gamma_threshold * Sr
+                    Kr   = P * Hr' / Sr;
+                    X    = X + Kr * ir;
+                    X(3) = wrapToPi_fn(X(3));
+                    P    = (eye(6) - Kr * Hr) * P;
+                end
+            end
+        end
+    end
+    if tof1_is_new
+        prev_tof1_dist         = tof1_dist;
+        prev_tof1_genuine_time = current_time;
+    end
+end
+
+% ToF 2
+if tof2_status == 0
+    [h_x, H_tof] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof2);
+    S          = H_tof * P * H_tof' + R_tof;
+    innovation = tof2_dist - h_x;
+    if (innovation^2) / S < gamma_threshold
+        K    = P * H_tof' / S;
+        X    = X + K * innovation;
+        X(3) = wrapToPi_fn(X(3));
+        IKH  = eye(6) - K * H_tof;
+        P    = IKH * P * IKH' + K * R_tof * K';
+    end
+    tof2_is_new = isnan(prev_tof2_dist) || (tof2_dist ~= prev_tof2_dist);
+    if tof2_is_new && ~isnan(prev_tof2_dist) && call_count <= mag_disable_until
+        dt_gen = current_time - prev_tof2_genuine_time;
+        if dt_gen > 0.08
+            spd = sqrt(X(4)^2 + X(5)^2);
+            if spd > 0.05 && abs(omega) < 0.2
+                phi   = wrapToPi_fn(X(3) + alpha_tof2);
+                dro   = (tof2_dist - prev_tof2_dist) / dt_gen;
+                dre   = -(X(4)*cos(phi) + X(5)*sin(phi));
+                Hr    = zeros(1,6);
+                Hr(3) = X(4)*sin(phi) - X(5)*cos(phi);
+                Hr(4) = -cos(phi);
+                Hr(5) = -sin(phi);
+                Sr    = Hr * P * Hr' + 0.5;
+                ir    = dro - dre;
+                if ir^2 < gamma_threshold * Sr
+                    Kr   = P * Hr' / Sr;
+                    X    = X + Kr * ir;
+                    X(3) = wrapToPi_fn(X(3));
+                    P    = (eye(6) - Kr * Hr) * P;
+                end
+            end
+        end
+    end
+    if tof2_is_new
+        prev_tof2_dist         = tof2_dist;
+        prev_tof2_genuine_time = current_time;
+    end
+end
+
+% ToF 3
+if tof3_status == 0
+    [h_x, H_tof] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof3);
+    S          = H_tof * P * H_tof' + R_tof;
+    innovation = tof3_dist - h_x;
+    if (innovation^2) / S < gamma_threshold
+        K    = P * H_tof' / S;
+        X    = X + K * innovation;
+        X(3) = wrapToPi_fn(X(3));
+        IKH  = eye(6) - K * H_tof;
+        P    = IKH * P * IKH' + K * R_tof * K';
+    end
+    tof3_is_new = isnan(prev_tof3_dist) || (tof3_dist ~= prev_tof3_dist);
+    if tof3_is_new && ~isnan(prev_tof3_dist) && call_count <= mag_disable_until
+        dt_gen = current_time - prev_tof3_genuine_time;
+        if dt_gen > 0.08
+            spd = sqrt(X(4)^2 + X(5)^2);
+            if spd > 0.05 && abs(omega) < 0.2
+                phi   = wrapToPi_fn(X(3) + alpha_tof3);
+                dro   = (tof3_dist - prev_tof3_dist) / dt_gen;
+                dre   = -(X(4)*cos(phi) + X(5)*sin(phi));
+                Hr    = zeros(1,6);
+                Hr(3) = X(4)*sin(phi) - X(5)*cos(phi);
+                Hr(4) = -cos(phi);
+                Hr(5) = -sin(phi);
+                Sr    = Hr * P * Hr' + 0.5;
+                ir    = dro - dre;
+                if ir^2 < gamma_threshold * Sr
+                    Kr   = P * Hr' / Sr;
+                    X    = X + Kr * ir;
+                    X(3) = wrapToPi_fn(X(3));
+                    P    = (eye(6) - Kr * Hr) * P;
+                end
+            end
+        end
+    end
+    if tof3_is_new
+        prev_tof3_dist         = tof3_dist;
+        prev_tof3_genuine_time = current_time;
+    end
+end
+
+%% Position consistency check
+if tof1_status == 0 && tof2_status == 0 && tof3_status == 0
+    [h1,~] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof1);
+    [h2,~] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof2);
+    [h3,~] = calc_tof(X, ab_xmax, ab_xmin, ab_ymax, ab_ymin, alpha_tof3);
+    inn1 = abs(tof1_dist - h1);
+    inn2 = abs(tof2_dist - h2);
+    inn3 = abs(tof3_dist - h3);
+    if inn1 > 0.3 && inn2 > 0.3 && inn3 > 0.3
+        P(1,1) = max(P(1,1), 0.5);
+        P(2,2) = max(P(2,2), 0.5);
+    end
+end
+
+%% ZUPT — 40-sample variance window
+zupt_buf_count = zupt_buf_count + 1;
+buf_i = mod(zupt_buf_count - 1, 40) + 1;
+zupt_accel_fwd_buf(buf_i) = ax_body;
+zupt_accel_lat_buf(buf_i) = ay_body;
+zupt_gyro_buf(buf_i)      = gx;
+
+if zupt_buf_count >= 40
+    az_mean  = sum(zupt_accel_fwd_buf) / 40;
+    ay_mean  = sum(zupt_accel_lat_buf) / 40;
+    gy_mean  = sum(zupt_gyro_buf) / 40;
+    az_var   = sum((zupt_accel_fwd_buf - az_mean).^2) / 39;
+    ay_var   = sum((zupt_accel_lat_buf - ay_mean).^2) / 39;
+    gyro_var = sum((zupt_gyro_buf - gy_mean).^2) / 39;
+
+    if az_var < 0.005 && ay_var < 0.005 && gyro_var < 0.0005
+        % Part 1: Velocity ZUPT
+        H_v     = [0 0 0 1 0 0; 0 0 0 0 1 0];
+        innov_v = -[X(4); X(5)];
+        S_v     = H_v * P * H_v' + 0.002 * eye(2);
+        K_v     = P * H_v' / S_v;
+        X       = X + K_v * innov_v;
+        P       = (eye(6) - K_v * H_v) * P;
+
+        % Part 2: Gyro bias ZUPT
+        H_b     = [0 0 0 0 0 1];
+        innov_b = gx - X(6);
+        S_b     = P(6,6) + 0.00005;
+        K_b     = P * H_b' / S_b;
+        X       = X + K_b * innov_b;
+        P       = (eye(6) - K_b * H_b) * P;
+        gyro_ref_bias = X(6);
+
+        % Part 3: Soft heading ZUPT
+        H_h     = [0 0 1 0 0 0];
+        innov_h = -(omega * dt);
+        S_h     = H_h * P * H_h' + 0.005;
+        K_h     = P * H_h' / S_h;
+        X       = X + K_h * innov_h;
+        X(3)    = wrapToPi_fn(X(3));
+        P       = (eye(6) - K_h * H_h) * P;
+    end
+end
+
+%% Slow-motion gyro bias refinement
+if speed < 0.08 && abs(omega) < 0.03 && call_count > mag_disable_until
+    H_b_soft     = [0 0 0 0 0 1];
+    innov_b_soft = gx - X(6);
+    S_b_soft     = P(6,6) + 0.002;
+    K_b_soft     = P * H_b_soft' / S_b_soft;
+    X            = X + K_b_soft * innov_b_soft;
+    P            = (eye(6) - K_b_soft * H_b_soft) * P;
+end
+
+%% Output current state estimate
+X_Est = [X(1:5); 0; 0; 0];    % 8x1 — padded to match model expectation
+P_Est = P(1:5, 1:5);           % 5x5
+
+end  % function myEKF
+
+%% Local helper: ToF measurement model
+% Returns predicted distance h_x and Jacobian H_tof for a ray from
+% (X(1),X(2)) in direction (X(3)+alpha) toward the nearest arena wall.
+% H_tof(3) is included with scale 0.05 when the ray strikes near-
+% perpendicularly (|tan(phi)| < 0.7), giving a weak heading correction.
+function [h_x, H_tof] = calc_tof(X, xmax, xmin, ymax, ymin, alpha)
+    x   = X(1);
+    y   = X(2);
+    phi = mod(X(3) + alpha + pi, 2*pi) - pi;
+
+    d_right  = inf; d_left = inf; d_top = inf; d_bottom = inf;
+
+    if cos(phi) > 1e-6
+        d_right = (xmax - x) / cos(phi);
+    elseif cos(phi) < -1e-6
+        d_left  = (xmin - x) / cos(phi);
+    end
     if sin(phi) > 1e-6
-        d_top = (bounds.y_max - y) / sin(phi);
+        d_top    = (ymax - y) / sin(phi);
     elseif sin(phi) < -1e-6
-        d_bottom = (bounds.y_min - y) / sin(phi);
+        d_bottom = (ymin - y) / sin(phi);
     end
 
     distances = [d_right, d_left, d_top, d_bottom];
+    distances(distances <= 0) = inf;
     [h_x, wall_idx] = min(distances);
-    H_tof = zeros(1, 5);
 
+    if isinf(h_x)
+        H_tof = zeros(1, length(X));
+        return;
+    end
+
+    H_tof = zeros(1, 6);
     if wall_idx == 1 || wall_idx == 2
         H_tof(1) = -1 / cos(phi);
-        H_tof(3) = h_x * tan(phi);
+        if abs(tan(phi)) < 0.7
+            H_tof(3) = h_x * tan(phi) * 0.05;
+        end
     else
         H_tof(2) = -1 / sin(phi);
-        H_tof(3) = -h_x * cot(phi);
+        if abs(cos(phi) / sin(phi)) < 0.7
+            H_tof(3) = -h_x * (cos(phi) / sin(phi)) * 0.05;
+        end
     end
 end
 
-function angle_wrapped = wrapToPi(angle)
-    angle_wrapped = mod(angle + pi, 2*pi) - pi;
+%% Local helper: angle wrapping to [-pi, pi]
+function a = wrapToPi_fn(a)
+    a = mod(a + pi, 2*pi) - pi;
 end
