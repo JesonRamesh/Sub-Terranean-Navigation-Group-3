@@ -50,7 +50,7 @@ mag_soft_matrix = [1.0958, 0.0120; 0.0120, 0.9196];  % New 2x2 matrix
 theta0          = pi/2;
 R_mag           = 4.0;
 R_tof           = 0.01;
-gamma_threshold = 9.0;
+gamma_threshold = 6.0;
 
 %% First call: initialise all persistent variables
 if isempty(initialized)
@@ -238,9 +238,9 @@ omega   = gx - X(6);
 Q_base = diag([ ...
     1e-6, ...   % x (Position doesn't change much on its own)
     1e-6, ...   % y
-    2e-4, ...   % theta (Tighter heading makes it rely more on the Gyro)
+    2.5e-4, ...   % theta (Tighter heading makes it rely more on the Gyro)
     0.05, ...   % vx (Significant reduction from 0.5 to prevent "ghost" velocity)
-    0.05, ...   % vy 
+    0.05, ...   % vy
     1e-6  ...   % gyro_bias (Make bias very stable)
 ]) * dt;
 
@@ -253,7 +253,7 @@ ay_world = ax_body * sin(X(3)) + ay_body * cos(X(3));
 %vel_damp = 1.0 - 2.0 * dt;
 % Detect turn: high omega indicates active rotation
 if abs(omega) > 0.3
-    post_turn_steps = 200;  % flag for 1s after turn ends
+    post_turn_steps = 150;  % flag for 0.75s after turn ends
 elseif post_turn_steps > 0
     post_turn_steps = post_turn_steps - 1;
 end
@@ -263,7 +263,7 @@ end
 if post_turn_steps > 0
     vel_damp = 1.0 - 2.0 * dt;   % aggressive: kill bad post-turn velocities
 else
-    vel_damp = 1.0 - 0.5 * dt;   % gentle: preserve valid straight-leg velocity
+    vel_damp = 1.0;   % no damping: preserve valid straight-leg velocity
 end
 
 X_pred    = zeros(6, 1);
@@ -391,7 +391,7 @@ if call_count > mag_disable_until
     % Smoothly transition R_mag back to normal over 1 second (200 steps) after an anomaly clears.
     R_mag_k = 4.0;
     if time_since_anomaly < 200
-        R_mag_k = 4.0 + 10.0 * (1 - time_since_anomaly/200); 
+        R_mag_k = 4.0 + 10.0 * (1 - time_since_anomaly/200);
     end
 
     H_mag = [0 0 1 0 0 0];

@@ -1975,3 +1975,220 @@ Improvement vs previous best:
   T2 avg: 0.204m → 0.167m
   T2 D4:  0.650m → 0.502m (-23%)
   All 8 datasets improved or unchanged
+---
+
+## Claude Code Autonomous Session — 2026-03-25
+
+**Starting baseline:** T1 avg=0.0422m, T2 avg=0.0630m (confirmed)
+
+### Claude Code Attempt 1: Q(4,4)/Q(5,5) = 0.08 (was 0.05)
+Change: Q_base vx/vy diagonal 0.05 → 0.08
+T1: D1=0.0408 D2=0.0429 D3=0.0383 D4=0.0426  avg=0.0411m
+T2: D1=0.0616 D2=0.0434 D3=0.0748 D4=0.0877  avg=0.0669m
+Decision: REVERTED
+Reason: T2 degraded by 0.0039m (>0.003m threshold), T2_D3 jumped +0.0177m.
+
+### Claude Code Attempt 2: Q(3,3) theta 2e-4 → 1e-4
+Change: Q_base theta diagonal 2e-4 → 1e-4
+T1: D1=0.0422 D2=0.0437 D3=0.0392 D4=0.0435  avg=0.0422m
+T2: D1=0.0668 D2=0.0496 D3=0.0546 D4=0.0798  avg=0.0627m
+Decision: KEPT
+Reason: T2 improved by 0.0003m, T1 unchanged.
+
+### Claude Code Attempt 3: R_tof = 0.008 (from 0.01)
+Change: R_tof 0.01 → 0.008
+T1: D1=0.0415 D2=0.0433 D3=0.0387 D4=0.0431  avg=0.0417m
+T2: D1=0.0633 D2=0.0442 D3=0.0560 D4=0.0955  avg=0.0647m
+Decision: REVERTED
+Reason: T2 degraded by 0.002m with T2_D4 spiking to 0.0955m.
+
+### Claude Code Attempt 4: R_tof = 0.012 (from 0.01)
+Change: R_tof 0.01 → 0.012 (with Q(3,3)=1e-4 kept)
+T1: D1=0.0428 D2=0.0441 D3=0.0395 D4=0.0440  avg=0.0426m
+T2: D1=0.0690 D2=0.0502 D3=0.0531 D4=0.0787  avg=0.0628m
+Decision: REVERTED
+Reason: T1 degraded by 0.0004m while T2 only improved 0.0001m — not worth it.
+
+### Claude Code Attempt 5: Criterion 3 persistence 30 → 20 steps
+Change: gyro_mag_diverge_count threshold 30 → 20
+T1: D1=0.0422 D2=0.0437 D3=0.0392 D4=0.0435  avg=0.0422m
+T2: D1=0.0668 D2=0.0496 D3=0.0546 D4=0.0798  avg=0.0627m
+Decision: REVERTED
+Reason: No measurable effect in either direction.
+
+### Claude Code Attempt 6: Criterion 3 persistence 30 → 40 steps
+Change: gyro_mag_diverge_count threshold 30 → 40
+T1: D1=0.0422 D2=0.0437 D3=0.0392 D4=0.0435  avg=0.0422m
+T2: D1=0.0668 D2=0.0496 D3=0.0546 D4=0.0798  avg=0.0627m
+Decision: REVERTED
+Reason: No measurable effect in either direction.
+
+### Claude Code Attempt 7: post_turn_steps 200 → 150
+Change: post_turn_steps 200 → 150
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0661 D2=0.0433 D3=0.0542 D4=0.0800  avg=0.0609m
+Decision: KEPT
+Reason: Both T1 and T2 improved (T1: -0.0003m, T2: -0.0018m); shorter aggressive damp window lets velocity recover faster.
+
+### Claude Code Attempt 8: post_turn_steps 150 → 300
+Change: post_turn_steps 150 → 300
+T1: D1=0.0433 D2=0.0437 D3=0.0392 D4=0.0447  avg=0.0427m
+T2: D1=0.0670 D2=0.0487 D3=0.0551 D4=0.0969  avg=0.0669m
+Decision: REVERTED
+Reason: Both T1 and T2 significantly degraded; 150 is better than 300.
+
+### Claude Code Attempt 9: Consistency check threshold 0.3 → 0.25
+Change: ToF consistency inn threshold 0.3 → 0.25
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0661 D2=0.0433 D3=0.0542 D4=0.0800  avg=0.0609m
+Decision: REVERTED
+Reason: No measurable effect.
+
+### Claude Code Attempt 10: Consistency check threshold 0.3 → 0.35
+Change: ToF consistency inn threshold 0.3 → 0.35
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0661 D2=0.0433 D3=0.0542 D4=0.0800  avg=0.0609m
+Decision: REVERTED
+Reason: No measurable effect.
+
+### Claude Code Attempt 11: gamma_threshold 9.0 → 7.0
+Change: gamma_threshold 9.0 → 7.0
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0657 D2=0.0433 D3=0.0537 D4=0.0775  avg=0.0600m
+Decision: KEPT
+Reason: T2 improved by 0.0009m with T1 unchanged; tighter gate reduces spurious updates.
+
+### Claude Code Attempt 12: gamma_threshold 7.0 → 6.0
+Change: gamma_threshold 7.0 → 6.0
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0624 D2=0.0433 D3=0.0518 D4=0.0786  avg=0.0590m
+Decision: KEPT
+Reason: T2 improved another 0.0010m; tighter gate still beneficial.
+
+### Claude Code Attempt 13: gamma_threshold 6.0 → 5.0
+Change: gamma_threshold 6.0 → 5.0
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0623 D2=0.0432 D3=0.0501 D4=0.0862  avg=0.0604m
+Decision: REVERTED
+Reason: T2 got worse — T2_D4 jumped 0.0076m; 6.0 is the sweet spot.
+
+### Claude Code Attempt 14: gamma_threshold 6.0 → 5.5
+Change: gamma_threshold 6.0 → 5.5
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0624 D2=0.0433 D3=0.0509 D4=0.0817  avg=0.0596m
+Decision: REVERTED
+Reason: T2 worse than 6.0 baseline (0.0596 vs 0.0590).
+
+### Claude Code Attempt 15: Q(3,3) theta 1e-4 → 1.5e-4
+Change: Q_base theta 1e-4 → 1.5e-4
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0590 D2=0.0427 D3=0.0520 D4=0.0807  avg=0.0586m
+Decision: KEPT
+Reason: T2 improved by 0.0004m; intermediate theta noise performs better than extremes.
+
+### Claude Code Attempt 16: Q(3,3) theta 1.5e-4 → 1.8e-4
+Change: Q_base theta 1.5e-4 → 1.8e-4
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0575 D2=0.0424 D3=0.0527 D4=0.0810  avg=0.0584m
+Decision: KEPT
+Reason: T2 improved by 0.0002m.
+
+### Claude Code Attempt 17: Q(3,3) theta 1.8e-4 → 2.5e-4
+Change: Q_base theta 1.8e-4 → 2.5e-4
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0538 D2=0.0420 D3=0.0544 D4=0.0821  avg=0.0581m
+Decision: KEPT
+Reason: T2 improved by 0.0003m.
+
+### Claude Code Attempt 18: Q(3,3) theta 2.5e-4 → 3e-4
+Change: Q_base theta 2.5e-4 → 3e-4
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0518 D2=0.0417 D3=0.0557 D4=0.0835  avg=0.0582m
+Decision: REVERTED
+Reason: Marginally worse than 2.5e-4; 2.5e-4 is the sweet spot.
+
+### Claude Code Attempt 19: mag_disable_until 400 → 600 steps
+Change: All mag anomaly lockout durations 400 → 600 steps
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0538 D2=0.0420 D3=0.0544 D4=0.0821  avg=0.0581m
+Decision: REVERTED
+Reason: No improvement; 400 steps is sufficient.
+
+### Claude Code Attempt 20: R_mag recovery window 200 → 100 steps
+Change: Adaptive R_mag transition window 200 → 100 steps
+T1: D1=0.0417 D2=0.0437 D3=0.0392 D4=0.0431  avg=0.0419m
+T2: D1=0.0538 D2=0.0420 D3=0.0544 D4=0.0821  avg=0.0581m
+Decision: REVERTED
+Reason: No improvement; 200 steps is sufficient.
+
+### Claude Code Attempt 21: vel_damp aggressive 2.0 → 3.0
+Change: Post-turn aggressive vel_damp 1-2.0*dt → 1-3.0*dt
+T1: D1=0.0425 D2=0.0437 D3=0.0392 D4=0.0432  avg=0.0421m
+T2: D1=0.0551 D2=0.0477 D3=0.0559 D4=0.0897  avg=0.0621m
+Decision: REVERTED
+Reason: T2 degraded by 0.004m; too aggressive post-turn damping hurts T2.
+
+### Claude Code Attempt 22: vel_damp gentle 0.5 → 0.3
+Change: Straight-leg vel_damp multiplier 0.5 → 0.3 (1-0.3*dt)
+T1: D1=0.0402 D2=0.0427 D3=0.0378 D4=0.0416  avg=0.0406m
+T2: D1=0.0537 D2=0.0415 D3=0.0542 D4=0.0823  avg=0.0579m
+Decision: KEPT
+Reason: Both T1 and T2 improved significantly; less damping during straight legs preserves forward velocity.
+
+### Claude Code Attempt 23: vel_damp gentle 0.3 → 0.1
+Change: Straight-leg vel_damp multiplier 0.3 → 0.1 (1-0.1*dt)
+T1: D1=0.0389 D2=0.0418 D3=0.0366 D4=0.0403  avg=0.0394m
+T2: D1=0.0537 D2=0.0412 D3=0.0540 D4=0.0823  avg=0.0578m
+Decision: KEPT
+Reason: T1 improved further (-0.0012m); T2 marginally better; less velocity decay during straight legs is consistently better.
+
+### Claude Code Attempt 24: vel_damp gentle → 1.0 (no damping)
+Change: Straight-leg vel_damp = 1.0 (no decay)
+T1: D1=0.0383 D2=0.0414 D3=0.0361 D4=0.0397  avg=0.0389m
+T2: D1=0.0536 D2=0.0412 D3=0.0539 D4=0.0823  avg=0.0578m
+Decision: KEPT
+Reason: T1 improved another 0.0005m; ZUPT handles stationary periods so undamped velocity is safe.
+
+### Claude Code Attempt 25: R_mag 4.0 → 3.0
+Change: R_mag 4.0 → 3.0
+T1: D1=0.0383 D2=0.0414 D3=0.0361 D4=0.0397  avg=0.0389m
+T2: D1=0.0536 D2=0.0412 D3=0.0539 D4=0.0823  avg=0.0578m
+Decision: REVERTED
+Reason: No effect; R_mag not sensitive in 3-5 range with current anomaly detection.
+
+### Claude Code Attempt 26: R_mag 4.0 → 5.0
+Change: R_mag 4.0 → 5.0
+T1: D1=0.0383 D2=0.0414 D3=0.0361 D4=0.0397  avg=0.0389m
+T2: D1=0.0536 D2=0.0412 D3=0.0539 D4=0.0823  avg=0.0578m
+Decision: REVERTED
+Reason: No effect.
+
+### Claude Code Attempt 27: Q(4,4)/Q(5,5) = 0.04
+Change: Q_base vx/vy 0.05 → 0.04
+T1: D1=0.0386 D2=0.0415 D3=0.0362 D4=0.0398  avg=0.0390m
+T2: D1=0.0540 D2=0.0425 D3=0.0544 D4=0.0817  avg=0.0582m
+Decision: REVERTED
+Reason: Both slightly degraded from 0.05 baseline.
+
+### Claude Code Attempt 28: Q(4,4)/Q(5,5) = 0.06
+Change: Q_base vx/vy 0.05 → 0.06
+T1: D1=0.0381 D2=0.0412 D3=0.0360 D4=0.0397  avg=0.0388m
+T2: D1=0.0539 D2=0.0404 D3=0.0538 D4=0.0869  avg=0.0587m
+Decision: REVERTED
+Reason: T1 slightly improved but T2 degraded by 0.0009m; 0.05 remains optimal.
+
+---
+
+## Final Session Results (2026-03-25)
+
+**Changes KEPT (net improvements):**
+1. Q(3,3) theta: 2e-4 → 2.5e-4 (loosened slightly from original — better heading flexibility)
+2. post_turn_steps: 200 → 150 (shorter aggressive damp window)
+3. gamma_threshold: 9.0 → 6.0 (tighter Mahalanobis gate)
+4. vel_damp straight legs: 1-0.5*dt → 1.0 (no damping during straight motion)
+
+**Final RMSE:**
+Task 1: D1=0.0383 D2=0.0414 D3=0.0361 D4=0.0397  avg=0.0389m  (was 0.0422m, -7.8%)
+Task 2: D1=0.0536 D2=0.0412 D3=0.0539 D4=0.0823  avg=0.0578m  (was 0.0630m, -8.3%)
+
+**Total attempts: 28 (including sub-variants)**
